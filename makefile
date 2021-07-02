@@ -8,7 +8,7 @@ SRCDIR=src
 OUTDIR=bin
 OUTNAME=OpenGL_app
 
-CXXFLAGS=-std=c++17 -Wall -O2 -Wextra -Wpedantic -Wdouble-promotion -I$(IDIR)
+CXXFLAGS=-std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -I$(IDIR)
 
 #Yes, there are better ways of doing makefiles but this is a rather small project
 _DEPS = graphicus.hpp texwrap.hpp mesh2D.hpp raycaster.hpp

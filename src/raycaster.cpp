@@ -1,4 +1,5 @@
 #define DEBUG_OUTLINE
+//#define DEBUG_RAYS
 #define DEBUG_VERTICES
 #define DEBUG_NO_TRIANGLES
 
@@ -17,13 +18,13 @@ raycaster::raycaster(vec2 origin, ushort tex)
     glGenBuffers(1, &Buffer);
     #ifdef DEBUG_VERTICES
     glGenBuffers(1, &Vertices_Buffer);
-    for (ushort I : debug_numbers)
-        graphicus::delete_text(I);
-    debug_numbers = vector<ushort>();
     #endif
 
     #ifdef DEBUG_OUTLINE
     glGenBuffers(1, &Outline_Buffer);
+    #endif
+    #ifdef DEBUG_RAYS
+    glGenBuffers(1, &Rays_Buffer);
     #endif
 }
 
@@ -35,13 +36,14 @@ raycaster::~raycaster()
     #ifdef DEBUG_VERTICES
     if (Vertices_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Vertices_Buffer);
-    for (ushort I : debug_numbers)
-        graphicus::delete_text(I);
-    debug_numbers = vector<ushort >();
     #endif
     #ifdef DEBUG_OUTLINE
     if (Outline_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Outline_Buffer);
+    #endif
+    #ifdef DEBUG_RAYS
+    if (Rays_Buffer != (GLuint)-1)
+        glDeleteBuffers(1,&Rays_Buffer);
     #endif
 }
 
@@ -55,13 +57,16 @@ raycaster::raycaster(raycaster&& other)
 
 
     #ifdef DEBUG_VERTICES
-    debug_numbers = std::move(other.debug_numbers);
     Vertices_Buffer = other.Vertices_Buffer;
     other.Vertices_Buffer = 0;
     #endif
     #ifdef DEBUG_OUTLINE
     Outline_Buffer = other.Outline_Buffer;
     other.Outline_Buffer = 0;
+    #endif
+    #ifdef DEBUG_RAYS
+    Rays_Buffer = other.Rays_Buffer;
+    other.Rays_Buffer = 0;
     #endif
 
     Buffer = other.Buffer;
@@ -421,6 +426,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //Fun fact, if an unlocked pair has ANY locked neighbors, they will be resolved for sure!, so the only unlocked remaining are in the very start, and if unlocked == extensions, then everything is unlocked,  and if only we were able to lock down ANY at all, the rest will solve itself in just one pass. IT IS ESSENTIALLY A SODUKO
         if (unlocked == extensions && extensions != 0)
         {//At this rare point, we know that literally EVERYTHING is an unresolved pair
+            std::cout<<"Soduku"<<std::endl;
             //Let us resolve this by resolving the last pair, that will allow everything to unwrap
 
             //What vertices do we need to consider here
@@ -528,8 +534,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
         }
         //If the soduko has been resolved (or if none was present to begin with), just loop through everything
-        if (false) {
-
+        {
+            //In almost all cases unlocked == 0 already, but it is the edge cases which matter
             for (ushort i = 0; i<unlocked ; ++i)
             {
                 //NO NEED TO CHECK IF THESE ARE SWAPABLE, THEY ARE!!! If they were not everything after them would already be locked, and we would not have gotten here now.
@@ -556,23 +562,22 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     draw_size = vertex_size+1;
     #ifdef DEBUG_VERTICES
     vector<vec2> Display_vertices(vertex_size*4);
-    for (ushort I : debug_numbers)
-        graphicus::delete_text(I);
-    debug_numbers = vector<ushort >(vertex_size);
     #endif
     #ifdef DEBUG_OUTLINE
     vector<vec2> Display_outline(vertex_size);
+    vector<vec2> Display_rays(2*vertex_size);
     #endif
 
     triangle_fan = vector<vec2>(draw_size,triangle_fan[0]);
     for (ushort i = 0; i < vertex_size; ++i)
     {
     //Uncomment for written breakdown of everything
+        #ifdef DEBUG_PRINTVERTICES
         cout<<"\n Vertex "<<i<<" ("<<vertices[i].pos.x<<','<<vertices[i].pos.y<<")\n O ="<<vertices[i].O_ID<<"\n V0="<<vertices[i].V0_ID;
         if (vertices[i].V1_ID!=(ushort)-1)
             cout<<"\n V1="<<vertices[i].V1_ID;
         cout<<"\n Locked ="<<vertices[i].Locked<<endl;
-
+        #endif
         //Uncomment to see outline only
 
         #ifdef DEBUG_VERTICES
@@ -581,8 +586,11 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         Display_vertices[i*4+2]=vertices[i].pos-vec2(0.0,0.1);
         Display_vertices[i*4+3]=vertices[i].pos+vec2(0.0,0.1);
 
-        debug_numbers[i] = (graphicus::set_text(to_string(i)));
 
+        #endif
+        #ifdef DEBUG_RAYS
+        Display_rays[2*i]=triangle_fan[0];
+        Display_rays[2*i+1]=vertices[i].pos;
         #endif
         #ifdef DEBUG_OUTLINE
         Display_outline[i]=vertices[i].pos;
@@ -601,6 +609,11 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size), &(Display_outline[0]), GL_DYNAMIC_DRAW );
     #endif
 
+    #ifdef DEBUG_RAYS
+    glBindBuffer( GL_ARRAY_BUFFER, Rays_Buffer);
+    glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size*2), &(Display_rays[0]), GL_DYNAMIC_DRAW );
+    #endif
+
     glBindBuffer( GL_ARRAY_BUFFER, Buffer);
     glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(draw_size), &(triangle_fan[0]), GL_DYNAMIC_DRAW );
 }
@@ -614,17 +627,15 @@ void raycaster::display() const
     if (draw_size>1 && Outline_Buffer != (GLuint)-1)
         graphicus::draw_lines(Outline_Buffer,draw_size-1,vec3(0,0,1));
     #endif
+    #ifdef DEBUG_RAYS
+    //All rays, easier to spot errors in intersection calculations
+    if (draw_size>1 && Rays_Buffer != (GLuint)-1)
+        graphicus::draw_segments(Rays_Buffer,(draw_size-1)*2,vec3(1,0,1));
+    #endif
     #ifdef DEBUG_VERTICES
     //Draw vertices as crosses
     if (draw_size>1 && Vertices_Buffer!= (GLuint)-1)
         graphicus::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
-
-    for (ushort i = 0; i<draw_size-1; ++i)
-    {
-        ushort I = debug_numbers[i];
-        if (I!= (ushort)-1)
-            graphicus::draw_text(I,triangle_fan[i+1]);
-    }
     #endif
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1 && Buffer != (GLuint)-1)//Default display

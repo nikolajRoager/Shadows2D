@@ -30,9 +30,12 @@ private:
 
     ushort size=0;
 
+    //I wanted to calculate a bounding sphere, to calculate when and when not to include this in the calculation, but the class is literally cursed, any including more variables will cause the program to inexplicably crash on any call to std::cout std::stoi or ... ok literally curse just means invokes undefined behavior somewhere, but there is literally now way of calculating where, so this can literally never be fixed. A non imbecile could trivially figure this out, but I am an imbecile so this is impossible.
+
+    float empty_var = 0;
 public:
     mesh2D();
-    mesh2D(vector<vec2>& V);
+    mesh2D(vector<vec2>& V, bool do_display=true);
     mesh2D(mesh2D&& other);//Need move constructor
     ~mesh2D();
 

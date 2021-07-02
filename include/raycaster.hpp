@@ -42,6 +42,9 @@ private:
     #ifdef DEBUG_OUTLINE
     GLuint Outline_Buffer=-1;
     #endif
+    #ifdef DEBUG_RAYS
+    GLuint Rays_Buffer=-1;
+    #endif
 
 public:
     raycaster(vec2 origin, ushort tex);

@@ -10,9 +10,11 @@ mesh2D::mesh2D()
 
     //Lets be real, we are going to want the buffer ready to receive data any second now.
     glGenBuffers( 1, &vertexBuffer);
+ //   Bsphere_center=vec2(0);
+ //   Bsphere_d=0;
 }
 
-mesh2D::mesh2D(vector<vec2>& V)
+mesh2D::mesh2D(vector<vec2>& V, bool do_display)
 {
 
 
@@ -28,12 +30,12 @@ mesh2D::mesh2D(vector<vec2>& V)
 
     vertexBuffer = -1;
 
-    //Now, generate the glorious buffers!
-    glGenBuffers( 1, &vertexBuffer);
-    glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
+        //Now, generate the glorious buffers!
+        glGenBuffers( 1, &vertexBuffer);
+        glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
 
-    //Now the data exists both in a CPU and the GPU, and I told the GPU that I might occasionally want to modify the data.
+        //Now the data exists both in a CPU and the GPU, and I told the GPU that I might occasionally want to modify the data.
 }
 
 //No need to optimize this very much, as I only need to call it once in a while
@@ -77,6 +79,8 @@ mesh2D::mesh2D(mesh2D&& other)
     vertexBuffer = other.vertexBuffer;
     size = other.size;
     other.vertexBuffer=-1;//This line is the reason we can't use the default! otherwise this would get deleted
+  //  Bsphere_center=other.Bsphere_center;
+  //  Bsphere_d=other.Bsphere_d;
 }
 
 void mesh2D::display() const
@@ -116,7 +120,22 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
         //Selfcollision is never registered
         if (!(C==B || D == B))
         {
-            if (isX && a1 != 0)
+            //Special cases first
+            if (isY && a1 == 0)//Extreme rare where the ray and segment are perpendicular, and aligned to the axes, this would cause a divide by 0 error if handled in the full case, and it does happen ... very rare, but happens
+            {
+                //Thankfully this is the easiest thing in the word to deal with
+                if (C.y<std::max(A.y,B.y) && C.y>std::min(A.y,B.y))
+                    if (A.x<std::max(C.x,D.x) && A.x>std::min(C.x,D.x))
+                        return true;
+            }
+            else if (isX && b1 == 0)
+            {
+                if (C.x<std::max(A.x,B.x) && C.x>std::min(A.x,B.x))
+                    if (A.y<std::max(C.y,D.y) && A.y>std::min(C.y,D.y))
+                        return true;
+
+            }
+            else if (isX && a1 != 0)
             {
                 //Exact vertex collision, rare but not as rare as you would think
                 if (C.y==B.y)
@@ -134,11 +153,15 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 }
                 //We collide with this if
                 //a1 x + b1 A.y = c1
-                vec2 I = vec2((c1-b1*A.y)/a1,A.y);
-                if (std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x))
+                vec2 I = vec2((c1-b1*A.y),A.y);//Actually the x coodriante should be divided by a1, but divisions are evil and must be avoided at all cost, me multiply with a1 when testing instead
+                float Ax = A.x*a1;
+                float Bx = B.x*a1;
+                float Cx = C.x*a1;
+                float Dx = D.x*a1;
+                if (std::max(Cx,Dx)>I.x && I.x>std::min(Dx,Cx))
                 {
                     if (std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y) )
-                        if (std::min(A.x,B.x)<I.x && I.x <std::max(A.x,B.x) )
+                        if (std::min(Ax,Bx)<I.x && I.x <std::max(Ax,Bx) )
                             {
                                 return true;
                             }
@@ -162,11 +185,15 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 }
                 //We collide with this if
                 //a1 A.x + b1 y = c1
-                vec2 I = vec2(A.x,(c1-a1*A.x)/b1);
+                vec2 I = vec2(A.x,(c1-a1*A.x));//Same thing, should divide the y coordiante by b1 but divisions are evil
+                float Ay = A.y*b1;
+                float By = B.y*b1;
+                float Cy = C.y*b1;
+                float Dy = D.y*b1;
                 if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)))
                 {
-                    if (std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y) )
-                        if (std::min(A.y,B.y)<I.y && I.y <std::max(A.y,B.y) )
+                    if (std::min(Cy,Dy)<I.y && I.y <std::max(Cy,Dy) )
+                        if (std::min(Ay,By)<I.y && I.y <std::max(Ay,By) )
                             {
                                 return true;
                             }
@@ -180,13 +207,22 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 if (det != 0)
                 {
 
-                    vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
+                    vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c));//Really this should be divided by the determinant, but divisions are evil
                     //The is-equal case happens whenever this vertex is on the x or y axis, which is very common if the boxes are placed by the computer thorugh some procedure
-                    if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || b1 ==0 )
+                    float Ax = A.x*det;//It is around 10% faster to scale up everything else by the determinant than to divide by it
+                    float Bx = B.x*det;
+                    float Cx = C.x*det;
+                    float Dx = D.x*det;
+                    float Ay = A.y*det;
+                    float By = B.y*det;
+                    float Cy = C.y*det;
+                    float Dy = D.y*det;
+
+                    if ((std::max(Cx,Dx)>I.x && I.x>std::min(Dx,Cx)) || b1 ==0 )
                     {
-                        if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || a1 ==0)
-                            if ((std::min(A.y,B.y)<I.y && I.y <std::max(A.y,B.y))  || a1 ==0)
-                                if ((std::min(A.x,B.x)<I.x && I.x <std::max(A.x,B.x))  || b1 ==0)
+                        if ((std::min(Cy,Dy)<I.y && I.y <std::max(Cy,Dy)) || a1 ==0)
+                            if ((std::min(Ay,By)<I.y && I.y <std::max(Ay,By))  || a1 ==0)
+                                if ((std::min(Ax,Bx)<I.x && I.x <std::max(Ax,Bx))  || b1 ==0)
                                 {
                                     return true;
                                 }
@@ -199,7 +235,6 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
             //C----D  <---A  Here ray A->C should return collision
             if (a*b1 == a1*b)
             {
-                cout<<"Parallelity case "<<i<<" "<<(i+1)<<endl;
                 float Dist1 = dot(A-C,A-C);
                 float Dist2 = dot(A-D,A-D);
                 if (B==C)
@@ -211,6 +246,8 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
     }
 
     //If no interesction is found, then no interesection is found
+
+    //Actually lets look for some more extremely rare edge cases, what if the ray goes EXACTLY through one vertex which is not the target (i.e. within floating point precision), that should count as a collision, but that might ... rarely ... get here
 
     return false;
 
@@ -238,7 +275,7 @@ bool mesh2D::continues(const vec2& L,ushort i) const
     float det0 = V10.x*L.y-V10.y*L.x;//=|L||V10|sin(theta)
     float det1 = V12.x*L.y-V12.y*L.x;//...
 
-    cout<<"Checks continues "<<i<<endl;
+    //cout<<"Checks continues "<<i<<endl;
 
     //How do we check if they have the same sign? easy
     return det0*det1>= 0;
@@ -275,7 +312,7 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID
                 {
                     //We collide with this if
                     //a1 x + b1 A.y = c1
-                    vec2 I = vec2((c1-b1*A.y)/a1,A.y);
+                    vec2 I = vec2((c1-b1*A.y)/a1,A.y);//This one division is not really worth optimizing away
 
                     if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || b1 == 0)
                     {
@@ -295,14 +332,14 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID
                     }
                 }
             }
-            else if (isY && b1 != 0)
+            else if (isY)
             {
 
                 if (b1!=0)
                 {
                     //We collide with this if
                     //a1 A.x + b1 y = c1
-                    vec2 I = vec2(A.x,(c1-a1*A.x)/b1);
+                    vec2 I = vec2(A.x,(c1-a1*A.x)/b1);//This one division is not really worth optimizing away
                     if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || b1 ==0)
                     {
                         if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y))  || a1 ==0)
@@ -328,18 +365,23 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID
                 float det = a*b1 - a1*b;
                 if (det != 0)
                 {
-                    vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
+                    //Really we should divide by the determinant... but divisions are evil so lets instead scale everything else by the determinant, and only divide if we really need to
+                    vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c));
+                    vec2 newA = A*det;
+                    vec2 newB = B*det;
+                    vec2 newC = C*det;
+                    vec2 newD = D*det;
 
-                    if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || b1 ==0)
+                    if ((std::max(newC.x,newD.x)>I.x && I.x>std::min(newD.x,newC.x)) || b1 ==0)
                     {
-                        if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || a1 ==0 )
-                            if (dot(I-A,B-A)>0 )//If it is anywhere ahead of us
+                        if ((std::min(newC.y,newD.y)<I.y && I.y <std::max(newC.y,newD.y)) || a1 ==0 )
+                            if (dot(I-newA,newB-newA)>0 )//If it is anywhere ahead of us
                             {
-                                float L2 = dot(I-A,I-A);
-                                if (L2<AB2 || AB2 ==-1)
+                                float L2 = dot(I-newA,I-newA);
+                                if (L2<AB2*(det*det) || AB2 ==-1)
                                 {
-                                    AB2 = L2;
-                                    Out=I;
+                                    AB2 = L2/(det*det);
+                                    Out=I/det;
                                     V0_ID=i;
                                     V1_ID=(i+1)%size;
                                     ret = true;//Don't break! maybe there is another closer intersection
@@ -358,4 +400,28 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID
 
 }
 
+/*
+//Set up the bounding sphere ... actually the class is literally cursed, I can not add in more variables or the entire program will inexplicably crash on any call to std::cout, even if this class is never used
+void mesh2D::calc_bsphere()
+{
 
+    //There is no easy way to do this, we have to loop through every combination of every vertex
+    float max_d2=-1;
+    vec2 A,B;
+
+    for (ushort i = 0; i<size; ++i)
+        for (ushort j = i+1; j<size; ++j)
+        {
+            vec2 c = vertices[i]-vertices[j];
+            float d2 = dot(c,c);
+            if (d2<max_d2 || max_d2==-1)
+            {
+                A=vertices[i];
+                B=vertices[j];
+                max_d2 = d2;
+            }
+        }
+    Bsphere_center = A*0.5f+B*0.5f;
+    Bsphere_d = sqrt(max_d2);
+
+}*/
