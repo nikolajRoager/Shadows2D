@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
         cout<<"Starting main display"<<endl;
         try
         {
-            //We need to open the screen anyway, because OpenGL need to be turned on regardless
             graphicus::init(false,assets/"textures",assets/"audio",assets/"fonts",assets/"materials");
 
     /*      pop = graphicus::load_sound("pop");
@@ -63,8 +62,11 @@ int main(int argc, char* argv[])
         }
 
 
-
-   if (argc!=3 && argc != 2)
+    cout<<"Start loop"<<endl;
+    if (do_display)
+    {
+    }
+    else if (argc!=3)
         {cout<<"Usage "<<argv[0]<<" filename (optional iteration number)"<<endl; return 0;}
 
     vector<mesh2D> mess;
@@ -88,9 +90,6 @@ int main(int argc, char* argv[])
             if (IN.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
 
-
-                //if (false)
-                {
                 try
                 {
                     ushort meshes=0;
@@ -104,9 +103,8 @@ int main(int argc, char* argv[])
                         {
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
-                     //       if (i==15 || i == 2 || i == 4) //Uncomment to isolate the rare tri-object failure with the example file used
-
-                                mess.push_back(mesh2D(vertices,do_display));
+                            //if (i==15 || i == 2 || i == 4)
+                                mess.push_back(mesh2D(vertices));
                         }
                     }
                 }
@@ -114,24 +112,21 @@ int main(int argc, char* argv[])
                 {//Whatever
                     std::cout<<"Error while loading"<<e.what()<<endl;
                 }
-                }
             }
             else
                 std::cout<<"File could not be opened"<<endl;
         }
     }
 
+        cout<<"Have "<<argc<<endl;
     //For editing meshes
     ushort meshes = mess.size();
 
     ushort active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
-    raycaster reynold(vec2(0,0),lamp);
+    raycaster reynold(vec2(0),lamp);
 
     vec2 pos = vec2(0);
-
-    reynold.set_origin(pos);
-   //First display fix
 
     if (do_display)
     {
@@ -146,9 +141,6 @@ int main(int argc, char* argv[])
         vec2 mouse_pos = vec2(0);
 
         ulong pupdate = pmillis;
-
-        reynold.set_origin(vec2(0));
-        reynold.update(mess);
         do
         {
             vec2 mouse_pos = graphicus::get_mouse_pos();
@@ -204,6 +196,7 @@ int main(int argc, char* argv[])
 
         }while (!graphicus::should_quit());
 
+        graphicus::end();
 
         //Now save the polygons
 
@@ -234,37 +227,23 @@ int main(int argc, char* argv[])
     }
     else
     {//Run benchmark test
-
-        std::cout<<"Running "<<argv[2]<<" iterations "<<std::endl;
         reynold.update(mess);
-
-        for (const mesh2D& M : mess)
-            M.display();
-        reynold.display();
-
-
-        graphicus::flush();
+        cout<<"Tries to read "<<argv[2]<<endl;
         uint N = stoi(argv[2]);
-        cout<<"Read "<<N<<endl;
+        cout<<"Did read "<<N<<endl;
         auto Before = std::chrono::high_resolution_clock::now();
         for (uint i = 0; i < N; ++i)
         {
-            if (10*i/N > 10*(i-1)/N)//Only show every 10%
-            {
-                cout<< ((100*i)/N)<<"%"<<endl;
-            }
+            if (int((10*i)/N)>int((10*(i-1))/N))
+                cout<<((10*i)/N)*10<<'%'<<endl;
             reynold.update(mess);
         }
         auto After = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<double> Update_time = After-Before;
-        std::cout <<" Ran simulation "<<N<<" times: "<< Update_time.count()<<" s"<<endl;
+        std::cout <<" Updated "<<N<<" times: "<< Update_time.count()<<" s"<<endl;
 
     }
-
-    graphicus::end();
-
-    cout<<"return 0"<<endl;
     return 0;
     //All is gone, the program has quit.
 }

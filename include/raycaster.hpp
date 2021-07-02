@@ -37,13 +37,10 @@ private:
 
     #ifdef DEBUG_VERTICES
     GLuint Vertices_Buffer=-1;
-    vector<ushort> debug_numbers;
+//    vector<ushort> debug_numbers;
     #endif
     #ifdef DEBUG_OUTLINE
     GLuint Outline_Buffer=-1;
-    #endif
-    #ifdef DEBUG_RAYS
-    GLuint Rays_Buffer=-1;
     #endif
 
 public:
