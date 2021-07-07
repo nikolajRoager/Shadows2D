@@ -91,7 +91,7 @@ raytracer::raytracer(raytracer&& other)
 //NOTE THIS IS SINGLE THREADED... this is not a mistake, I think it is better this way, yes I could make every individual update faster by multithreading, but ultimately there would be some overhead when loading things in and out of different threads, I would much rather have each individual update run single threaded, and then use multiple threads if I have more than one rayycaster
 void raytracer::update(const vector<mesh2D>& meshes,bool do_display)
 {
-
+    //The math here might not be super well explained, especially the parts I consider "trivial".
 
 
     struct vertexdata
@@ -728,7 +728,6 @@ void raytracer::set_angle(float _theta, float D)
         theta = fmod(theta,float(TWO_PI));
     }
 
-    cout<<theta<<endl;
 
     if (D<0 || D>=float(TWO_PI))
     {

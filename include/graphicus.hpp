@@ -93,6 +93,9 @@ namespace graphicus
 
     void draw_tex(ushort texID, vec2 pos);
     void draw_text(ushort tex, vec2 pos);
+
+    void activate_Ray();//Pre loop and render to the ray texture
+    void render_Ray();//Render to the ray texture
 }
 
 #endif

@@ -1,3 +1,4 @@
+//To anyone raeding the code published along the shadows in 2D project, this code is lifted from the game this was attached to ... no problem, I am the sole developer, I guess that means the graphics interface is technically open source... This is why there are a lot of interface options not used, i.e. sound and written text.
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define TWO_PI 6.28318531
@@ -89,13 +90,16 @@ public:
 };
 
 
-
 namespace graphicus
 {
-    //Just one window for now
+    //Just one window for now ... actually ever, turns out SDL does not handle more than one window well.
     SDL_Window* window = nullptr;
     SDL_GLContext context;
 
+
+    //Framebuffer and texture for the raytracer, I will just use one for now
+    GLuint Ray_Framebuffer = -1;
+    GLuint Ray_texture = -1;
 
     vector<SFX> sounds;
 
@@ -321,8 +325,8 @@ namespace graphicus
     }
     void get_wh(vec2& V0, vec2& V1)
     {
-        vec4 _V0 = invVP*vec4(-0.9f,-0.9f,0,1);
-        vec4 _V1 = invVP*vec4( 0.9f, 0.9f,0,1);
+        vec4 _V0 = invVP*vec4(-1.0f,-1.0f,0,1);
+        vec4 _V1 = invVP*vec4( 1.0f, 1.0f,0,1);
 
         V0 = vec2(std::min(_V0.x,_V1.x),std::min(_V0.y,_V1.y));
         V1 = vec2(std::max(_V0.x,_V1.x),std::max(_V0.y,_V1.y));
@@ -429,7 +433,6 @@ namespace graphicus
         }
 
         //I have never actually needed to use this thing explicitly, and I am sure at least 90% of applications don't either, and until OpenGL 3.2 this would be defined behind the scenes but now we need to define it to get our programs to work... I would have prefered it it would just be done by OpenGL behind the scenes still, OpenGL just seems to require a little to many lines of setup already.
-
         glGenVertexArrays(1, &VertexArrayObject);
         glBindVertexArray(VertexArrayObject);
 
@@ -498,7 +501,7 @@ namespace graphicus
         cout<<"Loaded surface program"<<endl;
         cout<<log<<endl;
 
-        //Prepare the quad
+        //Prepare the quad, which we will use to render all sorts of sprites on, we will rescale and retexture it when needed in the vertex shader
         static const GLfloat surface_pos_data[] = {
            -1.f,-1.f,
             1.f,-1.f,
@@ -517,15 +520,17 @@ namespace graphicus
         surf_elements=6;
         //Create VBOs
 
+        //Load up the basic surface vertices into the GPU
         glGenBuffers( 1, &surf_PositionBuffer);
         glBindBuffer( GL_ARRAY_BUFFER, surf_PositionBuffer );
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(surface_pos_data), surface_pos_data, GL_STATIC_DRAW );
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(surface_pos_data), surface_pos_data, GL_STATIC_DRAW );//Static draw since we will not need to update this at any point
 
         glGenBuffers( 1, &surf_UVBuffer);
         glBindBuffer( GL_ARRAY_BUFFER, surf_UVBuffer );
         glBufferData( GL_ARRAY_BUFFER,  sizeof(surface_uv_data), surface_uv_data, GL_STATIC_DRAW );
 
 
+        //One could debate if such a small object needs an elementbuffer at all
         glGenBuffers(1, &surf_ElementBuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,surf_ElementBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(surface_index_data), &(surface_index_data[0]), GL_STATIC_DRAW);
@@ -563,7 +568,27 @@ namespace graphicus
         VP=ProjectionMatrix * ViewMatrix;//Projection*View*Model Where model is identity, remember, matrix transform should be multiplied in reverse order to what you would expect
         invVP = inverse(VP);//EXPENSIVE operation, only call when needed
 
+        //Set up the rendering target for the rays used for light, shadow or displaying vision cones
+        glGenFramebuffers(1, &Ray_Framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, Ray_Framebuffer);
 
+        glGenTextures(1, &Ray_texture);
+        glBindTexture(GL_TEXTURE_2D, Ray_texture);
+
+        //Initialize empty, and at the size of the screen
+        glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, win_w, win_h, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+        //No interpolation, we want it as raw as we can get
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+        //Se tthe ray framebuffer to render to the ray texture, yeah it is a little convoluted, but normally we would be able to attach more buffers or more textures here, we just don't need that
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Ray_texture, 0);
+        GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+        glDrawBuffers(1, DrawBuffers);
+        //By default, render to screen
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
 
 
@@ -759,9 +784,38 @@ namespace graphicus
 
     }
 
+    void activate_Ray()
+    {
 
+        //Ready to render to this
+        glBindFramebuffer(GL_FRAMEBUFFER, Ray_Framebuffer);
+        glViewport(0,0,win_w,win_h);
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (rsz_scr)
+        {//If screen is resized, then the texture has to be redone
+            glBindTexture(GL_TEXTURE_2D, Ray_texture);
+
+            //Initialize empty, and at the size of the screen
+            glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, win_w, win_h, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+            //No interpolation, we want it as raw as we can get
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+            //Set the ray framebuffer to render to the ray texture, yeah it is a little convoluted, but normally we would be able to attach more buffers or more textures here, we just don't need that
+            glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Ray_texture, 0);
+            GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+            glDrawBuffers(1, DrawBuffers);
+        }
+    }
+
+    void debug_print_raytex();
     void flush()
     {
+
+        //debug_print_raytex();
+
         //Flush the things we want to see
         SDL_GL_SwapWindow(window);
 
@@ -771,6 +825,14 @@ namespace graphicus
 
         fps =1/time_span.count()+0.5;//The last addition rounds to nearest rather than lowest
 
+    }
+
+    void render_Ray()
+    {
+        //Ok, actually everything is here already, no need to swap anything
+
+        //rendering automatically changes target back to the main display
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
 
     //There is no penalty whatsoever in using integer number of milliseconds, noone can tell anyway
@@ -1218,6 +1280,56 @@ namespace graphicus
         glUniform1i(surf_colorTex_ID, 0);
 
         mat4 thisMVP = VP*translate(vec3(pos.x,pos.y,0))*textures[tex].getM();
+
+        glUniformMatrix4fv(surf_VP_ID, 1, GL_FALSE, &thisMVP[0][0]);
+
+        glEnableVertexAttribArray(surf_VertexPosAttribID);
+        glEnableVertexAttribArray(surf_VertexUVAttribID);
+
+        glBindBuffer( GL_ARRAY_BUFFER, surf_UVBuffer);
+        glVertexAttribPointer
+        (
+            surf_VertexUVAttribID,//Attribute location, you can either locate this in the program, or you can force the shader to use a particular location from inside the shader, I do the former
+            2,                   //Number Number of the below unit per element (this is a 2D vector, so 2)
+            GL_FLOAT,            //Unit, this is single precition GL float
+            GL_FALSE,             //Normalized? Nope
+            0,                    //Stride and offset, I don't use these for anything
+            (void*)0
+        );
+
+        glBindBuffer( GL_ARRAY_BUFFER, surf_PositionBuffer);
+        glVertexAttribPointer
+        (
+            surf_VertexPosAttribID,//Attribute location, you can either locate this in the program, or you can force the shader to use a particular location from inside the shader, I do the former
+            2,                   //Number Number of the below unit per element (this is a 2D vector, so 2)
+            GL_FLOAT,            //Unit, this is single precition GL float
+            GL_FALSE,             //Normalized? Nope
+            0,                    //Stride and offset, I don't use these for anything
+            (void*)0
+        );
+
+        //Use our most excellent element buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surf_ElementBuffer);
+        //The actual drawing part of this
+        glDrawElements( GL_TRIANGLES, surf_elements , GL_UNSIGNED_INT, NULL );
+
+        //Disable everything activated
+        glDisableVertexAttribArray(surf_VertexPosAttribID);
+        glDisableVertexAttribArray(surf_VertexUVAttribID);
+        glUseProgram(0);
+    }
+
+    void debug_print_raytex()
+    {
+        //Enable what we need
+        glUseProgram(surf_ProgramID);
+
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, Ray_texture);
+        glUniform1i(surf_colorTex_ID, 0);
+
+        mat4 thisMVP = VP;
 
         glUniformMatrix4fv(surf_VP_ID, 1, GL_FALSE, &thisMVP[0][0]);
 
