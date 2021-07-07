@@ -133,6 +133,13 @@ namespace graphicus
     GLuint Line_VP_ID=-1;
     GLuint Line_COL_ID=-1;
 
+    GLuint Ray_ProgramID = -1;
+    GLuint Ray_VertexPosAttribID= -1;
+    GLuint Ray_VP_ID=-1;
+    GLuint Ray_COL_ID=-1;
+    GLuint Ray_origin_ID=-1;
+    GLuint Ray_mode_ID=-1;
+
 
 
 //A simple textured quad
@@ -259,12 +266,14 @@ namespace graphicus
     bool left_press =false;
     bool right_press=false;
     bool ctrl_press =false;
+    bool shift_press =false;
 
     bool up_key(bool clicked)  {return up_press   == clicked;}
     bool down_key(bool clicked){return down_press == clicked;}
     bool left_key(bool clicked){return left_press == clicked;}
     bool right_key(bool clicked){return right_press== clicked;}
     bool ctrl_key(bool clicked){return ctrl_press == clicked;}
+    bool shift_key(bool clicked){return shift_press == clicked;}
 
     //Mouse down? this turn or last? what button?, where?
     bool l_mouse_down=false;
@@ -273,6 +282,12 @@ namespace graphicus
     bool r_p_mouse_down=false;
     int mouse_x, mouse_y;
     int scroll = 0;
+
+    int get_scroll()
+    {
+        return scroll;
+    }
+
     bool mouse_click(bool right)
     {
         if (right)
@@ -297,10 +312,17 @@ namespace graphicus
         vec4 pos4D = invVP*vec4(float(mouse_x)*2.f/win_w-1.f,1.f-float(mouse_y)*2.f/win_h,0,1);
         return vec2(pos4D.x,pos4D.y);
     }
+    void debug_print_mouse_pos()
+    {
+        cout<<std::fixed<<mouse_x<<' '<<mouse_y<<endl;
+        vec4 pos4D = invVP*vec4(float(mouse_x)*2.f/win_w-1.f,1.f-float(mouse_y)*2.f/win_h,0,1);
+        cout<<std::fixed<<pos4D.x<<' '<<pos4D.y<<endl;
+
+    }
     void get_wh(vec2& V0, vec2& V1)
     {
-        vec4 _V0 = invVP*vec4(-1.f,-1.f,0,1);
-        vec4 _V1 = invVP*vec4( 1.f, 1.f,0,1);
+        vec4 _V0 = invVP*vec4(-0.9f,-0.9f,0,1);
+        vec4 _V1 = invVP*vec4( 0.9f, 0.9f,0,1);
 
         V0 = vec2(std::min(_V0.x,_V1.x),std::min(_V0.y,_V1.y));
         V1 = vec2(std::max(_V0.x,_V1.x),std::max(_V0.y,_V1.y));
@@ -454,6 +476,17 @@ namespace graphicus
         cout<<log<<endl;
 
 
+        Ray_ProgramID = load_program("ray",log);
+
+        Ray_VertexPosAttribID = glGetAttribLocation(Ray_ProgramID, "vertex_location_worldspace");
+
+        Ray_VP_ID = glGetUniformLocation(Ray_ProgramID, "VP");
+        Ray_COL_ID = glGetUniformLocation(Ray_ProgramID, "color");
+        Ray_origin_ID = glGetUniformLocation(Ray_ProgramID, "origin_worldspace");
+        Ray_mode_ID = glGetUniformLocation(Ray_ProgramID, "mode");
+
+        cout<<"Loaded Ray program  "<<endl;
+        cout<<log<<endl;
 
         surf_ProgramID = load_program("surface",log);
 
@@ -462,7 +495,7 @@ namespace graphicus
 
         surf_VP_ID = glGetUniformLocation(surf_ProgramID, "MVP");
         surf_colorTex_ID = glGetUniformLocation(surf_ProgramID, "colorSampler");
-        cout<<"Loaded surface program"<<surf_colorTex_ID<<endl;
+        cout<<"Loaded surface program"<<endl;
         cout<<log<<endl;
 
         //Prepare the quad
@@ -579,6 +612,7 @@ namespace graphicus
 
 
         ctrl_press=( SDL_GetModState() & KMOD_CTRL);
+        shift_press=( SDL_GetModState() & KMOD_SHIFT);
 
         //Look at every single event
         while(SDL_PollEvent(&e)!=0)
@@ -792,6 +826,12 @@ namespace graphicus
         {
             glDeleteProgram(surf_ProgramID);
             surf_ProgramID=-1;
+        }
+
+        if (Ray_ProgramID !=(GLuint) -1)
+        {
+            glDeleteProgram(Ray_ProgramID);
+            Ray_ProgramID=-1;
         }
 
 
@@ -1009,6 +1049,41 @@ namespace graphicus
         return out;
     }
 
+    //Draw with a falloff, useful for lighting effects
+    void draw_ray(GLuint buffer, ushort size, vec3 color,GLuint displaymode,vec2 origin, int falloff_mode)
+    {
+        //Enable what we need
+        glUseProgram(Ray_ProgramID );
+
+
+
+        glUniformMatrix4fv(Ray_VP_ID, 1, GL_FALSE, &VP[0][0]);
+        glUniform3f(Ray_COL_ID,color.x,color.y,color.z);
+        glUniform2f(Ray_origin_ID,origin.x,origin.y);
+        glUniform1i(Ray_mode_ID,falloff_mode);
+
+        glEnableVertexAttribArray(Ray_VertexPosAttribID);
+
+
+        glBindBuffer( GL_ARRAY_BUFFER, buffer);
+        glVertexAttribPointer
+        (
+            Ray_VertexPosAttribID,//Attribute location, you can either locate this in the program, or you can force the shader to use a particular location from inside the shader, I do the former
+            2,                   //Number Number of the below unit per element (this is a 2D vector, so 2)
+            GL_FLOAT,            //Unit, this is single precition GL float
+            GL_FALSE,             //Normalized? Nope
+            0,                    //Stride and offset, I don't use these for anything
+            (void*)0
+        );
+
+        glDrawArrays(displaymode,0,size);
+
+        //Disable everything activated
+        glDisableVertexAttribArray(Ray_VertexPosAttribID);
+        glUseProgram(0);
+
+    }
+
     void draw_unicolor(GLuint buffer, ushort size, vec3 color,GLuint displaymode)
     {
         //Enable what we need
@@ -1051,6 +1126,10 @@ namespace graphicus
     void draw_segments(GLuint buffer, ushort size, vec3 color)
     {
         draw_unicolor(buffer,size,color,GL_LINES);
+    }
+    void draw_triangles(GLuint buffer, ushort size, vec3 color,vec2 origin)
+    {
+        draw_ray(buffer,size,color,GL_TRIANGLE_FAN,origin,1);
     }
 
 

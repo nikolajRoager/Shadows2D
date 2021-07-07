@@ -30,12 +30,22 @@ private:
 
     ushort size=0;
 
-    float crash_now = 0;
+    #ifdef DEBUG_SHOW_BSPHERE
+    GLuint Bsphere_debug_Buffer=-1;
+    #endif
+    static bool graphic_mode;
+
+    //Most important optimization, find the smallest possible sphere around this object, and only do intersection collision if the ray is pointed at it
+    float Bsphere_r2 = 0;//radius squared turned out to be more useful, because sqrt is evil and must be avoided at all cost
+    vec2 Bsphere_center = vec2(0);
+    void recalc_bsphere(); //reset the bounding sphere
 public:
     mesh2D();
     mesh2D(vector<vec2>& V);
     mesh2D(mesh2D&& other);//Need move constructor
     ~mesh2D();
+
+    static void toggle_graphics(bool val) {graphic_mode=val;}
 
     void add_vertex(vec2 New);
     const vector<vec2>& get_vertices() const{return vertices;}
@@ -48,4 +58,5 @@ public:
     bool has_intersect(const vec2& A,const vec2& B) const;
     bool continues(const vec2& O,ushort i) const;
     bool get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID, ushort& V1_ID , float& AB2) const;
+
 };

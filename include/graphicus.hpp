@@ -35,7 +35,7 @@ namespace fs = std::filesystem;
 
 namespace graphicus
 {
-
+    bool is_active();
 
     void init(bool fullscreen, fs::path tex, fs::path audio, fs::path scripture, fs::path materia);
 
@@ -60,11 +60,14 @@ namespace graphicus
     bool left_key(bool clicked);
     bool right_key(bool clicked);
     bool ctrl_key(bool clicked);
+    bool shift_key(bool clicked);
 
 
     bool should_quit();
 
     vec2 get_mouse_pos();//Get mouse position in the world
+
+    void debug_print_mouse_pos();
 
     bool mouse_click(bool right = false);//Was the mouse just clicked
     bool mouse_press(bool right = false);//Is the mouse being held down
@@ -75,6 +78,7 @@ namespace graphicus
 
     void draw_lines(GLuint buffer, ushort size,vec3 color);
     void draw_triangles(GLuint buffer, ushort size,vec3 color);
+    void draw_triangles(GLuint buffer, ushort size,vec3 color,vec2 origin);
     void draw_segments(GLuint buffer, ushort size,vec3 color);
 
 
