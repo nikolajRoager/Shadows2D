@@ -164,7 +164,6 @@ namespace graphicus
 
     mat4 ProjectionMatrix = mat4(1);
     mat4 ViewMatrix= mat4(1);
-    //The projection and view matrices are global, of course, the model matrix is identity for all the planets and regions thereon, so in this tool MVP=VP (except for the 3D cursor)
     mat4 VP=mat4(1);
     mat4 invVP=mat4(1);//For getting mouse location
 
