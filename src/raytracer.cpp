@@ -29,7 +29,7 @@ raytracer::raytracer(vec2 origin, ushort tex, bool do_display)
         #endif
     }
 
-    theta = 0.2;
+    theta = TWO_PI;
 
 }
 
@@ -38,6 +38,8 @@ raytracer::~raytracer()
     //Delete the buffer of this object
     if (Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Buffer);
+
+    cout <<"A"<<endl;
     #ifdef DEBUG_VERTICES
     if (Vertices_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Vertices_Buffer);
@@ -45,10 +47,12 @@ raytracer::~raytracer()
 //        graphicus::delete_text(I);
 //    debug_numbers = vector<ushort >();
     #endif
+    cout <<"B"<<endl;
     #ifdef DEBUG_OUTLINE
     if (Outline_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Outline_Buffer);
     #endif
+    cout <<"C"<<endl;
 }
 
 

@@ -16,6 +16,12 @@
 #define TWO_PI 6.28318531
 #define PI 3.14159265
 
+
+#define DEBUG_OUTLINE
+//#define DEBUG_VERTICES
+//#define DEBUG_NO_TRIANGLES
+
+
 using namespace std;
 using namespace glm;
 using uchar = uint8_t;

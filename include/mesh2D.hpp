@@ -1,4 +1,5 @@
 #pragma once
+#define DEBUG_SHOW_BSPHERE
 
 #include <GL/glew.h>
 
@@ -25,7 +26,7 @@ namespace fs = std::filesystem;
 class mesh2D
 {
 private:
-    vector<vec2> vertices;//Assume we loop ack on ourself
+    vector<vec2> vertices;//Assume we loop back on ourself
     GLuint vertexBuffer=-1;//Element-buffer is completely uncalled for in this case
 
     ushort size=0;

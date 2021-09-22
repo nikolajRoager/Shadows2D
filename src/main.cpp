@@ -131,10 +131,10 @@ int main(int argc, char* argv[])
 
     raytracer reynold(vec2(0),lamp,do_display);
     //raycaster reynold(vec2(0),lamp,1024,do_display);
-    raytracer richard(vec2(1,3),lamp,do_display);
+//    raytracer richard(vec2(1,3),lamp,do_display);
 
     float this_theta = 2.8;
-    float this_Dtheta=0.8;
+    float this_Dtheta=TWO_PI;
     reynold.set_angle(this_theta, this_Dtheta);
 
 
@@ -145,8 +145,8 @@ int main(int argc, char* argv[])
 
         reynold.screen_bounds();
         reynold.update(mess);
-        richard.screen_bounds();
-        richard.update(mess);
+//        richard.screen_bounds();
+//        richard.update(mess);
         double dt = 0;
 
         ulong millis=0;
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
         do
         {
             reynold.screen_bounds();
-            richard.screen_bounds();
+//            richard.screen_bounds();
 
             mouse_pos = graphicus::get_mouse_pos();
 
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
                     }
                     mess[active_mesh].add_vertex(mouse_pos);
                     reynold.update(mess);
-                    richard.update(mess);
+//                    richard.update(mess);
 
                 }
             }
@@ -269,11 +269,11 @@ int main(int argc, char* argv[])
             for (const mesh2D& M : mess)
                 M.display();
             reynold.display();
-            richard.display();
+//            richard.display();
 
             graphicus::activate_Ray();
             reynold.display();
-            richard.display();
+//            richard.display();
             graphicus::render_Ray();
 
 
@@ -340,6 +340,8 @@ int main(int argc, char* argv[])
         std::cout <<" Updated "<<N<<" times: "<< 1000*Update_time.count()<<" ms (single threaded)| for reference, 60 fps is 16.66 ms per frame"<<endl;// And some of that time is spend waiting for the graphics card to finish doing its part, we could conviently do this while we wait for large frame to finish
 
     }
+
+    cout<<"Stop"<<endl;
     return 0;
     //All is gone, the program has quit.
 }
