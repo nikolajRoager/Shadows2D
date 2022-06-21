@@ -51,14 +51,6 @@ int main(int argc, char* argv[])
         {
             graphicus::init(false,assets/"textures",assets/"audio",assets/"fonts",assets/"materials");
 
-    /*      pop = graphicus::load_sound("pop");
-            food_tex = graphicus::load_tex("food.png");
-
-            ushort explode = graphicus::load_tex("explode.png");
-            graphicus::set_animation(explode,2,2);
-            graphicus::set_animation(food_tex,2,2);
-            graphicus::set_animation(shot_tex,2,2);
-    */
             lamp = graphicus::load_tex((assets/"textures")/"lamp.png");
         }
         catch(string error)

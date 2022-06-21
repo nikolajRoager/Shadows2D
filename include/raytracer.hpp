@@ -18,7 +18,7 @@
 
 
 #define DEBUG_OUTLINE
-//#define DEBUG_VERTICES
+#define DEBUG_VERTICES
 //#define DEBUG_NO_TRIANGLES
 
 
@@ -73,7 +73,7 @@ public:
     void set_origin(vec2 origin) {triangle_fan[0]= origin;
 
     //Easy fix, now the light source will not line up EXACTLY with the vertices, and most problems just won't happen now
-    triangle_fan[0]+=vec2(0.000013f,0.000007f);//as small offset as I can get away with
+ //   triangle_fan[0]+=vec2(0.000013f,0.000007f);//as small offset as I can get away with
     }
 
     void update(const vector<mesh2D>& meshes,bool do_display=true);

@@ -1,0 +1,90 @@
+\documentclass[a4paper,12pt,article]{memoir}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathspec}
+\usepackage{xltxtra}
+\usepackage{polyglossia}
+\usepackage{MnSymbol}
+\usepackage{siunitx,cancel,graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref,graphicx}
+\usepackage{float}
+\usepackage{mleftright}
+
+\usepackage{listings}
+\usepackage{color}
+
+
+
+% This is the color used for MATLAB comments below
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0}
+\definecolor{Blue}{rgb}{0.0,0.0,1.0}
+\definecolor{Purple}{rgb}{1.0,0.0,1.0}
+
+\lstset{language=c,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#},
+                breaklines=true,
+                frame=single
+}
+
+\setdefaultlanguage{english}
+
+\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text}
+
+\sisetup{%
+  output-decimal-marker = {,},
+  per-mode = symbol,
+  %round-mode = places,
+  %round-precision = 5
+}
+
+
+
+\setlrmarginsandblock{2.5cm}{2.5cm}{*}
+\setulmarginsandblock{1.5cm}{2cm}{*}
+\checkandfixthelayout
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+
+
+\newcommand{\mvec}[2]{
+\ensuremath{\left(
+\begin{array}{c}
+#1\\
+#2\\
+\end{array}
+\right)}
+}
+
+\title{A 2D raytracer for light and shadow, and field of vision calculations for 2D games}
+\author{Nikolaj R. C.}
+\date{2022 CE} %
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+In this article, a Raytracing algorithm for fast and accurate light and shadow, and field of vision, calculations in 2 dimensions, intended for 2D games, is introduced. This algorithm does not take refraction, reflection or the wave-nature of light into account
+
+\end{abstract}
+
+\chapter{Fiat Lux}
+Say you have a decent 2D game, and now you want to make it look like an excellent game. Adding a dynamic lighting system is a good way of doing this, light is impressive, and will make the many different things making up your simulated world look like they belong together.
+
+What is more, the same systems which can set up dynamic lighting can be used to calculate what the player, or a non player charcater, can see. After all, calculating what objects are in the direct line of sight from somewhere in the world is exactly the same as calculating what objects are directly lid by some objects.
+
+This can, for instance, be used to set up a stealth system, or counter the greatest flaw I see with 2D gains: the players ability to see behind walls, by literally looking at the world from a perspective unknown to its inhabitants. By either completely blacking out anything not in the line of sight of the player, or by hiding key objects, such as npc's or key items, the player must actually explore the world, the same way their character would.
+
+So how can we do this?
+
+Well, really, if we want a physically accurate model we would need to solve Maxwells equations in whatever environment we are in, that can be done, which leads to some fascinating effects, such as how the very center of the shadow, of a circular object, has a tiny bright spot, which is exactly as bright as if the object wasn't even there. And if we really really wanted a Quantum-physically accurate model, well we do know what the Hamiltonian for electromagnetic radiation in free space... But in a game, physical accuracy always must come second to playability, and in this
+
+\end{document}
+

@@ -1,6 +1,3 @@
-//#define DEBUG_OUTLINE
-//#define DEBUG_VERTICES
-//#define DEBUG_NO_TRIANGLES
 
 #include "raytracer.hpp"
 #include <iostream>

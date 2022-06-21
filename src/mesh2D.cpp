@@ -1,4 +1,3 @@
-//#define DEBUG_SHOW_BSPHERE
 
 #include "mesh2D.hpp"
 #include "graphicus.hpp"
