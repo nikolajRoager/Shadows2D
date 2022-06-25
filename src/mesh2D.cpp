@@ -6,7 +6,7 @@
 #include <vector>
 #include <random>
 #include <numeric>
-
+#include <functional>
 
 #define TWO_PI 6.28318531
 
@@ -140,7 +140,7 @@ void mesh2D::display() const
 }
 void mesh2D::save(ofstream& OUT) const
 {
-    OUT.write((const char*)&size,sizeof(ushort));//I know I am working with same size integers here, since I use cstdint
+    OUT.write((const char*)&size,sizeof(uint));//I know I am working with same size integers here, since I use cstdint
     OUT.write((const char*)&vertices[0],size*sizeof(vec2));
 }
 
@@ -166,7 +166,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
     bool isX = A.y == B.y;
     bool isY = A.x == B.x;
     //We will handle these special cases on their own, as they are super vulnerable to floating point errors, and besides, they are a lot simpler
-    for (ushort i = 0; i <size-1; ++i)
+    for (uint i = 0; i <size-1; ++i)
     {
         const vec2& C = vertices[i];
         const vec2& D = vertices[i+1];
@@ -296,7 +296,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 }
 
 //Does this ray L from O to vertices[i] continu beyond where it otherwise intersects
-bool mesh2D::continues(const vec2& L,ushort i) const
+bool mesh2D::continues(const vec2& L,uint i) const
 {
     const vec2& V1 = vertices[i];
 
@@ -324,7 +324,7 @@ bool mesh2D::continues(const vec2& L,ushort i) const
 
 
 //Same as has intersect, but this time, do continue the ray
-bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID, ushort& V1_ID, float& AB2) const
+bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, uint& V1_ID, float& AB2) const
 {//Does any of my edges intersect with these? just asking for this, nevermind where
     //Assume that A is the origin, and only B might be a point on the line
 
@@ -345,7 +345,7 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID
     bool isY = A.x == B.x;
     bool ret = false;
     //We will handle these special cases on their own, as they are super vulnerable to floating point errors, and besides, they are a lot simpler
-    for (ushort i = 0; i <size-1; ++i)
+    for (uint i = 0; i <size-1; ++i)
     {
         const vec2& C = vertices[i];
         const vec2& D = vertices[i+1];
@@ -504,8 +504,8 @@ void mesh2D::recalc_bsphere()
         };
 
         //The list of vertices and bounding points we will be drawing from, these are list of the indices
-        vector<ushort> P(size-1);
-        vector<ushort> R(3,-1);
+        vector<uint> P(size-1);
+        vector<uint> R(3,-1);
         std::iota(P.begin(), P.end(), 0);
 
         std::random_device rd;
@@ -513,8 +513,8 @@ void mesh2D::recalc_bsphere()
         shuffle(P.begin(), P.end(), rng);
 
         //Note that I FIRST declare the function, then define it on the next line, this is so that the compiler knows that the fucntion exists when I call it from inside itself
-        std::function<sphere_struct(ushort,ushort)> welzl;
-        welzl= [P,&R,this,&welzl](ushort p_min, ushort n_R) -> sphere_struct
+        std::function<sphere_struct(uint,uint)> welzl;
+        welzl= [P,&R,this,&welzl](uint p_min, uint n_R) -> sphere_struct
         {
             sphere_struct result;
 
@@ -587,7 +587,7 @@ void mesh2D::recalc_bsphere()
 
         float r = sqrt(Bsphere_r2);//This is one time only, and debug time only so squareroot is ok here, it is in the looped calculations where I don't want to do this
         float dtheta = TWO_PI/31.f;
-        for (ushort i =0; i<32; ++i)
+        for (uint i =0; i<32; ++i)
         {
             float theta = i*dtheta;
             temp[i]=Bsphere_center+r*vec2(cos(theta),sin(theta));

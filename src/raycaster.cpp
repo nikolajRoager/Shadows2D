@@ -8,7 +8,7 @@
 
 #define TWO_PI 6.28318531
 
-raycaster::raycaster(vec2 origin, ushort tex, ushort res, bool do_display)
+raycaster::raycaster(vec2 origin, uint tex, uint res, bool do_display)
 {
     my_tex=tex;
 
@@ -23,8 +23,8 @@ raycaster::raycaster(vec2 origin, ushort tex, ushort res, bool do_display)
     unit_circle_reference = vector<vec2>(res);
 
     float dtheta = float(TWO_PI)/(res);
-    ushort res4 = res/4;
-    for (ushort i = 0; i < res4; ++i)
+    uint res4 = res/4;
+    for (uint i = 0; i < res4; ++i)
     {
         float theta = i*dtheta;
         float ctheta = cos(theta);//I don't need the sines, I can just loop trough clockwise for that
@@ -78,8 +78,8 @@ raycaster::raycaster(raycaster&& other)
 
 void raycaster::update(const vector<mesh2D>& meshes,bool do_display)
 {
-    ushort Msize = meshes.size();
-    for (ushort i = 0; i < draw_size-1; ++i)
+    uint Msize = meshes.size();
+    for (uint i = 0; i < draw_size-1; ++i)
     {
         vec2 ray_vertex = (unit_circle_reference[i%(draw_size-2)]+triangle_fan[0]);//Resetomg the basic romg every update, if we just re-normalized everything floating point errors would slowly build up
 
@@ -98,11 +98,11 @@ void raycaster::update(const vector<mesh2D>& meshes,bool do_display)
         vec2 ray_result;
         bool intersects = false;
 
-        ushort my_V0=-1;//In this case we do not care about the vertex IDs because we will not be doing any sorting
-        ushort my_V1=-1;
+        uint my_V0=-1;//In this case we do not care about the vertex IDs because we will not be doing any sorting
+        uint my_V1=-1;
 
 
-        for (ushort k = 0; k < Msize; ++k)
+        for (uint k = 0; k < Msize; ++k)
         {
             const mesh2D& M1 = meshes[k];
             if(M1.get_intersect(triangle_fan[0],ray_vertex,ray_result,my_V0,my_V1,minL2))
@@ -215,8 +215,7 @@ void raycaster::update(const vector<mesh2D>& meshes,bool do_display)
 
 void raycaster::display() const
 {
-
-    //Bake to buffer here, and not in the update function, this allows us to run update with all opengl functions turned off to only test the speed of the algorithm.
+    //Ok this is the WRONG way to do this, really we should bake to buffer  in the update function, but doing it here this allows us to run update with all opengl functions turned off to only test the speed of the algorithm alone.
     glBindBuffer( GL_ARRAY_BUFFER, Buffer);
     glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(draw_size), &(triangle_fan[0]), GL_DYNAMIC_DRAW );
 
@@ -227,7 +226,7 @@ void raycaster::display() const
         graphicus::draw_triangles(Buffer,draw_size,vec3(0.7,0.7,0.7));
     #endif
 
-    if (my_tex!= (ushort)-1)
+    if (my_tex!= (uint)-1)
         graphicus::draw_tex(my_tex,triangle_fan[0]);
 }
 

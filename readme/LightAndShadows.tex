@@ -73,7 +73,10 @@
 
 In this article, a Raytracing algorithm for fast and accurate light and shadow, and field of vision, calculations in 2 dimensions, intended for 2D games, is introduced. This algorithm does not take refraction, reflection or the wave-nature of light into account
 
+No mathematical or computer-science education, should be required to understand this paper.
+
 \end{abstract}
+
 
 \chapter{Fiat Lux}
 Say you have a decent 2D game, and now you want to make it look like an excellent game. Adding a dynamic lighting system is a good way of doing this, light is impressive, and will make the many different things making up your simulated world look like they belong together.
@@ -84,7 +87,37 @@ This can, for instance, be used to set up a stealth system, or counter the great
 
 So how can we do this?
 
-Well, really, if we want a physically accurate model we would need to solve Maxwells equations in whatever environment we are in, that can be done, which leads to some fascinating effects, such as how the very center of the shadow, of a circular object, has a tiny bright spot, which is exactly as bright as if the object wasn't even there. And if we really really wanted a Quantum-physically accurate model, well we do know what the Hamiltonian for electromagnetic radiation in free space... But in a game, physical accuracy always must come second to playability, and in this
+Well, really, if we want a physically accurate model we would need to solve Maxwells equations in whatever environment we are in, that can be done, which leads to some fascinating effects, such as how the very center of the shadow, of a circular object, has a tiny bright spot, which is exactly as bright as if the object wasn't even there. And if we really really wanted a physically accurate model, well we do know what the Hamiltonian for electromagnetic radiation in free space... But in a game, we don't need a physically accurate simulation, we need a good enough looking algorithm which can run fast.
+
+One such good-enough approach is to say that light moves in straight lines (\textit{rays}) from a point source, and can be blocked by any objects. This is arguably close to Newton's model of light. This is the model I wish to implement here.
+
+\chapter{The algorithm}
+
+\section{Setting the stage}
+There are two kinds of objects which the algorithm needs to know about, \textit{meshes} and \textit{point sources}, and the algorithm produces as output a \textit{triangle fan}.
+
+\textit{Point sources} are single point sources sending \textit{rays} of light out in all possible directions (or in some limited angle), and \textit{rays} are straight lines starting at some point, and going in some direction.
+
+\textit{Meshes} are made up of points called \textit{vertices} (singular \textit{vertex}) connected to one another by straight , light blocking, edges. In my implementation each mesh is a list of vertices, where each vertex is connected to the one before and after it in the list (where the very first and very last vertex is the same).
+
+It is simple to check if a particular ray intersects a particular edge in a mesh, and if yes, where. Using this, I have made a function \lstinline{bool mesh2D::has_intersect(const vec2& A,const vec2& B)}, in my Mesh class, which returns true if a ray starting in the 2D point \lstinline{A} and going through the point \lstinline{B} intersects any edge in the mesh. If we want to know where a ray intersects the mesh, the function \lstinline{bool get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, uint& V1_ID , float& AB2)} still returns true if any intersection happens, and if so the intersection closest to \lstinline{A} is written to \lstinline{Out} and the function tell us that we hit the edge between vertex number \lstinline{V0_ID} and \lstinline{V1_ID} and \lstinline{dist2} is now the distance from \lstinline{A} to the intersection squared. (The \lstinline{&} denotes a C++ reference, which means that any changes made to \lstinline{Out}, sticks around after the function is done). A few examples of these functions is shown In Figure \ref{fig:intersect}.
+
+OK actually these functions are not even remotely simple or easy to implement, especially if we want the code to run relatively fast, and we want to take all possible edge cases into account. For instance, in my implementation I implemented Welzl's algorithm to calculate \textit{bounding circles} around all meshes (See Figure \ref{fig:intersect}), so that we can skip checking all the edges of a mesh, if the ray does not come anywhere near the mesh, but implementing this doesn't really have anything to do with the main problem, so lets just start by assuming that we have these functions.
+
+\fancybreak
+
+If all the objects which can block light from the source has straight edges, then the illuminated area will also have completely straight edges. So, as illustrated in Figure \ref{fig:Output_demo}, we can think of the output from the algorithm we want -- the illuminated area -- as another mesh, a list of vertices one after the other going around in a loop (in my implementation always counterclockwise) enclosing the illuminated area. We can render this illuminated area as a \textit{triangle fan}, centered on the light-source, and it is also fairly easy test if a point is inside or outside the triangle fan.
+
+
+
+
+\section{Raycasting, the easy alternative}
+
+
+\section{Issues}
+There are a number of rare situations, where the algorithm fails, these situations may be rare, but in a game where perhabs the player moves the lightsource around -- or at the very least the player is a shadowcasting object -- these rare errors will happen eventually.
+
+\subsection{When}
 
 \end{document}
 

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-raytracer::raytracer(vec2 origin, ushort tex, bool do_display)
+raytracer::raytracer(vec2 origin, uint tex, bool do_display)
 {
     my_tex=tex;
 
@@ -40,9 +40,9 @@ raytracer::~raytracer()
     #ifdef DEBUG_VERTICES
     if (Vertices_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Vertices_Buffer);
-//    for (ushort I : debug_numbers)
+//    for (uint I : debug_numbers)
 //        graphicus::delete_text(I);
-//    debug_numbers = vector<ushort >();
+//    debug_numbers = vector<uint >();
     #endif
     cout <<"B"<<endl;
     #ifdef DEBUG_OUTLINE
@@ -102,11 +102,11 @@ void raytracer::update(const vector<mesh2D>& meshes,bool do_display)
 
         bool Locked=true;//Are we certain this is put in right order?
 
-        ushort O_ID=-1;//What is the ID of object did we hit? (screen edge is an object too!)
-        ushort V0_ID=-1;//What vertex in the object is this?
-        ushort V1_ID=-1;//If this is on an edge, V1 and V2 are the ends
+        uint O_ID=-1;//What is the ID of object did we hit? (screen edge is an object too!)
+        uint V0_ID=-1;//What vertex in the object is this?
+        uint V1_ID=-1;//If this is on an edge, V1 and V2 are the ends
         vertexdata(){}
-        vertexdata(vec2 p,vec2 origin,ushort O, ushort V): pos(p), O_ID(O), V0_ID(V)
+        vertexdata(vec2 p,vec2 origin,uint O, uint V): pos(p), O_ID(O), V0_ID(V)
         {
             //This is safe! atan2(0,dx) does not divide by 0, and atan2(0,0)=0 by definition
             theta = atan2(pos.y-origin.y,pos.x-origin.x);
@@ -117,29 +117,29 @@ void raytracer::update(const vector<mesh2D>& meshes,bool do_display)
 
     //There is no way to know how many vertices there will be
     vector<vertexdata> vertices;
-    ushort extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
+    uint extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
 
 
     triangle_fan = vector<vec2>(1,triangle_fan[0]);//Drop all previous points
 
     triangle_fan.reserve(triangle_fan.size());//Make sure we likely have enough room
 
-    ushort Msize = meshes.size();
+    uint Msize = meshes.size();
 
 
 vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x,V1.y)};
-    for (ushort j = 0; j <= Msize; ++ j)
+    for (uint j = 0; j <= Msize; ++ j)
         {
 
             const mesh2D* M = j<Msize? &(meshes[j]) : nullptr;
 
             const vector<vec2>& Verts  = M!=nullptr? M->get_vertices() : screen;
-            ushort S = Verts.size();
+            uint S = Verts.size();
             if (S < 3)//Lines or above (S includs one more point to loop back)
                 continue;
             if (M!=nullptr)//This list includes the end two times, ignore it
                 S--;
-            for (ushort i = 0 ; i < S ; ++i)
+            for (uint i = 0 ; i < S ; ++i)
             {
 
                 vec2 V  = Verts[i];
@@ -192,7 +192,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     vec2 temp = triangle_fan[0];
     //Now we have all the vertices ... now we just need to sort them so that we traverse in the same direction
 
-    ushort vertex_size = vertices.size();
+    uint vertex_size = vertices.size();
     if (vertex_size>0||limit_lens)//We will have at least 2 vertices if we are using a limited lens
     {
 
@@ -246,7 +246,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         vertices.reserve(vertex_size+extensions*1);
 
         //vertex_size+=1*extensions;
-        ushort unlocked = extensions;
+        uint unlocked = extensions;
 
         //Some lambda functions for testing if we  should swap or not
         //I try to use C++ lambda function instead of copy pasting code ...
@@ -255,9 +255,9 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         auto could_neighbor_same = [&meshes](const vertexdata& V0, const vertexdata& V1) -> bool
         {
 
-            if (V1.V1_ID == (ushort)-1)
+            if (V1.V1_ID == (uint)-1)
             {//V1 is a vertex
-                ushort S = meshes[V0.O_ID].get_size()-1;
+                uint S = meshes[V0.O_ID].get_size()-1;
 
                 return ( ((V1.V0_ID+1)%S == V0.V0_ID || V1.V0_ID == (V0.V0_ID+1)%S) );
             }
@@ -315,7 +315,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         };
 
         auto it = vertices.begin();
-        for (ushort i = 0; i<vertex_size; ++i)
+        for (uint i = 0; i<vertex_size; ++i)
         {
 
             vertexdata& VOld = vertices[i];
@@ -331,13 +331,13 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 float minL2 = -1;//At first, don't do any distance requirements, this allows the ray to continue much further
                 vec2 W;//In retrospect, I should have used a more descriptive name, it is the output of the get intersect function though
                 vec2 V = VOld.pos;
-                ushort hit_ID;
+                uint hit_ID;
                 bool intersects = false;
 
-                ushort my_V0=-1;
-                ushort my_V1=-1;
+                uint my_V0=-1;
+                uint my_V1=-1;
 
-                for (ushort k = 0; k < Msize; ++k)
+                for (uint k = 0; k < Msize; ++k)
                 {
                     const mesh2D& M1 = meshes[k];
                     if(M1.get_intersect(triangle_fan[0],V,W,my_V0,my_V1,minL2))
@@ -596,7 +596,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //If the soduko has been resolved (or if none was present to begin with), just loop through everything
         {
             //Remember unlocked == 0 in most cases
-            for (ushort i = 0; i<unlocked ; ++i)
+            for (uint i = 0; i<unlocked ; ++i)
             {
                 //NO NEED TO CHECK IF THESE ARE SWAPABLE, THEY ARE!!! If they were not everything after them would already be locked, and we would not have gotten here now.
 
@@ -625,21 +625,21 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     draw_size = vertex_size+1;
     #ifdef DEBUG_VERTICES
     vector<vec2> Display_vertices(vertex_size*4);
-//    for (ushort I : debug_numbers)
+//    for (uint I : debug_numbers)
 //        graphicus::delete_text(I);
-//    debug_numbers = vector<ushort >(vertex_size);
+//    debug_numbers = vector<uint >(vertex_size);
     #endif
     #ifdef DEBUG_OUTLINE
     vector<vec2> Display_outline(vertex_size);
     #endif
 
     triangle_fan = vector<vec2>(draw_size,triangle_fan[0]);
-    for (ushort i = 0; i < vertex_size; ++i)
+    for (uint i = 0; i < vertex_size; ++i)
     {
     //Uncomment for written breakdown of everything
     /*
         cout<<"\n Vertex "<<i<<" ("<<vertices[i].pos.x<<','<<vertices[i].pos.y<<")\n O ="<<vertices[i].O_ID<<"\n V0="<<vertices[i].V0_ID;
-        if (vertices[i].V1_ID!=(ushort)-1)
+        if (vertices[i].V1_ID!=(uint)-1)
             cout<<"\n V1="<<vertices[i].V1_ID;
         cout<<"\n Locked ="<<vertices[i].Locked<<endl;
 */
@@ -698,10 +698,10 @@ void raytracer::display() const
         graphicus::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
 
 // I used to print the number of each vertex for debugging, until I relised this was taking way longer than the actual algorithm
-//    for (ushort i = 0; i<draw_size-1; ++i)
+//    for (uint i = 0; i<draw_size-1; ++i)
 //    {
-//        ushort I = debug_numbers[i];
-//        if (I!= (ushort)-1)
+//        uint I = debug_numbers[i];
+//        if (I!= (uint)-1)
 //            graphicus::draw_text(I,triangle_fan[i+1]);
 //    }
     #endif
@@ -710,7 +710,7 @@ void raytracer::display() const
         graphicus::draw_triangles(Buffer,draw_size,vec3(1.f/lens_angle),triangle_fan[0]);
     #endif
 
-//    if (my_tex!= (ushort)-1)
+//    if (my_tex!= (uint)-1)
 //        graphicus::draw_tex(my_tex,triangle_fan[0]);
 }
 

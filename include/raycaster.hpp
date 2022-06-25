@@ -18,7 +18,6 @@
 using namespace std;
 using namespace glm;
 using uchar = uint8_t;
-using ushort= uint16_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
@@ -32,13 +31,13 @@ private:
 
 
     vec2 V0,V1;//Two vertices defining the bounding box of this raycaster, likely set to the screen boundaries or some other border (box from V0.x,V0.y to V1.x,V0.y to V1.x,V1.y to V0.x,V1.y and back, the order of the vertices does not matter)
-    ushort my_tex;
+    uint my_tex;
 
     vector<vec2> triangle_fan;
     vector<vec2> unit_circle_reference;
 
     GLuint Buffer;
-    ushort draw_size;//Essentially resolution, except includes the center point and the start of the circle twice to loop around... we need draw size every time we display, but only resolution when we re calculate so I store this ... ok to be fair, if we have all display turned off, or only render every update it doesn't matter what we save
+    uint draw_size;//Essentially resolution, except includes the center point and the start of the circle twice to loop around... we need draw size every time we display, but only resolution when we re calculate so I store this ... ok to be fair, if we have all display turned off, or only render every update it doesn't matter what we save
 
     //Looking direction and angle of the lens
     float theta = 0;
@@ -52,7 +51,7 @@ private:
 
     bool limit_lens = false;
 public:
-    raycaster(vec2 origin, ushort tex,ushort res,bool do_display);
+    raycaster(vec2 origin, uint tex,uint res,bool do_display);
     raycaster(raycaster&& that);//Just to be safe, define this
     ~raycaster();
     void set_origin(vec2 origin) {triangle_fan[0]= origin;

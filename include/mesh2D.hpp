@@ -16,7 +16,6 @@
 using namespace std;
 using namespace glm;
 using uchar = uint8_t;
-using ushort= uint16_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
@@ -29,7 +28,7 @@ private:
     vector<vec2> vertices;//Assume we loop back on ourself
     GLuint vertexBuffer=-1;//Element-buffer is completely uncalled for in this case
 
-    ushort size=0;
+    uint size=0;
 
     #ifdef DEBUG_SHOW_BSPHERE
     GLuint Bsphere_debug_Buffer=-1;
@@ -52,12 +51,12 @@ public:
     const vector<vec2>& get_vertices() const{return vertices;}
     void display() const;
 
-    ushort get_size() const {return size;}
+    uint get_size() const {return size;}
 
     void save(ofstream& OUT) const;
 
     bool has_intersect(const vec2& A,const vec2& B) const;
-    bool continues(const vec2& O,ushort i) const;
-    bool get_intersect(const vec2& A,const vec2& B, vec2& Out, ushort& V0_ID, ushort& V1_ID , float& AB2) const;
+    bool continues(const vec2& O,uint i) const;
+    bool get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, uint& V1_ID , float& dist2) const;
 
 };

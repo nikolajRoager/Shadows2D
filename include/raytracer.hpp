@@ -25,7 +25,6 @@
 using namespace std;
 using namespace glm;
 using uchar = uint8_t;
-using ushort= uint16_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
@@ -39,12 +38,12 @@ private:
 
 
     vec2 V0,V1;//Two vertices defining the bounding box of this raytracer, likely set to the screen boundaries or some other border (box from V0.x,V0.y to V1.x,V0.y to V1.x,V1.y to V0.x,V1.y and back, the order of the vertices does not matter)
-    ushort my_tex;
+    uint my_tex;
 
     vector<vec2> triangle_fan;
 
     GLuint Buffer;
-    ushort draw_size;
+    uint draw_size;
 
     //Looking direction and angle of the lens
     float theta = 0;
@@ -60,14 +59,14 @@ private:
 
     #ifdef DEBUG_VERTICES
     GLuint Vertices_Buffer=-1;
-//    vector<ushort> debug_numbers;
+//    vector<uint> debug_numbers;
     #endif
     #ifdef DEBUG_OUTLINE
     GLuint Outline_Buffer=-1;
     #endif
 
 public:
-    raytracer(vec2 origin, ushort tex,bool do_display);
+    raytracer(vec2 origin, uint tex,bool do_display);
     raytracer(raytracer&& that);//Just to be safe, define this
     ~raytracer();
     void set_origin(vec2 origin) {triangle_fan[0]= origin;
