@@ -14,7 +14,7 @@
 
 #include"raytracer.hpp"
 #include"raycaster.hpp"
-#include"graphicus.hpp"
+#include"IO.hpp"
 #include "mesh2D.hpp"
 
 #include<cstdint>
@@ -42,20 +42,20 @@ int main(int argc, char* argv[])
 
     ushort lamp = -1;
 
-    bool do_display = argc == 2;
+    bool do_display = (argc == 2);
 
     if (do_display)
     {
         cout<<"Starting main display"<<endl;
         try
         {
-            graphicus::init(false,assets/"textures",assets/"audio",assets/"fonts",assets/"materials");
+            IO::init(false,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", false, 1920,1080);
 
-            lamp = graphicus::load_tex((assets/"textures")/"lamp.png");
+            lamp = IO::graphics::load_tex((assets/"textures")/"lamp.png");
         }
         catch(string error)
         {
-            graphicus::end();
+            IO::end();
             cout<<"couldn't set up graphics engine: "<<error<<endl;
             return 0;
         }
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
         double dt = 0;
 
         ulong millis=0;
-        ulong pmillis = graphicus::get_millis();
+        ulong pmillis = IO::input_devices::get_millis();
 
         ulong time_start = pmillis;
 
@@ -166,23 +166,24 @@ int main(int argc, char* argv[])
         }
         ulong pupdate = pmillis;
 
-
         do
         {
             reynold.screen_bounds();
 //            richard.screen_bounds();
 
-            mouse_pos = graphicus::get_mouse_pos();
+            int mouse_x_px, mouse_y_px;
+            IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
+            mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w())/100.f;
+            mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h())/100.f;
 
-            int scroll = graphicus::get_scroll();
+            int scroll = IO::input_devices::get_scroll();
 
-            millis = graphicus::get_millis();
-            graphicus::pre_loop();//Reset display
+            millis = IO::input_devices::get_millis();
 
             dt = (millis-pmillis)*0.001;
 
             /*DEBUG READ AND WRITE SPECIFIC COORDINATES
-            if (graphicus::mouse_click(false))
+            if (IO::input_devices::mouse_click(false))
             {
 
                 std::ofstream file("position_file.bin", std::ios::binary);
@@ -193,22 +194,23 @@ int main(int argc, char* argv[])
                 else
                     cout<<mouse_pos.x<<" Is not "<<erratum<<endl;
 
-                graphicus::debug_print_mouse_pos();
+
+                IO::input_devices::debug_print_mouse_pos();
                 cout<<std::fixed<<mouse_pos.x<<endl;
                 cout<<std::fixed<<mouse_pos.y<<endl;
                 file.close();
             }
             */
 
-            if (graphicus::ctrl_key(true))
+            if (IO::input_devices::ctrl_key())
             {
-                if (graphicus::mouse_click(true))//Right click to add new object
+                if (IO::input_devices::mouse_click(true))//Right click to add new object
                 {
                     ++active_mesh;
                     ++meshes;
                     mess.push_back(mesh2D());
                 }
-                else if (graphicus::mouse_click(false))//Left click to add new vertex to old object
+                else if (IO::input_devices::mouse_click(false))//Left click to add new vertex to old object
                 {
                     if (meshes == 0)
                     {
@@ -234,7 +236,7 @@ int main(int argc, char* argv[])
 
                 if (scroll!= 0)
                 {
-                    if (graphicus::shift_key(true))
+                    if (IO::input_devices::shift_key())
                     {
                         //Just let theta overflow, we are taking trigonometric functions anyway
                         this_theta+=scroll*0.1f;//Scroll contains how many steps the scrolle wheel has moved since last checked, so no need to include dt in here, if the program slowed down scroll would simply be larger
@@ -263,20 +265,20 @@ int main(int argc, char* argv[])
             reynold.display();
 //            richard.display();
 
-            graphicus::activate_Ray();
+            IO::graphics::activate_Ray();
             reynold.display();
 //            richard.display();
-            graphicus::render_Ray();
+            IO::graphics::render_Ray();
 
 
 
-            graphicus::flush();
+            IO::post_loop();
 
             pmillis = millis;
 
-        }while (!graphicus::should_quit());
+        }while (!IO::input_devices::should_quit());
 
-        graphicus::end();
+        IO::end();
 
         //Now save the polygons
 

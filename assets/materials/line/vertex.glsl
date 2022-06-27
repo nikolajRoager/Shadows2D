@@ -1,13 +1,13 @@
 #version 400 core
 
-uniform mat4 MVP;
 
-in vec2 vertex_location_modelspace;
+in vec2 vertex_uv;
 
+uniform mat3 UV_to_DC;//Transformation from uv texture coordinates to device coordinates. The projection matrix is, in this case, just scaling from 0,1 by 0,1 ti -1,1 by -1,1
 
 void main()
 {
-    //It really doesn't get more basic than this.
-    gl_Position =  MVP * vec4(vertex_location_modelspace,0,1);
+    vec2 fragment_pos =(UV_to_DC*vec3(vertex_uv,1)).xy;
+    gl_Position = vec4(fragment_pos,0,1);//Should draw a square on the screen, to verrify all libraries and buffers are set up correctly
 }
 

@@ -1,6 +1,6 @@
 
 #include "mesh2D.hpp"
-#include "graphicus.hpp"
+#include "IO.hpp"
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -131,10 +131,10 @@ void mesh2D::display() const
     if (graphic_mode)
     {
     if (size>1 && vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
-        graphicus::draw_lines(vertexBuffer,size,vec3(1,0,0));
+        IO::graphics::draw_lines(vertexBuffer,size,vec3(1,0,0));
     #ifdef DEBUG_SHOW_BSPHERE
     if (vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
-        graphicus::draw_lines(Bsphere_debug_Buffer,32,vec3(1,0,1));
+        IO::graphics::draw_lines(Bsphere_debug_Buffer,32,vec3(1,0,1));
     #endif
     }
 }

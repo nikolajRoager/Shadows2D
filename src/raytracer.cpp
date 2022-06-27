@@ -41,7 +41,7 @@ raytracer::~raytracer()
     if (Vertices_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Vertices_Buffer);
 //    for (uint I : debug_numbers)
-//        graphicus::delete_text(I);
+//        IO::graphics::delete_text(I);
 //    debug_numbers = vector<uint >();
     #endif
     cout <<"B"<<endl;
@@ -626,7 +626,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     #ifdef DEBUG_VERTICES
     vector<vec2> Display_vertices(vertex_size*4);
 //    for (uint I : debug_numbers)
-//        graphicus::delete_text(I);
+//        IO::graphics::delete_text(I);
 //    debug_numbers = vector<uint >(vertex_size);
     #endif
     #ifdef DEBUG_OUTLINE
@@ -651,7 +651,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         Display_vertices[i*4+2]=vertices[i].pos-vec2(0.0,0.1);
         Display_vertices[i*4+3]=vertices[i].pos+vec2(0.0,0.1);
 
-//        debug_numbers[i] = (graphicus::set_text(to_string(i)));
+//        debug_numbers[i] = (IO::graphics::set_text(to_string(i)));
 
         #endif
         #ifdef DEBUG_OUTLINE
@@ -690,28 +690,28 @@ void raytracer::display() const
     #ifdef DEBUG_OUTLINE
     //Outline rather than triangle fan, easier to spot a wrong swap
     if (draw_size>1 && Outline_Buffer != (GLuint)-1)
-        graphicus::draw_lines(Outline_Buffer,draw_size-1,vec3(0,0,1));
+        IO::graphics::draw_lines(Outline_Buffer,draw_size-1,vec3(0,0,1));
     #endif
     #ifdef DEBUG_VERTICES
     //Draw vertices as crosses
     if (draw_size>1 && Vertices_Buffer!= (GLuint)-1)
-        graphicus::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
+        IO::graphics::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
 
 // I used to print the number of each vertex for debugging, until I relised this was taking way longer than the actual algorithm
 //    for (uint i = 0; i<draw_size-1; ++i)
 //    {
 //        uint I = debug_numbers[i];
 //        if (I!= (uint)-1)
-//            graphicus::draw_text(I,triangle_fan[i+1]);
+//            IO::graphics::draw_text(I,triangle_fan[i+1]);
 //    }
     #endif
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1 && Buffer != (GLuint)-1)//Default display
-        graphicus::draw_triangles(Buffer,draw_size,vec3(1.f/lens_angle),triangle_fan[0]);
+        IO::graphics::draw_triangles(Buffer,draw_size,vec3(1.f/lens_angle),triangle_fan[0]);
     #endif
 
 //    if (my_tex!= (uint)-1)
-//        graphicus::draw_tex(my_tex,triangle_fan[0]);
+//        IO::graphics::draw_tex(my_tex,triangle_fan[0]);
 }
 
 

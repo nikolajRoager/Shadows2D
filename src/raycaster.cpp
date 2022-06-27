@@ -223,11 +223,14 @@ void raycaster::display() const
 
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1 && Buffer != (GLuint)-1)//Default display
-        graphicus::draw_triangles(Buffer,draw_size,vec3(0.7,0.7,0.7));
+        IO::graphics::draw_triangles(Buffer,draw_size,vec3(0.7,0.7,0.7));
     #endif
 
     if (my_tex!= (uint)-1)
-        graphicus::draw_tex(my_tex,triangle_fan[0]);
+    {
+        IO::graphics::draw_tex(triangle_fan[0].x*50+IO::graphics::get_w()/2,triangle_fan[0].y*50+IO::graphics::get_h()/2,my_tex);
+
+    }
 }
 
 

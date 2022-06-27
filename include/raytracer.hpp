@@ -10,7 +10,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "mesh2D.hpp"
-#include "graphicus.hpp"
+#include "IO.hpp"
 #include <GL/glew.h>
 
 #define TWO_PI 6.28318531
@@ -81,7 +81,11 @@ public:
 
     void screen_bounds()
     {//Update bounds based on screen, requires openGL to be turned on
-        graphicus::get_wh(V0,V1);
+        V0.x = -IO::graphics::get_w()/100.f;
+        V1.x =  IO::graphics::get_w()/100.f;
+        V0.y = -IO::graphics::get_h()/100.f;
+        V1.y =  IO::graphics::get_h()/100.f;
+
     }
     void display() const;
 

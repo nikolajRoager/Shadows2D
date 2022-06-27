@@ -1,73 +1,99 @@
-#ifndef TEXWRAP
-#define TEXWRAP
+/*THIS FILE
+//This is a texture wrapper class, which allows our graphical program to easilly interface with SDL textures, this class encodes both text and textures, as they behind the scene are the same (only the one is loaded from image files, the other is generated from text) SHOULD ONLY BE USED BY IO::GRAPHICS, NOONE ELSE SHOULD USE IT
+*/
 
+#pragma once
+
+//Need GLuint
 #include <GL/glew.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include <string>
 #include <vector>
 #include<filesystem>
 #include<cstdint>
+#include<iostream>
 
 #include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-//This is a texture wrapper class, which allows our graphical program to easilly interface with SDL textures
-//I have, needles to say, not missed the opportunity to name this class something which sounds like food (texwrap= a wrap from texas I guess)
+#include"IO.hpp"
 
 using namespace std;
 using namespace glm;
 using uchar = uint8_t;
-using ushort= uint16_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
 namespace fs = std::filesystem;
 
-class texwrap
+namespace IO::graphics
 {
-private:
-    fs::path path;//For reloading and for being identified
-    string message;//If this is actually a piece of text
+    class texwrap
+    {
+    private:
+        fs::path path;//For reloading and for being identified
+        string message;//If this is actually a piece of text
 
-    ushort px_w;
-    ushort px_h;
+        uint texture_w;
+        uint texture_h;
 
-    mat4 local_transform;
+        uint frame_w;
+        uint frame_h;
+        //Local scaling to keep pixels the same size
+        mat3 local_transform;
+        mat3 CenterM;//Matrix required to center this
+        mat3 CornerM;//Matrix required to go to bottom left corner
 
-    GLuint textureID=-1;
+        vector<mat3> anim_clip;//local transform of the UV coordinates for every frame
 
-//    ushort n_frames;
+        GLuint textureID = -1;
 
-    bool is_text;
+        uint n_frames;
 
-
-public:
-        int get_w() const {return px_w;}
-        int get_h() const {return px_h;}
+        bool is_text;
 
 
-        bool exists() const {return textureID!=(GLuint) -1;}//Is this texture initialized or is it not? that is the question! and on this question, the fate of the entire application depends.
+    public:
+        uint get_w() const { return texture_w; }
+        uint get_h() const { return texture_h; }
 
-        string tell_name() const
+
+        uint get_frame_w() const { return frame_w; }
+        uint get_frame_h() const { return frame_h; }
+
+        bool exists() const { return textureID != (GLuint)-1; }//Is this texture initialized or is it not? that is the question! and on this question, the fate of the entire application depends.
+
+        string tell_name(bool full = false) const
         {
             if (!is_text)
             {
 
-                return path.filename().string();
+                if (full)
+                    return path.string();
+                else
+                    return path.filename().string();
             }
             else
                 return message;
         }
 
-        texwrap(const fs::path& path,float px_per_meter);
-        texwrap(const string& message,TTF_Font *my_font,float px_per_meter);
+        texwrap(const fs::path& path);
+        texwrap(const string& message);
 
-        void reload(TTF_Font *my_font=nullptr);//Redo the loading, in case some system wide settings changed
+        void reload();//Redo the loading, in case some system wide settings changed
 
+        bool is(const string& msg) const
+        {
 
-        bool is (fs::path& Path) const {return fs::equivalent(path,Path);}
+            return  is_text && msg.compare(message) == 0;//I sure don't hope you asked if a texture was this text, in that case something has gone awfully wrong
+        }
+
+        bool is(fs::path& Path) const {
+            if (!fs::exists(Path))//Fail safe, fs::equivalent assumes that the paths exists, and fails catastrophically if they don't (program crash with an error which can not be caught, and which does not produce an error message).
+                throw std::runtime_error("Texture file not found: "+Path.string());
+
+            //To test the "loading" page, uncomment this line, this slows down the program immensely (on Windows at least, Linux does not seem to care)
+            //cout <<"Comparing "<<Path.string()" to "<<path.string()<<endl;
+
+            return fs::equivalent(path, Path); }
 
         ~texwrap();
 
@@ -75,12 +101,15 @@ public:
         texwrap& operator=(texwrap&&);
 
         //Draw the Texture here, centered = centered around x and with y at the lowest point of the image, otherwise top left corner, if frame is provided 'tis an animation
-        GLuint get_tex() const {return textureID;}
+        GLuint get_tex() const { return textureID; }
 
         void destroy();//Same as destructor, but leaves the class as is corpse (maybe we need it to remain to not mess up the ordering of a list)
 
-        const mat4& getM() const {return local_transform;}
+        mat3 getM(bool mirror = false, bool center = false) const;
+        const mat3 getUVM(uint frame) const;
 
-};
+        void set_animation(uint n_frames_w, uint n_frames_h);
 
-#endif
+
+    };
+}
