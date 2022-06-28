@@ -1,5 +1,5 @@
 #pragma once
-#define DEBUG_SHOW_BSPHERE
+//#define DEBUG_SHOW_BSPHERE
 
 #include <GL/glew.h>
 

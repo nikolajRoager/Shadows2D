@@ -36,7 +36,7 @@ mesh2D::mesh2D(vector<vec2>& V)
 
 
     size = vertices.size();
-    if (vertices[size-1] != vertices[0])
+    if (! approx(vertices[size-1], vertices[0]))
     {
         vertices.push_back(vertices[0]);//Close the loop
         ++size;
@@ -68,6 +68,7 @@ void mesh2D::add_vertex(vec2 New)
         vertices.push_back(vertices[0]);//Keep the loop closed by extending the ending
         vertices[size-1]=New;//Add the new element
         ++size;
+        recalc_bsphere();
     }
     else
     {
@@ -83,7 +84,6 @@ void mesh2D::add_vertex(vec2 New)
     glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
     }
-    recalc_bsphere();
 }
 
 mesh2D::~mesh2D()
@@ -132,12 +132,12 @@ void mesh2D::display() const
 {
     if (graphic_mode)
     {
-    if (size>1 && vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
-        IO::graphics::draw_lines(vertexBuffer,size,vec3(1,0,0));
-    #ifdef DEBUG_SHOW_BSPHERE
-    if (vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
-        IO::graphics::draw_lines(Bsphere_debug_Buffer,32,vec3(1,0,1));
-    #endif
+        if (size>2 && vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
+            IO::graphics::draw_lines(vertexBuffer,size,vec3(1,0,0));
+        #ifdef DEBUG_SHOW_BSPHERE
+        if (size>2 && Bsphere_debug_Buffer!= (GLuint)-1)//We want some kind of closed loop to display
+            IO::graphics::draw_lines(Bsphere_debug_Buffer,32,vec3(1,0,1));
+        #endif
     }
 }
 void mesh2D::save(ofstream& OUT) const
@@ -148,25 +148,39 @@ void mesh2D::save(ofstream& OUT) const
 
 bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 {//Does any of my edges intersect with these? just asking for this, nevermind where
+
+    //We need at least a line (3 points, since the first point is included twice to close the loop)
+    if (size<3)
+        return false;
+
     //Disregard anything outside range and hitting the end points exactly
     //Assume that A is the origin, and only B might be a point on the line
-
     float a = B.y - A.y;
     float b = A.x - B.x;
 
-    //First things first, check if this intersects the bounding sphere, this is actually a very substantial calculation, but we will be able to discard most intersection calculations right here, and from my testing it works out to waaaaay faster in the end (it is slower in a scene with very few objects, but that is the fastest case anyway so nevermind that). Why does this work? See for instance https://www.geometrictools.com/Documentation/IntersectionLine2Circle2.pdf
+
+
+    //First check if the ray intersects the bounding sphere, this is actually a very substantial calculation, but we will be able to discard most intersection calculations right here, and from my testing it works out to waaaaay faster in the end (it is slower in a scene with very few objects, but that is the fastest case anyway so nevermind that). Why does this work? See for instance https://www.geometrictools.com/Documentation/IntersectionLine2Circle2.pdf
     //This is the single most significant time-save. When I implemented it became around three times as fast.
-    vec2 A_to_sphere = A-Bsphere_center;
     vec2 ray_dir = vec2(-b,a);
+    vec2 A_to_sphere = A-Bsphere_center;
     float D2 = dot(A_to_sphere,A_to_sphere);
     float det = pow(dot(A_to_sphere,ray_dir),2.f)-dot(ray_dir,ray_dir)*(D2-Bsphere_r2);
 
-    if (det<0 && D2>Bsphere_r2)//We do not intersect, and we are not inside to being with
+    //The bouding sphere is completely irrelevant if we are inside it
+    if (D2>Bsphere_r2)
+    {
+
+    if (det<0 )//We do not intersect, and we are not inside to being with
         return false;//Do just take a moment to note that the bounding sphere detection includes neither square-roots nor divisions
+    }
+
 
     float c = a*(A.x) + b*(A.y);
-    bool isX = std::abs(A.y-B.y)<1e-6;
-    bool isY = std::abs(A.x-B.x)<1e-6;
+    bool isX = approx(A.y,B.y);
+    bool isY = approx(A.x,B.x);
+
+
     //We will handle these special cases on their own, as they are super vulnerable to floating point errors, and besides, they are a lot simpler
     for (uint i = 0; i <size-1; ++i)
     {
@@ -180,6 +194,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
         float b1 = C.x - D.x;
 
         float c1 = a1*(C.x)+ b1*(C.y);
+
         //Selfcollision is never registered
         if (!(approx(C,B) || approx(D,B)))
         {
@@ -198,22 +213,27 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                         return true;
 
             }
-            else if (isX && a1 != 0)
+            else if (isX && !approx(a1, 0))
             {
                 //Exact vertex collision, rare but not as rare as you would think
+
                 if (approx(C.y,B.y))
-                {
-                    float Dist1 = std::abs(A.x-C.x);
-                    float Dist2 = std::abs(A.x-B.x);
-                    return Dist1<Dist2;
+                {//The three vertices A B and C are on a line, so check 1: that the line A -> B goes in the same direction as A -> C, and if so, that A-> B goes so far that it can hit vertex C
+
+
+                    float Dist1 = A.x-C.x;
+                    float Dist2 = A.x-B.x;
+                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
 
                 }
                 else if (approx(D.y,B.y))
                 {
-                    float Dist1 = std::abs(A.x-D.x);
-                    float Dist2 = std::abs(A.x-B.x);
-                    return Dist1<Dist2;
+                    float Dist1 = A.x-D.x;
+                    float Dist2 = A.x-B.x;
+                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
                 }
+
+
                 //We collide with this if
                 //a1 x + b1 A.y = c1
                 vec2 I = vec2((c1-b1*A.y)/a1,A.y);
@@ -226,21 +246,23 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                             }
                 }
             }
-            else if (isY && b1 !=0)
+            else if (isY && !approx(b1,0))
             {
                 //Exact vertex collision, rare but not as rare as you would think
                 if (approx(C.x,B.x))
-                {
-                    float Dist1 = std::abs(A.y-C.y);
-                    float Dist2 = std::abs(A.y-B.y);
-                    return Dist1<Dist2;
+                {//The three vertices A B and C are on a line, so check 1: that the line A -> B goes in the same direction as A -> C, and if so, that A-> B goes so far that it can hit vertex C
+
+
+                    float Dist1 = A.y-C.y;
+                    float Dist2 = A.y-B.y;
+                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
 
                 }
                 else if (approx(D.x,B.x))
                 {
-                    float Dist1 = std::abs(A.x-D.x);
-                    float Dist2 = std::abs(A.x-B.x);
-                    return Dist1<Dist2;
+                    float Dist1 = A.y-D.y;
+                    float Dist2 = A.y-B.y;
+                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
                 }
                 //We collide with this if
                 //a1 A.x + b1 y = c1
@@ -259,16 +281,17 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 
 
                 float det = a*b1 - a1*b;
-                if (det != 0)
+                if (!approx(det , 0))
                 {
 
                     vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
+
                     //The is-equal case happens whenever this vertex is on the x or y axis, which is very common if the boxes are placed by the computer thorugh some procedure
-                    if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || approx(b1,0) )
+                    if ((std::max(C.x,D.x)>=I.x && I.x>=std::min(D.x,C.x)) || approx(b1,0) )
                     {
-                        if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || approx(a1,0))
-                            if ((std::min(A.y,B.y)<I.y && I.y <std::max(A.y,B.y))  || approx(a1,0))
-                                if ((std::min(A.x,B.x)<I.x && I.x <std::max(A.x,B.x))  || approx(b1,0))
+                        if ((std::min(C.y,D.y)<=I.y && I.y <=std::max(C.y,D.y)) || approx(a1,0))
+                            if ((std::min(A.y,B.y)<=I.y && I.y <=std::max(A.y,B.y))  || approx(a1,0))
+                                if ((std::min(A.x,B.x)<=I.x && I.x <=std::max(A.x,B.x))  || approx(b1,0))
                                 {
                                     return true;
                                 }
@@ -328,6 +351,11 @@ bool mesh2D::continues(const vec2& L,uint i) const
 //Same as has intersect, but this time, do continue the ray
 bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, uint& V1_ID, float& AB2) const
 {//Does any of my edges intersect with these? just asking for this, nevermind where
+
+    //We need at least a line (3 points, since the first point is included twice to close the loop)
+    if (size<3)
+        return false;
+
     //Assume that A is the origin, and only B might be a point on the line
 
     float a = B.y - A.y;
@@ -344,8 +372,8 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
         return false;
 
     float c = a*(A.x) + b*(A.y);
-    bool isX = std::abs(A.y-B.y)<1e-6;
-    bool isY = std::abs(A.x-B.x)<1e-6;
+    bool isX = approx(A.y,B.y);
+    bool isY = approx(A.x,B.x);
     bool ret = false;
     //We will handle these special cases on their own, as they are super vulnerable to floating point errors, and besides, they are a lot simpler
     for (uint i = 0; i <size-1; ++i)
@@ -362,7 +390,7 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
         {
             if (isX)
             {
-                if (a1!=0)
+                if (!approx(a1,0))
                 {
                     //We collide with this if
                     //a1 x + b1 A.y = c1
@@ -411,10 +439,10 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
 */
                 }
             }
-            else if (isY && b1 != 0)
+            else if (isY && !approx(b1 , 0))
             {
 
-                if (b1!=0)
+                if (!approx(b1,0))
                 {
                     //We collide with this if
                     //a1 A.x + b1 y = c1
@@ -460,14 +488,14 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
 
 
                 float det = a*b1 - a1*b;
-                if (det != 0)
+                if (!approx(det , 0))
                 {
                     vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
 
-                    if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || approx(b1,0))
+                    if ((std::max(C.x,D.x)>=I.x && I.x>=std::min(D.x,C.x)) || approx(b1,0))
                     {
-                        if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || approx(a1,0) )
-                            if (dot(I-A,B-A)>0 )//If it is anywhere ahead of us
+                        if ((std::min(C.y,D.y)<=I.y && I.y <=std::max(C.y,D.y)) || approx(a1,0) )
+                            if (dot(I-A,B-A)>=0 )//If it is anywhere ahead of us
                             {
                                 float L2 = dot(I-A,I-A);
                                 if (L2<AB2 || AB2 <0)

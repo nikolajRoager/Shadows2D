@@ -18,8 +18,9 @@
 
 
 #define DEBUG_OUTLINE
+#define DEBUG_NON_INTERSECT
 #define DEBUG_VERTICES
-//#define DEBUG_NO_TRIANGLES
+#define DEBUG_NO_TRIANGLES
 
 
 using namespace std;
@@ -59,8 +60,13 @@ private:
 
     #ifdef DEBUG_VERTICES
     GLuint Vertices_Buffer=-1;
-//    vector<uint> debug_numbers;
     #endif
+
+    #ifdef DEBUG_NON_INTERSECT
+    GLuint NI_Vertices_Buffer=-1;
+    uint non_intersecting;
+    #endif
+
     #ifdef DEBUG_OUTLINE
     GLuint Outline_Buffer=-1;
     #endif

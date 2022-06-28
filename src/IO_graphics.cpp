@@ -1593,7 +1593,7 @@ namespace IO::graphics
 
 
         mat3 thisMVP =
-                mat3(vec3(100*inv_w, 0, 0), vec3(0, -100*inv_h, 0), vec3(0,0, 1));
+                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3( - 1.f,   1.f, 1));
 
         glUniformMatrix3fv(Line_matrix_ID, 1, GL_FALSE, &thisMVP[0][0]);
         glUniform3f(Line_color_ID,color.x,color.y,color.z);

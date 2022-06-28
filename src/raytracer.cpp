@@ -8,8 +8,8 @@ raytracer::raytracer(vec2 origin, uint tex, bool do_display)
     my_tex=tex;
 
     triangle_fan = vector<vec2>(1,origin);//Origin must always be defined
-    V0=vec2(-19.0,-10.6);//This is my screen, so leave it at that for default
-    V1=vec2(19.0,10.6);
+    V0=vec2(0,0);//This is my screen, so leave it at that for default
+    V1=vec2(1900,1060);
 
     Buffer=-1;
     draw_size=0;
@@ -20,6 +20,11 @@ raytracer::raytracer(vec2 origin, uint tex, bool do_display)
         #ifdef DEBUG_VERTICES
         glGenBuffers(1, &Vertices_Buffer);
         #endif
+        #ifdef DEBUG_NON_INTERSECT
+        non_intersecting=0;
+        glGenBuffers(1, &NI_Vertices_Buffer);
+        #endif
+
 
         #ifdef DEBUG_OUTLINE
         glGenBuffers(1, &Outline_Buffer);
@@ -36,20 +41,22 @@ raytracer::~raytracer()
     if (Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Buffer);
 
-    cout <<"A"<<endl;
     #ifdef DEBUG_VERTICES
     if (Vertices_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Vertices_Buffer);
-//    for (uint I : debug_numbers)
-//        IO::graphics::delete_text(I);
-//    debug_numbers = vector<uint >();
     #endif
-    cout <<"B"<<endl;
+
+    #ifdef DEBUG_NON_INTERSECT
+    if (NI_Vertices_Buffer != (GLuint)-1)
+        glDeleteBuffers(1,&NI_Vertices_Buffer);
+
+    non_intersecting=0;
+    #endif
+
     #ifdef DEBUG_OUTLINE
     if (Outline_Buffer != (GLuint)-1)
         glDeleteBuffers(1,&Outline_Buffer);
     #endif
-    cout <<"C"<<endl;
 }
 
 
@@ -62,9 +69,14 @@ raytracer::raytracer(raytracer&& other)
 
 
     #ifdef DEBUG_VERTICES
-//    debug_numbers = std::move(other.debug_numbers);
     Vertices_Buffer = other.Vertices_Buffer;
     other.Vertices_Buffer = 0;
+    #endif
+    #ifdef DEBUG_NON_INTERSECT
+    NI_Vertices_Buffer= other.NI_Vertices_Buffer;
+    other.NI_Vertices_Buffer= 0;
+
+    non_intersecting=other.non_intersecting;
     #endif
     #ifdef DEBUG_OUTLINE
     Outline_Buffer = other.Outline_Buffer;
@@ -139,6 +151,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 continue;
             if (M!=nullptr)//This list includes the end two times, ignore it
                 S--;
+
             for (uint i = 0 ; i < S ; ++i)
             {
 
@@ -158,11 +171,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 }
 
                 bool intersects = false;
-                uint k = 0;
                 for (const mesh2D& M1 : meshes)
                 {
-                    //cout<<" Have do be now  "<<j<<","<<i<<" against "<<k<<endl;
-                    ++k;
                     if(M1.has_intersect(triangle_fan[0],V))
                     {
                         intersects = true;
@@ -172,7 +182,6 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 }
                 if (!intersects)
                 {
-                //    cout<<" Non intersecting Vertex "<<V.x<<" "<<V.y<<" On object "<<j<<","<<i<<endl;
 
                     vertices.push_back(vertexdata(V,triangle_fan[0],j,i));//Associated with mesh j, vertex i
 
@@ -191,6 +200,28 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 }
             }
         }
+
+
+
+    #ifdef DEBUG_NON_INTERSECT
+    if (do_display)
+    {
+        non_intersecting=vertices.size();
+        vector<vec2> NI_vertices(non_intersecting*2);
+        for (uint i = 0; i < vertices.size(); ++i)
+        {
+            NI_vertices[i*2]=(vertices[i].pos);
+            NI_vertices[i*2+1]=(triangle_fan[0]);
+        }
+
+        glBindBuffer( GL_ARRAY_BUFFER, NI_Vertices_Buffer);
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(non_intersecting*2), &(NI_vertices[0]), GL_DYNAMIC_DRAW );
+
+    }
+    #endif
+
+
+
 
     vec2 temp = triangle_fan[0];
     //Now we have all the vertices ... now we just need to sort them so that we traverse in the same direction
@@ -317,6 +348,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
             return swap;
         };
 
+
         auto it = vertices.begin();
         for (uint i = 0; i<vertex_size; ++i)
         {
@@ -343,6 +375,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 for (uint k = 0; k < Msize; ++k)
                 {
                     const mesh2D& M1 = meshes[k];
+
                     if(M1.get_intersect(triangle_fan[0],V,W,my_V0,my_V1,minL2))
                     {
                         hit_ID=k;
@@ -673,6 +706,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     }
     #endif
 
+
+
     #ifdef DEBUG_OUTLINE
     if (do_display)
     {
@@ -699,15 +734,17 @@ void raytracer::display() const
     //Draw vertices as crosses
     if (draw_size>1 && Vertices_Buffer!= (GLuint)-1)
         IO::graphics::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
-
-// I used to print the number of each vertex for debugging, until I relised this was taking way longer than the actual algorithm
-//    for (uint i = 0; i<draw_size-1; ++i)
-//    {
-//        uint I = debug_numbers[i];
-//        if (I!= (uint)-1)
-//            IO::graphics::draw_text(I,triangle_fan[i+1]);
-//    }
     #endif
+
+
+
+    #ifdef DEBUG_NON_INTERSECT
+    //Draw vertices as crosses
+    if (non_intersecting>1 && NI_Vertices_Buffer!= (GLuint)-1)
+        IO::graphics::draw_segments(NI_Vertices_Buffer,non_intersecting*2,vec3(1,1,1));
+    #endif
+
+
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1 && Buffer != (GLuint)-1)//Default display
         IO::graphics::draw_triangles(Buffer,draw_size,vec3(1.f/lens_angle),triangle_fan[0]);

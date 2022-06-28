@@ -24,7 +24,7 @@
 #include <glm/gtx/transform.hpp>
 
 //I use these types so much that these aliases are well worth it
-using ushort = uint16_t;//I have never come across any system where this was an issue, but I am horrified by the fact that the c++ standards technically allows for integers of different sizes to technically be used, I want to be absolutely sure that I know where every bit is ... ok, in this project I don't do any bit manipulation, but I do that on a regular basis in the game this is meant for. I personally prefer to use the smallest type I can get away with, and never use signed if unsigned will suffice.
+//I have never come across any system where this was an issue, but I am horrified by the fact that the c++ standards technically allows for integers of different sizes to technically be used, I want to be absolutely sure that I know where every bit is ... ok, in this project I don't do any bit manipulation, but I do that on a regular basis in the game this is meant for. I personally prefer to use the smallest type I can get away with, and never use signed if unsigned will suffice.
 using uint = uint32_t;
 using ulong = uint64_t;//I need to be sure that this is 32 bit or more, because I use it for keeping time, and 16 bit will break in 1 minute and 5 seconds, 32 bits will last a few years
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
     fs::path assets = "assets";
 
-    ushort lamp = -1;
+    tex_index lamp = -1;
 
     bool do_display = (argc == 2);
 
@@ -89,18 +89,19 @@ int main(int argc, char* argv[])
 
                 try
                 {
-                    ushort meshes=0;
-                    IN.read((char*)&meshes,sizeof(ushort));
-                    for (ushort i = 0; i < meshes; ++i)
+                    uint meshes=0;
+                    IN.read((char*)&meshes,sizeof(uint));
+                    cout<<"Reading "<<meshes<<" meshes"<<endl;
+                    for (uint i = 0; i < meshes; ++i)
                     {
                         //See! this is why I use binary! it is that easy to write!, no need to getline or stream into a temporary oject, and then add that to the vector one at the time, just yoink the entire thing
-                        ushort size=0;
-                        IN.read((char*)&size,sizeof(ushort));//I know I am working with same size integers here, since I use cstdint
+                        uint size=0;
+                        IN.read((char*)&size,sizeof(uint));//I know I am working with same size integers here, since I use cstdint
                         if (size>0 )
                         {
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
-                            //if (i==1 || i == 0 )
+                            if (i==4 )
                                 mess.push_back(mesh2D(vertices));
                         }
                     }
@@ -119,9 +120,9 @@ int main(int argc, char* argv[])
 
 
     //For editing meshes
-    ushort meshes = mess.size();
+    uint meshes = mess.size();
 
-    ushort active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
+    uint active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
     raytracer reynold(vec2(0),lamp,do_display);
 //    raytracer richard(vec2(1,3),lamp,do_display);
@@ -175,15 +176,16 @@ int main(int argc, char* argv[])
 
             int mouse_x_px, mouse_y_px;
             IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
-            //mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w()*0.5)/100.f;
-            //mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h()*0.5)/100.f;
+            //mouse_pos.x = mouse_x_px;
+            //mouse_pos.y = mouse_y_px;
+
 
             int scroll = IO::input_devices::get_scroll();
 
             millis = IO::input_devices::get_millis();
 
             dt = (millis-pmillis)*0.001;
-
+            //mouse_pos.y+= dt;
             IO::graphics::draw_tex(mouse_x_px,mouse_y_px,lamp);
 
             //DEBUG READ AND WRITE SPECIFIC COORDINATES
@@ -193,8 +195,6 @@ int main(int argc, char* argv[])
                 std::ofstream file("position_file.bin", std::ios::binary);
 
                 file.write((const char*)&mouse_pos,sizeof(vec2));
-                cout<<std::fixed<<mouse_pos.x<<endl;
-                cout<<std::fixed<<mouse_pos.y<<endl;
                 file.close();
             }
 
@@ -203,9 +203,11 @@ int main(int argc, char* argv[])
             {
                 if (IO::input_devices::mouse_click(true))//Right click to add new object
                 {
+                    cout<<"Trying to add another mesh"<<endl;
                     ++active_mesh;
                     ++meshes;
                     mess.push_back(mesh2D());
+                    cout<<"Did so"<<endl;
                 }
                 else if (IO::input_devices::mouse_click(false))//Left click to add new vertex to old object
                 {
@@ -228,7 +230,6 @@ int main(int argc, char* argv[])
                     pos = mouse_pos;
 
                     do_update = true;
-                    cout<<pos.x<<' '<<pos.y<<endl;
                     reynold.set_origin(pos);
                 }
 
@@ -251,11 +252,9 @@ int main(int argc, char* argv[])
 
                 if (do_update)
                 {
-                    cout<<"RUNNING UPDATE"<<endl;
                     reynold.update(mess);
                 }
             }
-
 
 
 
@@ -283,13 +282,15 @@ int main(int argc, char* argv[])
 
         if (name.compare("null") && false)//Don't save anything if not output was specified
         {
+            cout<<"Saving"<<endl;
             std::ofstream OUT(poly_file, std::ios::binary);//Binary files are easier to read and write
 
             if (OUT.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
 
-                ushort meshes = mess.size();
-                OUT.write((const char*) &meshes,sizeof(ushort));
+                uint meshes = mess.size();
+                cout<<"Saving "<<meshes<<endl;
+                OUT.write((const char*) &meshes,sizeof(uint));
                 try
                 {
                     for (const mesh2D& M : mess)
