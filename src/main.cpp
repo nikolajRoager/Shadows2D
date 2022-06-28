@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 4.643683
 );
 
-/*
+
         {
 
             std::ifstream file("position_file.bin", std::ios::binary);//Binary files are easier to read and write
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 
             file.close();
 
-        }*/
+        }
         ulong pupdate = pmillis;
 
         do
@@ -175,8 +175,8 @@ int main(int argc, char* argv[])
 
             int mouse_x_px, mouse_y_px;
             IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
-            mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w()*0.5)/100.f;
-            mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h()*0.5)/100.f;
+            //mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w()*0.5)/100.f;
+            //mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h()*0.5)/100.f;
 
             int scroll = IO::input_devices::get_scroll();
 
