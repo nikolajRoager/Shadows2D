@@ -1,17 +1,8 @@
-License notice
----------
-These fonts are developed by the GNU group, https://www.gnu.org/software/freefont/ The font are neither developed nor modified by the creator of this program, and the license of this program does not extend to any files in this folder.
-
-These fonts are licensed under the GPL license by their creator, it is thus permissible to use these fonts in any commercial project, provided they are not misrepresented as original content.
+#License notice
+This unique 5 by 9 pixel aliasing font for Extended Latin: Unicode 0x0000 to 0x024F, is by its creator, Nikolaj Roager Christensen placed under the GNU GENERAL PUBLIC LICENSE version 3:
 
 
-The GPL license does NOT extend to the rest of this program, only files in this folder:
-
-Original license text
--------------------------------------------------------------------------
-
-### GNU GENERAL PUBLIC LICENSE
-
+## GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
 Copyright (C) 2007 Free Software Foundation, Inc.

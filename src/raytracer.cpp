@@ -8,8 +8,8 @@ raytracer::raytracer(vec2 origin, uint tex, bool do_display)
     my_tex=tex;
 
     triangle_fan = vector<vec2>(1,origin);//Origin must always be defined
-    V0=vec2(-19.2,-10.8);//This is my screen, so leave it at that for default
-    V1=vec2(19.2,10.8);
+    V0=vec2(-19.0,-10.6);//This is my screen, so leave it at that for default
+    V1=vec2(19.0,10.6);
 
     Buffer=-1;
     draw_size=0;
@@ -158,8 +158,11 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 }
 
                 bool intersects = false;
+                uint k = 0;
                 for (const mesh2D& M1 : meshes)
                 {
+                    //cout<<" Have do be now  "<<j<<","<<i<<" against "<<k<<endl;
+                    ++k;
                     if(M1.has_intersect(triangle_fan[0],V))
                     {
                         intersects = true;
@@ -169,7 +172,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 }
                 if (!intersects)
                 {
-                    //Uncomment to see only non-intersecting
+                //    cout<<" Non intersecting Vertex "<<V.x<<" "<<V.y<<" On object "<<j<<","<<i<<endl;
 
                     vertices.push_back(vertexdata(V,triangle_fan[0],j,i));//Associated with mesh j, vertex i
 
@@ -366,7 +369,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                     //Of course, we only do intersect if the intersection is ahead of us
                     //Intersections happen at V0.x, V1.x, V0.y, V1.y
-                    if (b==0)//Looking dead ahead
+                    if (approx(b,0))//Looking dead ahead
                     {
                         if(a>0)
                         {
@@ -382,7 +385,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                         }
                     }
-                    else if (a==0)
+                    else if (approx(a,0))
                     {
                         if(b>0)
                         {

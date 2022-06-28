@@ -144,6 +144,18 @@ namespace IO::graphics
     GLuint surf_matrix_ID=-1;//The tranformation matrix from UV coordinates to device coordinates in the surf program
     GLuint surf_tex_matrix_ID=-1;//Transformation of the texture, for instance for animation
 
+
+    //A line which is the basis of the mesh-rendering engine
+    GLuint Line_ProgramID = -1;
+
+    //The vertex position of the lines drawn, in world-space
+    GLuint Line_VertexPosAttribID = -1;
+
+    GLuint Line_matrix_ID=-1;//The tranformation matrix from line-worldspace coordinates to device coordinates in the Line program
+    GLuint Line_color_ID=-1; //The color of the line to be drawn
+
+
+
     //Information needed for the font
     vector<calligraphy> dictionary;//A list of textures of letters, defined in calligraphy.hpp/.cpp
     //Spacing between lines, and text height must be constant
@@ -272,6 +284,21 @@ namespace IO::graphics
         surf_colorTex_ID = glGetUniformLocation(surf_ProgramID, "colorSampler");
         cout << "Loaded surface program" <<endl;
         cout << log << endl;
+
+        Line_ProgramID = load_program(shader_path, "line", log);
+
+        Line_VertexPosAttribID = glGetAttribLocation(Line_ProgramID , "vertex_worldspace");
+
+        Line_matrix_ID = glGetUniformLocation(Line_ProgramID , "worldspace_to_DC");
+        Line_color_ID= glGetUniformLocation(Line_ProgramID , "color");
+
+
+        glLineWidth(1.f);
+
+        cout << "Loaded surface program " <<endl;
+        cout << log << endl;
+
+
 
 
 
@@ -1559,11 +1586,17 @@ namespace IO::graphics
 
     void draw_unicolor(GLuint buffer, ushort size, vec3 color,GLuint displaymode)
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, display_Framebuffer);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//Good for texture blending (front texture obscures back)
         //Enable what we need
         glUseProgram(Line_ProgramID);
 
-        glUniformMatrix4fv(Line_VP_ID, 1, GL_FALSE, &VP[0][0]);
-        glUniform3f(Line_COL_ID,color.x,color.y,color.z);
+
+        mat3 thisMVP =
+                mat3(vec3(100*inv_w, 0, 0), vec3(0, -100*inv_h, 0), vec3(0,0, 1));
+
+        glUniformMatrix3fv(Line_matrix_ID, 1, GL_FALSE, &thisMVP[0][0]);
+        glUniform3f(Line_color_ID,color.x,color.y,color.z);
 
         glEnableVertexAttribArray(Line_VertexPosAttribID);
 

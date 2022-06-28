@@ -13,7 +13,7 @@
 #include <exception>
 
 #include"raytracer.hpp"
-#include"raycaster.hpp"
+//#include"raycaster.hpp"
 #include"IO.hpp"
 #include "mesh2D.hpp"
 
@@ -49,9 +49,9 @@ int main(int argc, char* argv[])
         cout<<"Starting main display"<<endl;
         try
         {
-            IO::init(false,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", false, 1920,1080);
+            IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", false, 1920,1080);
 
-            lamp = IO::graphics::load_tex((assets/"textures")/"lamp.png");
+            lamp = IO::graphics::load_tex("lamp.png");
         }
         catch(string error)
         {
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
                         {
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
-                            //if (i==15 || i == 2 || i == 4)
+                            //if (i==1 || i == 0 )
                                 mess.push_back(mesh2D(vertices));
                         }
                     }
@@ -116,18 +116,19 @@ int main(int argc, char* argv[])
         }
     }
 
+
+
     //For editing meshes
     ushort meshes = mess.size();
 
     ushort active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
     raytracer reynold(vec2(0),lamp,do_display);
-    //raycaster reynold(vec2(0),lamp,1024,do_display);
 //    raytracer richard(vec2(1,3),lamp,do_display);
 
     float this_theta = 2.8;
     float this_Dtheta=TWO_PI;
-    reynold.set_angle(this_theta, this_Dtheta);
+//    reynold.set_angle(this_theta, this_Dtheta);
 
 
     vec2 pos = vec2(0);
@@ -135,7 +136,6 @@ int main(int argc, char* argv[])
     if (do_display)
     {
 
-        reynold.screen_bounds();
         reynold.update(mess);
 //        richard.screen_bounds();
 //        richard.update(mess);
@@ -151,30 +151,32 @@ int main(int argc, char* argv[])
 -2.400000,
 4.643683
 );
+
+/*
         {
 
             std::ifstream file("position_file.bin", std::ios::binary);//Binary files are easier to read and write
 
-            /*
+
             //DEBUG, READ AND WRITE SPECIFIC COORDINATES
             if (file.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
                 file.read((char*)&mouse_pos,sizeof(vec2));
             }
+
             file.close();
-            */
-        }
+
+        }*/
         ulong pupdate = pmillis;
 
         do
         {
-            reynold.screen_bounds();
 //            richard.screen_bounds();
 
             int mouse_x_px, mouse_y_px;
             IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
-            mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w())/100.f;
-            mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h())/100.f;
+            mouse_pos.x = 2*(mouse_x_px-IO::graphics::get_w()*0.5)/100.f;
+            mouse_pos.y = 2*(mouse_y_px-IO::graphics::get_h()*0.5)/100.f;
 
             int scroll = IO::input_devices::get_scroll();
 
@@ -182,25 +184,20 @@ int main(int argc, char* argv[])
 
             dt = (millis-pmillis)*0.001;
 
-            /*DEBUG READ AND WRITE SPECIFIC COORDINATES
+            IO::graphics::draw_tex(mouse_x_px,mouse_y_px,lamp);
+
+            //DEBUG READ AND WRITE SPECIFIC COORDINATES
             if (IO::input_devices::mouse_click(false))
             {
 
                 std::ofstream file("position_file.bin", std::ios::binary);
 
                 file.write((const char*)&mouse_pos,sizeof(vec2));
-                if (mouse_pos.x==erratum)
-                    cout<<"Is exactly the same"<<endl;
-                else
-                    cout<<mouse_pos.x<<" Is not "<<erratum<<endl;
-
-
-                IO::input_devices::debug_print_mouse_pos();
                 cout<<std::fixed<<mouse_pos.x<<endl;
                 cout<<std::fixed<<mouse_pos.y<<endl;
                 file.close();
             }
-            */
+
 
             if (IO::input_devices::ctrl_key())
             {
@@ -231,7 +228,8 @@ int main(int argc, char* argv[])
                     pos = mouse_pos;
 
                     do_update = true;
-                    reynold.set_origin(mouse_pos);
+                    cout<<pos.x<<' '<<pos.y<<endl;
+                    reynold.set_origin(pos);
                 }
 
                 if (scroll!= 0)
@@ -253,6 +251,7 @@ int main(int argc, char* argv[])
 
                 if (do_update)
                 {
+                    cout<<"RUNNING UPDATE"<<endl;
                     reynold.update(mess);
                 }
             }
@@ -266,7 +265,7 @@ int main(int argc, char* argv[])
 //            richard.display();
 
             IO::graphics::activate_Ray();
-            reynold.display();
+//            reynold.display();
 //            richard.display();
             IO::graphics::render_Ray();
 
@@ -276,7 +275,7 @@ int main(int argc, char* argv[])
 
             pmillis = millis;
 
-        }while (!IO::input_devices::should_quit());
+        }while (!IO::input_devices::should_quit() && !IO::input_devices::esc_key());
 
         IO::end();
 

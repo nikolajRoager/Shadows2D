@@ -13,7 +13,7 @@
 #include "IO.hpp"
 #include <GL/glew.h>
 
-#define TWO_PI 6.28318531
+#define TWO_PI 6.283185307179586
 #define PI 3.14159265
 
 
@@ -65,6 +65,20 @@ private:
     GLuint Outline_Buffer=-1;
     #endif
 
+
+    float acc=1e-6;
+
+    //Floating points numbers are EVIL, regular == sometimes fails because minor floating point errors have caused them to drift 0.0000000001 or something off. I decided NOT to use a macro function, because I WANT to get compiler warnigns if I try to do approx(int,int)
+    inline bool approx(float a, float b) const
+    {
+        return std::abs(a-b)<acc;
+    }
+    inline bool approx(const vec2& a, const vec2& b) const
+    {
+        return std::abs(a.x-b.x)<acc && std::abs(a.y-b.y)<acc;
+    }
+
+
 public:
     raytracer(vec2 origin, uint tex,bool do_display);
     raytracer(raytracer&& that);//Just to be safe, define this
@@ -79,14 +93,6 @@ public:
 
     void set_bounds(vec2 _V0,vec2 _V1) {V0=_V0; V1=_V1;}
 
-    void screen_bounds()
-    {//Update bounds based on screen, requires openGL to be turned on
-        V0.x = -IO::graphics::get_w()/100.f;
-        V1.x =  IO::graphics::get_w()/100.f;
-        V0.y = -IO::graphics::get_h()/100.f;
-        V1.y =  IO::graphics::get_h()/100.f;
-
-    }
     void display() const;
 
     void set_angle(float theta, float D);

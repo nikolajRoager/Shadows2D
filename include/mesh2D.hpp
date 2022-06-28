@@ -39,6 +39,19 @@ private:
     float Bsphere_r2 = 0;//radius squared turned out to be more useful, because sqrt is evil and must be avoided at all cost
     vec2 Bsphere_center = vec2(0);
     void recalc_bsphere(); //reset the bounding sphere
+
+    float acc=1e-6;
+
+    //Floating points numbers are EVIL, regular == sometimes fails because minor floating point errors have caused them to drift 0.0000000001 or something off. I decided NOT to use a macro function, because I WANT to get compiler warnigns if I try to do approx(int,int)
+    inline bool approx(float a, float b) const
+    {
+        return std::abs(a-b)<acc;
+    }
+    inline bool approx(const vec2& a, const vec2& b) const
+    {
+        return std::abs(a.x-b.x)<acc && std::abs(a.y-b.y)<acc;
+    }
+
 public:
     mesh2D();
     mesh2D(vector<vec2>& V);
