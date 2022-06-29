@@ -32,31 +32,55 @@ mesh2D::mesh2D(vector<vec2>& V)
 {
 
 
-    vertices = std::move(V);
+    vertices = vector<vec2>();
+    vertices.reserve(V.size());//Maybe copy the list, if there are no dublicate
+    size=0;
+    if (V.size()>0)
+    {
+        for (int i = 0; i < V.size(); ++i)
+        {
+            bool dublicate = false;
+            for (int j = 0; j < vertices.size(); ++j)
+                if (approx(V[i],vertices[j]) && !(j==0 && i == V.size()-1))
+                {
+                    dublicate =true;
+                    break;
+                }
 
+            if (!dublicate)
+                vertices.push_back(V[i]);
+        }
 
     size = vertices.size();
-    if (! approx(vertices[size-1], vertices[0]))
-    {
-        vertices.push_back(vertices[0]);//Close the loop
-        ++size;
-    }
-
     vertexBuffer = -1;
-
-    if (graphic_mode)
-    {
     #ifdef DEBUG_SHOW_BSPHERE
-    glGenBuffers( 1, &Bsphere_debug_Buffer);
+    Bsphere_debug_Buffer=-1;
     #endif
-    //Now, generate the glorious buffers!
-    glGenBuffers( 1, &vertexBuffer);
-    glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
     }
-    //Now the data exists both in a CPU and the GPU, and I told the GPU that I might occasionally want to modify the data.
+    if (size>0)
+    {
 
-    recalc_bsphere();
+        if (! approx(vertices[size-1], vertices[0]))
+        {
+            vertices.push_back(vertices[0]);//Close the loop
+            ++size;
+        }
+
+
+        if (graphic_mode)
+        {
+            #ifdef DEBUG_SHOW_BSPHERE
+            glGenBuffers( 1, &Bsphere_debug_Buffer);
+            #endif
+            //Now, generate the glorious buffers!
+            glGenBuffers( 1, &vertexBuffer);
+            glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
+            glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
+        }
+        //Now the data exists both in a CPU and the GPU, and I told the GPU that I might occasionally want to modify the data.
+
+        recalc_bsphere();
+    }
 }
 
 //No need to optimize this very much, as I only need to call it once in a while
@@ -65,10 +89,23 @@ void mesh2D::add_vertex(vec2 New)
 
     if (size>0)
     {
-        vertices.push_back(vertices[0]);//Keep the loop closed by extending the ending
-        vertices[size-1]=New;//Add the new element
-        ++size;
-        recalc_bsphere();
+        bool dublicate=false;
+        for (const vec2& V : vertices)
+        {
+            if (approx(V,New))
+            {
+                dublicate = true;
+                break;
+            }
+        }
+
+        if (!dublicate)
+        {
+            vertices.push_back(vertices[0]);//Keep the loop closed by extending the ending
+            vertices[size-1]=New;//Add the new element
+            ++size;
+            recalc_bsphere();
+        }
     }
     else
     {
@@ -146,7 +183,7 @@ void mesh2D::save(ofstream& OUT) const
     OUT.write((const char*)&vertices[0],size*sizeof(vec2));
 }
 
-bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
+bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
 {//Does any of my edges intersect with these? just asking for this, nevermind where
 
     //We need at least a line (3 points, since the first point is included twice to close the loop)
@@ -308,10 +345,10 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                                 }
                             }
 
-                            //Have we hit the vertices EXACTLY
+                            //Have we hit the vertices EXACTLY ... SHIT
                             if (approx(C,I))
                             {
-                                cout<<"Did hit C"<<endl;
+
                                 vec2 L = C-A;
                                 if (!continues(L,i))
                                     return true;
@@ -320,7 +357,6 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 
                             if (approx(D,I))
                             {
-                                cout<<"Did hit D"<<endl;
                                 vec2 L = D-A;
                                 if (!continues(L,i+1))
                                     return true;
@@ -329,12 +365,13 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 }
             }
         }
-        else//Super rare edge case, Incomming ray is parallel with the edge which contain one of the vertices, in that case do register self-collision
+        else//Super rare edge case, Incomming ray is parallel with the edge which contain one of the vertices
         {
             //C----D  <---A  Here ray A->C should return collision
             if (approx(a*b1, a1*b))
             {
-                float Dist1 = dot(A-C,A-C);
+                PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
+                /*float Dist1 = dot(A-C,A-C);
                 float Dist2 = dot(A-D,A-D);
                 if (approx(B,C))
                 {
@@ -344,6 +381,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 else
                     if (Dist1<Dist2)
                         return true;
+            */
             }
         }
     }
@@ -368,16 +406,47 @@ bool mesh2D::continues(const vec2& L,uint i) const
 
     //What do we require to not collide at the point? we need the edge vectors to go to the "opposite site" of our incomming ray
     /*
+    This should block
     V0
+     |
+     V
      V1<-------
+       \
+        V
         V2
     */
     //So we need to check the sign of the sine of the angle between the vectors, if the are the *same* then we are good... so we need the determinants
     float det0 = V10.x*L.y-V10.y*L.x;//=|L||V10|sin(theta)
     float det1 = V12.x*L.y-V12.y*L.x;//...
 
+    float det01 = det0*det1;
 
-    //How do we check if they have the same sign? easy
+    //How do we check if they have the same sign? "easy"
+    /*
+    if (det01>0)
+    {
+        return true;
+    }
+    but not so fast, what if sin(theta)=0 (The edges are directly towards or away from the incomming ray)
+
+    */
+
+    if (approx(det0,0))
+    {
+        return true;
+    }
+    else if (approx(det1,0))
+    {
+
+        return true;
+    }
+    else if (det01>=0)
+    {
+        return true;
+    }
+    else
+        return false;
+
     return det0*det1>= 0;
 }
 

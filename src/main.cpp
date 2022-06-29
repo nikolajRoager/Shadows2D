@@ -25,7 +25,7 @@
 
 
 
-#define DEBUG_PRECISION
+//#define DEBUG_PRECISION
 //#define DEBUG_STATIC
 
 //I use these types so much that these aliases are well worth it
@@ -106,7 +106,9 @@ int main(int argc, char* argv[])
                         {
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
-                            mess.push_back(mesh2D(vertices));
+
+                            //if (i==27 )
+                                mess.push_back(mesh2D(vertices));
                         }
                     }
                     IN.close();
@@ -122,7 +124,24 @@ int main(int argc, char* argv[])
     }
 
 
+/*Beutifull example wich is nearly impossible to solve
+    vector<vec2> vertices = {vec2(500,300),vec2(500,400),vec2(600,400),vec2(600,200),vec2(400,200),vec2(400,300)};
 
+    mess.push_back(mesh2D(vertices));
+    vertices = {vec2(900,300),vec2(1000,200),vec2(1100,300)};
+
+    mess.push_back(mesh2D(vertices));
+    vertices = {vec2(700,500),vec2(800,400),vec2(900-200,500-200)};
+    mess.push_back(mesh2D(vertices));
+    //vertices = {vec2(1100,100),vec2(1200,0),vec2(1300,100)};
+    //mess.push_back(mesh2D(vertices));
+
+    vertices = {vec2(1000,700),vec2(1100,700),vec2(1100,500)};
+    mess.push_back(mesh2D(vertices));
+
+    int mouse_x_px=500;
+    int mouse_y_px=700;
+    */
     //For editing meshes
     uint meshes = mess.size();
 
@@ -140,7 +159,6 @@ int main(int argc, char* argv[])
 
     if (do_display)
     {
-
         reynold.update(mess);
 //        richard.screen_bounds();
 //        richard.update(mess);
@@ -152,10 +170,7 @@ int main(int argc, char* argv[])
         ulong time_start = pmillis;
 
 
-        vec2 mouse_pos = vec2(
--2.400000,
-4.643683
-);
+        vec2 mouse_pos = vec2(0);
 
 
         {
@@ -174,8 +189,8 @@ int main(int argc, char* argv[])
         }
         ulong pupdate = pmillis;
 
-            int mouse_x_px=mouse_pos.x;
-            int mouse_y_px=mouse_pos.y;
+        int mouse_x_px=mouse_pos.x;
+        int mouse_y_px=mouse_pos.y;
 
         do
         {
@@ -283,6 +298,7 @@ int main(int argc, char* argv[])
 
                 if (do_update)
                 {
+                    cout<<"Update"<<endl;
                     reynold.update(mess);
                 }
             }

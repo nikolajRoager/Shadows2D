@@ -68,7 +68,7 @@ public:
 
     void save(ofstream& OUT) const;
 
-    bool has_intersect(const vec2& A,const vec2& B) const;
+    bool has_intersect(const vec2& A,const vec2& B,bool& PANIC) const;
     bool continues(const vec2& O,uint i) const;
     bool get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, uint& V1_ID , float& dist2) const;
 

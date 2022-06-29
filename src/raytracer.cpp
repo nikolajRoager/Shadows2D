@@ -126,100 +126,139 @@ void raytracer::update(const vector<mesh2D>& meshes,bool do_display)
     };
 
 
-    //There is no way to know how many vertices there will be
-    vector<vertexdata> vertices;
-    uint extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
-
-
-    triangle_fan = vector<vec2>(1,triangle_fan[0]);//Drop all previous points
-
-    triangle_fan.reserve(triangle_fan.size());//Make sure we likely have enough room
-
     uint Msize = meshes.size();
 
 
 vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x,V1.y)};
-    for (uint j = 0; j <= Msize; ++ j)
-        {
 
-            const mesh2D* M = j<Msize? &(meshes[j]) : nullptr;
+    //There is no way to know how many vertices there will be
+    vector<vertexdata> vertices;
 
-            const vector<vec2>& Verts  = M!=nullptr? M->get_vertices() : screen;
-            uint S = Verts.size();
-            if (S < 3)//Lines or above (S includs one more point to loop back)
-                continue;
-            if (M!=nullptr)//This list includes the end two times, ignore it
-                S--;
+    //If you can't beat them, wait for them to go away, Points EXACTLY lining up is evil, and difficult to work with
+    bool EVIL_REDO=true;
 
-            for (uint i = 0 ; i < S ; ++i)
+    uint extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
+
+    uint EVIL_RETRIES= 0;
+
+    while(EVIL_REDO)
+    {
+        EVIL_REDO=false;
+
+    //There is no way to know how many vertices there will be
+    extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
+
+
+    triangle_fan = vector<vec2>(1,triangle_fan[0]);//Drop all previous points
+
+        for (uint j = 0; j <= Msize; ++ j)
             {
 
-                vec2 V  = Verts[i];
-                //Check for intersections along the way
+                const mesh2D* M = j<Msize? &(meshes[j]) : nullptr;
 
-                if (limit_lens)
+                const vector<vec2>& Verts  = M!=nullptr? M->get_vertices() : screen;
+                uint S = Verts.size();
+                if (S < 3)//Lines or above (S includs one more point to loop back)
+                    continue;
+                if (M!=nullptr)//This list includes the end two times, ignore it
+                    S--;
+
+                for (uint i = 0 ; i < S ; ++i)
                 {
-                    //If using a limited viewing/lighting angle, throw away anything which does not fit
-                    vec2 this_dir = V-triangle_fan[0];
-                   float this_dot = dot(this_dir,dir);
-                   //Ok, now just compare this to the dot product of the extreme angle ... and oh no!, we need to divide out the length of this_dir, and sqrt and divisions are cursed
-                   //... well ok, I actually ran a speed comparison and it is really nowhere near as bad as I thought ... so yeah
-                   if (this_dot < extreme_dot*sqrt(dot(this_dir,this_dir)))//I am still going to avoid a division where I can, it is not as expensive an operation as I thought but I would not is still cursed
-                        continue;
 
-                }
+                    vec2 V  = Verts[i];
+                    //Check for intersections along the way
 
-                bool intersects = false;
-                for (const mesh2D& M1 : meshes)
-                {
-                    if(M1.has_intersect(triangle_fan[0],V))
+                    if (limit_lens)
                     {
-                        intersects = true;
-                        break;
+                        //If using a limited viewing/lighting angle, throw away anything which does not fit
+                        vec2 this_dir = V-triangle_fan[0];
+                       float this_dot = dot(this_dir,dir);
+                       //Ok, now just compare this to the dot product of the extreme angle ... and oh no!, we need to divide out the length of this_dir, and sqrt and divisions are cursed
+                       //... well ok, I actually ran a speed comparison and it is really nowhere near as bad as I thought ... so yeah
+                       if (this_dot < extreme_dot*sqrt(dot(this_dir,this_dir)))//I am still going to avoid a division where I can, it is not as expensive an operation as I thought but I would not is still cursed
+                            continue;
 
                     }
-                }
-                if (!intersects)
-                {
 
-                    vertices.push_back(vertexdata(V,triangle_fan[0],j,i));//Associated with mesh j, vertex i
-
-                    //Now, we want to see if we can continue the line further
-                    if (M!=nullptr)//Obviously not if this is the edge box, that thing does not continue
+                    bool intersects = false;
+                    //cout<<"Check intersect of "<<i<<','<<j<<endl;
+                    for (const mesh2D& M1 : meshes)
                     {
-                        vec2 L = V-triangle_fan[0];
-                        if (M->continues(L,i))
+                        if(M1.has_intersect(triangle_fan[0],V,EVIL_REDO))
                         {
-                            ++extensions;
-                            vertices[vertices.size()-1].Locked=false;//Ok ... Save this for after the initial sort
+                          //  cout<<"Found intersect of "<<i<<','<<j<<endl;
+                            intersects = true;
+                            break;
+
                         }
+                    }
+                    if (!intersects)
+                    {
+                        //cout<<"Register non intersecting "<<i<<','<<j<<" : "<<V.x<<','<<V.y<<endl;
+                        vertices.push_back(vertexdata(V,triangle_fan[0],j,i));//Associated with mesh j, vertex i
+
+                        //Now, we want to see if we can continue the line further
+                        if (M!=nullptr)//Obviously not if this is the edge box, that thing does not continue
+                        {
+                            vec2 L = V-triangle_fan[0];
+                            if (M->continues(L,i))
+                            {
+                                ++extensions;
+                                vertices[vertices.size()-1].Locked=false;//Ok ... Save this for after the initial sort
+                            }
 
 
+                        }
                     }
                 }
+
             }
-        }
 
 
 
-    #ifdef DEBUG_NON_INTERSECT
-    if (do_display)
-    {
-        non_intersecting=vertices.size();
-        vector<vec2> NI_vertices(non_intersecting*2);
-        for (uint i = 0; i < vertices.size(); ++i)
+        #ifdef DEBUG_NON_INTERSECT
+        if (do_display)
         {
-            NI_vertices[i*2]=(vertices[i].pos);
-            NI_vertices[i*2+1]=(triangle_fan[0]);
+            non_intersecting=vertices.size();
+            vector<vec2> NI_vertices(non_intersecting*4);
+            for (uint i = 0; i < vertices.size(); ++i)
+            {
+                NI_vertices[i*4]  =(vertices[i].pos+vec2(5,5));
+                NI_vertices[i*4+1]=(vertices[i].pos-vec2(5,5));
+                NI_vertices[i*4+2]=(vertices[i].pos+vec2(5,-5));
+                NI_vertices[i*4+3]=(vertices[i].pos+vec2(-5,5));
+            }
+
+            glBindBuffer( GL_ARRAY_BUFFER, NI_Vertices_Buffer);
+            glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(non_intersecting*4), &(NI_vertices[0]), GL_DYNAMIC_DRAW );
+
         }
+        #endif
 
-        glBindBuffer( GL_ARRAY_BUFFER, NI_Vertices_Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(non_intersecting*2), &(NI_vertices[0]), GL_DYNAMIC_DRAW );
+        //The most dastardly EVIL solution thinkable, literally just re-do if you get something you can't solve
+        if (EVIL_REDO)
+        {
+            float rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*32342342245.3254325342f)*1000.f*acc;
+            if (std::abs(rnd)<acc)
+                rnd = 10*acc;
+            triangle_fan[0].x+=rnd;
+            rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*2982345934.3254325342f)*1000.f*acc;
+            if (std::abs(rnd)<acc)
+                rnd = 10*acc;
+            triangle_fan[0].y+=rnd;
 
+            if (EVIL_RETRIES<100)
+            {
+                vertices = vector<vertexdata>();
+                extensions=0;
+
+                EVIL_RETRIES++;
+            }
+            else
+                break;
+       }
     }
-    #endif
-
-
 
 
     vec2 temp = triangle_fan[0];
@@ -754,8 +793,8 @@ void raytracer::display() const
 
     #ifdef DEBUG_NON_INTERSECT
     //Draw vertices as crosses
-    if (non_intersecting>1 && NI_Vertices_Buffer!= (GLuint)-1)
-        IO::graphics::draw_segments(NI_Vertices_Buffer,non_intersecting*2,vec3(1,1,1));
+    if (non_intersecting>0 && NI_Vertices_Buffer!= (GLuint)-1)
+        IO::graphics::draw_segments(NI_Vertices_Buffer,non_intersecting*4,vec3(1,1,1));
     #endif
 
 
