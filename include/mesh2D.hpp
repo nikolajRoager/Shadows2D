@@ -40,7 +40,7 @@ private:
     vec2 Bsphere_center = vec2(0);
     void recalc_bsphere(); //reset the bounding sphere
 
-    float acc=1e-6;
+    float acc=1e-5;
 
     //Floating points numbers are EVIL, regular == sometimes fails because minor floating point errors have caused them to drift 0.0000000001 or something off. I decided NOT to use a macro function, because I WANT to get compiler warnigns if I try to do approx(int,int)
     inline bool approx(float a, float b) const

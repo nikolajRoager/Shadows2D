@@ -3,9 +3,8 @@
 #include <iostream>
 #include <algorithm>
 
-raytracer::raytracer(vec2 origin, uint tex, bool do_display)
+raytracer::raytracer(vec2 origin,  bool do_display)
 {
-    my_tex=tex;
 
     triangle_fan = vector<vec2>(1,origin);//Origin must always be defined
     V0=vec2(0,0);//This is my screen, so leave it at that for default
@@ -282,6 +281,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //vertex_size+=1*extensions;
         uint unlocked = extensions;
 
+
         //Some lambda functions for testing if we  should swap or not
         //I try to use C++ lambda function instead of copy pasting code ...
 
@@ -297,7 +297,12 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
             }
             else
             {
-                return ((V0.V0_ID==V1.V1_ID || V0.V0_ID == V1.V0_ID));//V1 is on an an edge, and this edge includes V0
+                return (
+                V0.V0_ID == V1.V1_ID ||
+                V0.V0_ID == V1.V0_ID ||
+                V0.V1_ID == V1.V1_ID ||
+                V0.V1_ID == V1.V0_ID
+                );//V1 is on an an edge, and this edge includes V0
             }
 
         };
@@ -666,7 +671,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 //    debug_numbers = vector<uint >(vertex_size);
     #endif
     #ifdef DEBUG_OUTLINE
-    vector<vec2> Display_outline(vertex_size);
+    vector<vec2> Display_outline(vertex_size+(limit_lens? 2 : 0));
     #endif
 
     triangle_fan = vector<vec2>(draw_size,triangle_fan[0]);
@@ -682,16 +687,16 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //Uncomment to see outline only
 
         #ifdef DEBUG_VERTICES
-        Display_vertices[i*4+0]=vertices[i].pos-vec2(0.1,0.0);
-        Display_vertices[i*4+1]=vertices[i].pos+vec2(0.1,0.0);
-        Display_vertices[i*4+2]=vertices[i].pos-vec2(0.0,0.1);
-        Display_vertices[i*4+3]=vertices[i].pos+vec2(0.0,0.1);
+        Display_vertices[i*4+0]=vertices[i].pos-vec2(5,0.0);
+        Display_vertices[i*4+1]=vertices[i].pos+vec2(5,0.0);
+        Display_vertices[i*4+2]=vertices[i].pos-vec2(0.0,5);
+        Display_vertices[i*4+3]=vertices[i].pos+vec2(0.0,5);
 
 //        debug_numbers[i] = (IO::graphics::set_text(to_string(i)));
 
         #endif
         #ifdef DEBUG_OUTLINE
-        Display_outline[i]=vertices[i].pos;
+        Display_outline[i+(limit_lens? 1 : 0)]=vertices[i].pos;
         #endif
         triangle_fan[i+1]=vertices[i].pos;
 
@@ -709,26 +714,35 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
 
     #ifdef DEBUG_OUTLINE
+    if (limit_lens)//If we use limited lense, we want to see the actual cone
+    {
+        Display_outline[0]=triangle_fan[0];
+        Display_outline[vertex_size+1]=triangle_fan[0];
+    }
+
+
     if (do_display)
     {
         glBindBuffer( GL_ARRAY_BUFFER, Outline_Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size), &(Display_outline[0]), GL_DYNAMIC_DRAW );
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size+(limit_lens? 2 : 0)), &(Display_outline[0]), GL_DYNAMIC_DRAW );
     }
     #endif
 
+    if (do_display)
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(draw_size), &(triangle_fan[0]), GL_DYNAMIC_DRAW );
+    }
 }
 
 void raytracer::display() const
 {
-    //Bake to buffer here, and not in the update function, this allows us to run update with all opengl functions turned off to only test the speed of the algorithm. Not that this makes a difference, but I had to try it to see that it did not really matter
-    glBindBuffer( GL_ARRAY_BUFFER, Buffer);
-    glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(draw_size), &(triangle_fan[0]), GL_DYNAMIC_DRAW );
 
     //Different versions of Debug mode display
     #ifdef DEBUG_OUTLINE
     //Outline rather than triangle fan, easier to spot a wrong swap
     if (draw_size>1 && Outline_Buffer != (GLuint)-1)
-        IO::graphics::draw_lines(Outline_Buffer,draw_size-1,vec3(0,0,1));
+        IO::graphics::draw_lines(Outline_Buffer,draw_size-1+(limit_lens? 2 : 0),vec3(0,0,1));
     #endif
     #ifdef DEBUG_VERTICES
     //Draw vertices as crosses
@@ -747,11 +761,9 @@ void raytracer::display() const
 
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1 && Buffer != (GLuint)-1)//Default display
-        IO::graphics::draw_triangles(Buffer,draw_size,vec3(1.f/lens_angle),triangle_fan[0]);
+        IO::graphics::draw_triangles(Buffer,draw_size,vec3(1));
     #endif
 
-//    if (my_tex!= (uint)-1)
-//        IO::graphics::draw_tex(my_tex,triangle_fan[0]);
 }
 
 

@@ -167,6 +167,8 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
     float D2 = dot(A_to_sphere,A_to_sphere);
     float det = pow(dot(A_to_sphere,ray_dir),2.f)-dot(ray_dir,ray_dir)*(D2-Bsphere_r2);
 
+
+
     //The bouding sphere is completely irrelevant if we are inside it
     if (D2>Bsphere_r2)
     {
@@ -194,6 +196,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
         float b1 = C.x - D.x;
 
         float c1 = a1*(C.x)+ b1*(C.y);
+
 
         //Selfcollision is never registered
         if (!(approx(C,B) || approx(D,B)))
@@ -223,14 +226,16 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 
                     float Dist1 = A.x-C.x;
                     float Dist2 = A.x-B.x;
-                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
+                    if (std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0)
+                        return true;
 
                 }
                 else if (approx(D.y,B.y))
                 {
                     float Dist1 = A.x-D.x;
                     float Dist2 = A.x-B.x;
-                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
+                    if (std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0)
+                        return true;
                 }
 
 
@@ -255,14 +260,16 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 
                     float Dist1 = A.y-C.y;
                     float Dist2 = A.y-B.y;
-                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
+                    if (std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0)
+                        return true;
 
                 }
                 else if (approx(D.x,B.x))
                 {
                     float Dist1 = A.y-D.y;
                     float Dist2 = A.y-B.y;
-                    return std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0;
+                    if (std::abs(Dist1)<std::abs(Dist2) &&  Dist1*Dist2 >0)
+                        return true;
                 }
                 //We collide with this if
                 //a1 A.x + b1 y = c1
@@ -286,16 +293,39 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
 
                     vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
 
-                    //The is-equal case happens whenever this vertex is on the x or y axis, which is very common if the boxes are placed by the computer thorugh some procedure
-                    if ((std::max(C.x,D.x)>=I.x && I.x>=std::min(D.x,C.x)) || approx(b1,0) )
-                    {
-                        if ((std::min(C.y,D.y)<=I.y && I.y <=std::max(C.y,D.y)) || approx(a1,0))
-                            if ((std::min(A.y,B.y)<=I.y && I.y <=std::max(A.y,B.y))  || approx(a1,0))
-                                if ((std::min(A.x,B.x)<=I.x && I.x <=std::max(A.x,B.x))  || approx(b1,0))
+                    //The is-equal case happens sometimes, when things have truly been set up to be the same
+                    if ((std::min(A.y,B.y)<=I.y && I.y <=std::max(A.y,B.y))  || approx(a1,0))
+                        if ((std::min(A.x,B.x)<=I.x && I.x <=std::max(A.x,B.x))  || approx(b1,0))
+                        {
+                            //Normally, a single vertex should only be able to stop the light, if the shape continues after this
+
+
+                            if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || approx(b1,0) )
+                            {
+                                if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || approx(a1,0))
                                 {
                                     return true;
                                 }
-                    }
+                            }
+
+                            //Have we hit the vertices EXACTLY
+                            if (approx(C,I))
+                            {
+                                cout<<"Did hit C"<<endl;
+                                vec2 L = C-A;
+                                if (!continues(L,i))
+                                    return true;
+
+                            }
+
+                            if (approx(D,I))
+                            {
+                                cout<<"Did hit D"<<endl;
+                                vec2 L = D-A;
+                                if (!continues(L,i+1))
+                                    return true;
+                            }
+                        }
                 }
             }
         }
@@ -307,9 +337,13 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B) const
                 float Dist1 = dot(A-C,A-C);
                 float Dist2 = dot(A-D,A-D);
                 if (approx(B,C))
-                    return Dist1>Dist2;
+                {
+                    if (Dist1>Dist2)
+                        return true;
+                }
                 else
-                    return Dist1<Dist2;
+                    if (Dist1<Dist2)
+                        return true;
             }
         }
     }
@@ -492,9 +526,9 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
                 {
                     vec2 I = vec2((b1*c - b*c1),(a*c1 - a1*c))/det;
 
-                    if ((std::max(C.x,D.x)>=I.x && I.x>=std::min(D.x,C.x)) || approx(b1,0))
+                    if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || approx(b1,0))
                     {
-                        if ((std::min(C.y,D.y)<=I.y && I.y <=std::max(C.y,D.y)) || approx(a1,0) )
+                        if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || approx(a1,0) )
                             if (dot(I-A,B-A)>=0 )//If it is anywhere ahead of us
                             {
                                 float L2 = dot(I-A,I-A);

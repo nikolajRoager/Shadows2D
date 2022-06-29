@@ -39,7 +39,6 @@ private:
 
 
     vec2 V0,V1;//Two vertices defining the bounding box of this raytracer, likely set to the screen boundaries or some other border (box from V0.x,V0.y to V1.x,V0.y to V1.x,V1.y to V0.x,V1.y and back, the order of the vertices does not matter)
-    uint my_tex;
 
     vector<vec2> triangle_fan;
 
@@ -86,7 +85,7 @@ private:
 
 
 public:
-    raytracer(vec2 origin, uint tex,bool do_display);
+    raytracer(vec2 origin, bool do_display);
     raytracer(raytracer&& that);//Just to be safe, define this
     ~raytracer();
     void set_origin(vec2 origin) {triangle_fan[0]= origin;

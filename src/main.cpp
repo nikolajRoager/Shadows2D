@@ -23,6 +23,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
+
+
+#define DEBUG_PRECISION
+//#define DEBUG_STATIC
+
 //I use these types so much that these aliases are well worth it
 //I have never come across any system where this was an issue, but I am horrified by the fact that the c++ standards technically allows for integers of different sizes to technically be used, I want to be absolutely sure that I know where every bit is ... ok, in this project I don't do any bit manipulation, but I do that on a regular basis in the game this is meant for. I personally prefer to use the smallest type I can get away with, and never use signed if unsigned will suffice.
 using uint = uint32_t;
@@ -49,7 +54,7 @@ int main(int argc, char* argv[])
         cout<<"Starting main display"<<endl;
         try
         {
-            IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", false, 1920,1080);
+            IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", true, 1920,1080);
 
             lamp = IO::graphics::load_tex("lamp.png");
         }
@@ -101,8 +106,7 @@ int main(int argc, char* argv[])
                         {
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
-                            if (i==4 )
-                                mess.push_back(mesh2D(vertices));
+                            mess.push_back(mesh2D(vertices));
                         }
                     }
                     IN.close();
@@ -124,8 +128,8 @@ int main(int argc, char* argv[])
 
     uint active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
-    raytracer reynold(vec2(0),lamp,do_display);
-//    raytracer richard(vec2(1,3),lamp,do_display);
+    raytracer reynold(vec2(0),do_display);
+//    raytracer richard(vec2(1,3),do_display);
 
     float this_theta = 2.8;
     float this_Dtheta=TWO_PI;
@@ -170,15 +174,46 @@ int main(int argc, char* argv[])
         }
         ulong pupdate = pmillis;
 
+            int mouse_x_px=mouse_pos.x;
+            int mouse_y_px=mouse_pos.y;
+
         do
         {
 //            richard.screen_bounds();
 
-            int mouse_x_px, mouse_y_px;
-            IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
-            //mouse_pos.x = mouse_x_px;
-            //mouse_pos.y = mouse_y_px;
 
+            #ifdef DEBUG_PRECISION
+            //Debug, for pixel perfect control, move with arrow keys
+            if (IO::input_devices::up_key_click())
+            {
+                ++mouse_y_px;
+            }
+
+            if (IO::input_devices::down_key_click())
+            {
+                --mouse_y_px;
+            }
+
+            if (IO::input_devices::right_key_click())
+            {
+                ++mouse_x_px;
+            }
+
+            if (IO::input_devices::left_key_click())
+            {
+                --mouse_x_px;
+            }
+
+            #else
+
+            IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
+            #endif
+
+            #ifndef DEBUG_STATIC
+
+            mouse_pos.x = mouse_x_px;
+            mouse_pos.y = mouse_y_px;
+            #endif
 
             int scroll = IO::input_devices::get_scroll();
 
@@ -186,12 +221,10 @@ int main(int argc, char* argv[])
 
             dt = (millis-pmillis)*0.001;
             //mouse_pos.y+= dt;
-            IO::graphics::draw_tex(mouse_x_px,mouse_y_px,lamp);
 
             //DEBUG READ AND WRITE SPECIFIC COORDINATES
             if (IO::input_devices::mouse_click(false))
             {
-
                 std::ofstream file("position_file.bin", std::ios::binary);
 
                 file.write((const char*)&mouse_pos,sizeof(vec2));
@@ -203,11 +236,9 @@ int main(int argc, char* argv[])
             {
                 if (IO::input_devices::mouse_click(true))//Right click to add new object
                 {
-                    cout<<"Trying to add another mesh"<<endl;
                     ++active_mesh;
                     ++meshes;
                     mess.push_back(mesh2D());
-                    cout<<"Did so"<<endl;
                 }
                 else if (IO::input_devices::mouse_click(false))//Left click to add new vertex to old object
                 {
@@ -269,6 +300,7 @@ int main(int argc, char* argv[])
             IO::graphics::render_Ray();
 
 
+            IO::graphics::draw_tex(mouse_x_px,mouse_y_px-8,lamp);
 
             IO::post_loop();
 
