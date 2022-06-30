@@ -512,8 +512,8 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
                                         Out=I;
                                         V0_ID=i;
                                         V1_ID=(i+1)%size;
+                                        ret = true;
                                     }
-                                    ret = true;
                                 }
                     }
                 }
@@ -532,8 +532,8 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
                                 Out=I;
                                 V0_ID=i;
                                 V1_ID=(i+1)%size;
+                                ret = true;
                             }
-                            ret = true;
 
                         }
   /*
@@ -563,8 +563,8 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
                                         Out=I;
                                         V0_ID=i;
                                         V1_ID=(i+1)%size;
+                                        ret = true;
                                     }
-                                    ret = true;
                                 }
                     }
                 }
@@ -581,8 +581,8 @@ bool mesh2D::get_intersect(const vec2& A,const vec2& B, vec2& Out, uint& V0_ID, 
                                 Out=I;
                                 V0_ID=i;
                                 V1_ID=(i+1)%size;
+                                ret = true;
                             }
-                            ret = true;
 
                         }
                 }

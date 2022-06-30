@@ -141,10 +141,11 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
     uint EVIL_RETRIES= 0;
 
-    while(EVIL_REDO)
+    do
     {
         EVIL_REDO=false;
 
+        cout<<"--"<<triangle_fan[0].x<<" "<<triangle_fan[0].y<<endl;
     //There is no way to know how many vertices there will be
     extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
 
@@ -207,6 +208,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                             {
                                 ++extensions;
                                 vertices[vertices.size()-1].Locked=false;//Ok ... Save this for after the initial sort
+                                cout<<"Located extension "<<i<<" "<<j<<endl;
+                                cout<<"--"<<vertices[vertices.size()-1].pos.x<<" "<<vertices[vertices.size()-1].pos.x<<endl;
                             }
 
 
@@ -260,7 +263,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
             else
                 break;
        }
-    }
+    }while(EVIL_REDO);
 
 
     vec2 temp = triangle_fan[0];
@@ -322,6 +325,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //vertex_size+=1*extensions;
         uint unlocked = extensions;
 
+        cout<<"Have extensions "<<extensions<<endl;
 
         //Some lambda functions for testing if we  should swap or not
         //I try to use C++ lambda function instead of copy pasting code ...
@@ -418,12 +422,15 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 uint my_V0=-1;
                 uint my_V1=-1;
 
+                cout<<"CHECK "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
                 for (uint k = 0; k < Msize; ++k)
                 {
+                    cout<<"CHECK OBJECT "<<k<<endl;
                     const mesh2D& M1 = meshes[k];
 
                     if(M1.get_intersect(triangle_fan[0],V,W,my_V0,my_V1,minL2))
                     {
+                        cout<<"HAVE BEEN HIT "<<endl;
                         hit_ID=k;
                         intersects = true;
 
@@ -534,6 +541,9 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                     VNew.Locked=false;
 
                 }
+
+                cout<<"Have extended "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
+                cout<<" --> ("<<VNew.V0_ID<<','<<VNew.V1_ID<<") "<<VNew.O_ID<<endl;
 
 
                 //If this is the extreme edge of the camera just replace the old vertex
