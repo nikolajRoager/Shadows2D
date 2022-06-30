@@ -25,7 +25,7 @@
 
 
 
-//#define DEBUG_PRECISION
+#define DEBUG_PRECISION
 //#define DEBUG_STATIC
 
 //I use these types so much that these aliases are well worth it
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
 
                             //if (i==27 )
-                                mess.push_back(mesh2D(vertices));
+                                //mess.push_back(mesh2D(vertices));
                         }
                     }
                     IN.close();
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     }
 
 
-/*Beutifull example wich is nearly impossible to solve
+//Beutifull example wich is nearly impossible to solve
     vector<vec2> vertices = {vec2(500,300),vec2(500,400),vec2(600,400),vec2(600,200),vec2(400,200),vec2(400,300)};
 
     mess.push_back(mesh2D(vertices));
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 
     int mouse_x_px=500;
     int mouse_y_px=700;
-    */
+
     //For editing meshes
     uint meshes = mess.size();
 
@@ -189,8 +189,8 @@ int main(int argc, char* argv[])
         }
         ulong pupdate = pmillis;
 
-        int mouse_x_px=mouse_pos.x;
-        int mouse_y_px=mouse_pos.y;
+//        int mouse_x_px=mouse_pos.x;
+//        int mouse_y_px=mouse_pos.y;
 
         do
         {

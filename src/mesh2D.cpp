@@ -349,6 +349,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
                             if (approx(C,I))
                             {
 
+                                PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
                                 vec2 L = C-A;
                                 if (!continues(L,i))
                                     return true;
@@ -357,6 +358,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
 
                             if (approx(D,I))
                             {
+                                PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
                                 vec2 L = D-A;
                                 if (!continues(L,i+1))
                                     return true;
@@ -370,6 +372,7 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
             //C----D  <---A  Here ray A->C should return collision
             if (approx(a*b1, a1*b))
             {
+                cout<<"Here be do be"<<endl;
                 PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
                 /*float Dist1 = dot(A-C,A-C);
                 float Dist2 = dot(A-D,A-D);

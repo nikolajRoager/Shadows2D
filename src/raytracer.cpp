@@ -239,15 +239,17 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //The most dastardly EVIL solution thinkable, literally just re-do if you get something you can't solve
         if (EVIL_REDO)
         {
+            break;
             float rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*32342342245.3254325342f)*1000.f*acc;
             if (std::abs(rnd)<acc)
-                rnd = 10*acc;
+                rnd = 1000*acc;
             triangle_fan[0].x+=rnd;
             rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*2982345934.3254325342f)*1000.f*acc;
             if (std::abs(rnd)<acc)
-                rnd = 10*acc;
+                rnd = 1000*acc;
             triangle_fan[0].y+=rnd;
 
+            cout<<"Evil redo "<<EVIL_RETRIES<<endl;
             if (EVIL_RETRIES<100)
             {
                 vertices = vector<vertexdata>();
