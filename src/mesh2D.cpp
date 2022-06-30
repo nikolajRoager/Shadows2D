@@ -336,32 +336,53 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
                         {
                             //Normally, a single vertex should only be able to stop the light, if the shape continues after this
 
-
-                            if ((std::max(C.x,D.x)>I.x && I.x>std::min(D.x,C.x)) || approx(b1,0) )
+                            if (i==0 || i == vertices.size()-2)
                             {
-                                if ((std::min(C.y,D.y)<I.y && I.y <std::max(C.y,D.y)) || approx(a1,0))
-                                {
-                                    return true;
-                                }
+                                cout<<"Have "<<I.x<<" "<<I.y<<endl;
+                                cout<<"Compare C "<<C.x<<" "<<C.y<<endl;
+                                cout<<"AND     D "<<D.x<<" "<<D.y<<endl;
                             }
+
+
 
                             //Have we hit the vertices EXACTLY ... SHIT
                             if (approx(C,I))
                             {
 
+                                cout<<"EXACT HIT ON C "<<i<<endl;
                                 PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
                                 vec2 L = C-A;
                                 if (!continues(L,i))
                                     return true;
 
                             }
-
-                            if (approx(D,I))
+                            else if (approx(D,I))
                             {
+                                cout<<"EXACT HIT ON D "<<i<<endl;
                                 PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
                                 vec2 L = D-A;
                                 if (!continues(L,i+1))
                                     return true;
+                            }
+                            else
+                            {
+                                if (i==0 || i == vertices.size()-2)
+                                {
+                                    cout<<"HAVE DO NOW TESTE DO "<<std::max(C.x,D.x)<<" > (I.x) "<<I.x<< " ("<<(std::max(C.x,D.x)> I.x) <<")&& (I.x) "<<I.x<<" > "<<std::min(D.x,C.x)<<"  ("<<(std::min(C.x,D.x)< I.x) <<")"<<endl;
+
+                                }
+                                if ( ( geq(std::max(C.x,D.x),I.x) && geq(I.x,std::min(D.x,C.x))) || approx(b1,0) )
+                                {
+                                    if (i==0 || i == vertices.size()-2)
+                                    {
+                                        cout<<"-HAVE DO NOW TESTE DO "<<std::max(C.y,D.y)<<" > (I.y) "<<I.y<< " ("<<(std::max(C.y,D.y)> I.y) <<")&& (I.y) "<<I.y<<" > "<<std::min(D.y,C.y)<<"  ("<<(std::min(C.y,D.y)< I.y) <<")"<<endl;
+
+                                    }
+                                    if ((geq(I.y,std::min(C.y,D.y)) && geq(std::max(C.y,D.y),I.y)) || approx(a1,0))
+                                    {
+                                        return true;
+                                    }
+                                }
                             }
                         }
                 }
@@ -372,19 +393,9 @@ bool mesh2D::has_intersect(const vec2& A,const vec2& B,bool& PANIC) const
             //C----D  <---A  Here ray A->C should return collision
             if (approx(a*b1, a1*b))
             {
+                cout<<"GOT EXACT LINEUP"<<endl;
                 cout<<"Here be do be"<<endl;
                 PANIC = true;//SOMETHING LINED UP EXACTLY; AAAARGH
-                /*float Dist1 = dot(A-C,A-C);
-                float Dist2 = dot(A-D,A-D);
-                if (approx(B,C))
-                {
-                    if (Dist1>Dist2)
-                        return true;
-                }
-                else
-                    if (Dist1<Dist2)
-                        return true;
-            */
             }
         }
     }

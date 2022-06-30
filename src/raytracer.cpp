@@ -182,7 +182,9 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                     }
 
                     bool intersects = false;
-                    //cout<<"Check intersect of "<<i<<','<<j<<endl;
+
+                    if (i==26)
+                        cout<<"\n----Check intersect of "<<i<<','<<j<<"----"<<endl;
                     for (const mesh2D& M1 : meshes)
                     {
                         if(M1.has_intersect(triangle_fan[0],V,EVIL_REDO))
@@ -193,6 +195,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                         }
                     }
+                    if (i==26)
+                        cout<<"----DONE----\n"<<endl;
                     if (!intersects)
                     {
                         //cout<<"Register non intersecting "<<i<<','<<j<<" : "<<V.x<<','<<V.y<<endl;
@@ -239,23 +243,22 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //The most dastardly EVIL solution thinkable, literally just re-do if you get something you can't solve
         if (EVIL_REDO)
         {
-            break;
             float rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*32342342245.3254325342f)*1000.f*acc;
-            if (std::abs(rnd)<acc)
-                rnd = 1000*acc;
+            if (std::abs(rnd)<500*acc)
+                rnd = 500*acc;
             triangle_fan[0].x+=rnd;
             rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*2982345934.3254325342f)*1000.f*acc;
-            if (std::abs(rnd)<acc)
-                rnd = 1000*acc;
+            if (std::abs(rnd)<500*acc)
+                rnd = 500*acc;
             triangle_fan[0].y+=rnd;
 
-            cout<<"Evil redo "<<EVIL_RETRIES<<endl;
             if (EVIL_RETRIES<100)
             {
                 vertices = vector<vertexdata>();
                 extensions=0;
 
                 EVIL_RETRIES++;
+                cout<<"Evil redo "<<EVIL_RETRIES<<" "<<triangle_fan[0].x<<' '<<triangle_fan[0].y<<endl;
             }
             else
                 break;
