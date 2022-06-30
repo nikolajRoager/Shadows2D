@@ -67,12 +67,14 @@ private:
     uint non_intersecting;
     #endif
 
+
+
     #ifdef DEBUG_OUTLINE
     GLuint Outline_Buffer=-1;
     #endif
 
 
-    float acc=1e-6;
+    float acc=1e-4;
 
     //Floating points numbers are EVIL, regular == sometimes fails because minor floating point errors have caused them to drift 0.0000000001 or something off. I decided NOT to use a macro function, because I WANT to get compiler warnigns if I try to do approx(int,int)
     inline bool approx(float a, float b) const

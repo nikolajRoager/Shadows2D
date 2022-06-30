@@ -183,8 +183,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                     bool intersects = false;
 
-                    if (i==26)
-                        cout<<"\n----Check intersect of "<<i<<','<<j<<"----"<<endl;
+                        //cout<<"\n----Check intersect of "<<i<<','<<j<<"----"<<endl;
                     for (const mesh2D& M1 : meshes)
                     {
                         if(M1.has_intersect(triangle_fan[0],V,EVIL_REDO))
@@ -195,8 +194,6 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                         }
                     }
-                    if (i==26)
-                        cout<<"----DONE----\n"<<endl;
                     if (!intersects)
                     {
                         //cout<<"Register non intersecting "<<i<<','<<j<<" : "<<V.x<<','<<V.y<<endl;
