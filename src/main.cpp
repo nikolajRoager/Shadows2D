@@ -13,7 +13,6 @@
 #include <exception>
 
 #include"raytracer.hpp"
-//#include"raycaster.hpp"
 #include"IO.hpp"
 #include "mesh2D.hpp"
 
@@ -25,7 +24,7 @@
 
 
 
-#define DEBUG_PRECISION
+//#define DEBUG_PRECISION
 //#define DEBUG_STATIC
 
 //I use these types so much that these aliases are well worth it
@@ -46,8 +45,17 @@ int main(int argc, char* argv[])
     fs::path assets = "assets";
 
     tex_index lamp = -1;
+    tex_index orb0 = -1;
+    tex_index orb1 = -1;
 
     bool do_display = (argc == 2);
+
+    //To test that intersection detection is working make a number of orbs we can look for
+    vector<vec2> orbs(100);
+
+    for (uint i= 0; i < 10; ++i)
+        for (uint j= 0; j < 10; ++j)
+            orbs[i*10+j]= vec2(1920*(1.f+i)/11.f,1080*(1.f+j)/11.f);
 
     if (do_display)
     {
@@ -57,6 +65,8 @@ int main(int argc, char* argv[])
             IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", true, 1920,1080);
 
             lamp = IO::graphics::load_tex("lamp.png");
+            orb0 = IO::graphics::load_tex("orb0.png");
+            orb1 = IO::graphics::load_tex("orb1.png");
         }
         catch(string error)
         {
@@ -107,7 +117,7 @@ int main(int argc, char* argv[])
                             vector<vec2> vertices(size);
                             IN.read((char*)&vertices[0],size*sizeof(vec2));
 
-                            if (i==13 || i==3 || i==22 )
+                            //if (i==13 || i==3 || i==22 )
                                 mess.push_back(mesh2D(vertices));
                         }
                     }
@@ -148,11 +158,9 @@ int main(int argc, char* argv[])
     uint active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
     raytracer reynold(vec2(0),do_display);
-//    raytracer richard(vec2(1,3),do_display);
 
     float this_theta = 2.8;
     float this_Dtheta=TWO_PI;
-//    reynold.set_angle(this_theta, this_Dtheta);
 
 
     vec2 pos = vec2(0);
@@ -161,8 +169,6 @@ int main(int argc, char* argv[])
     if (do_display)
     {
         reynold.update(mess);
-//        richard.screen_bounds();
-//        richard.update(mess);
         double dt = 0;
 
         ulong millis=0;
@@ -202,7 +208,6 @@ int main(int argc, char* argv[])
             }
         do
         {
-//            richard.screen_bounds();
 
 
             #ifdef DEBUG_PRECISION
@@ -278,7 +283,6 @@ int main(int argc, char* argv[])
                     }
                     mess[active_mesh].add_vertex(mouse_pos);
                     reynold.update(mess);
-//                    richard.update(mess);
 
                 }
             }
@@ -309,9 +313,19 @@ int main(int argc, char* argv[])
                     do_update = true;
                 }
 
+
+                string text_input = "null";
+                if (IO::input_devices::get_command(text_input))
+                {
+                    if (text_input.compare("lightmap")==0)
+                    {
+                        IO::graphics::debug_showlightmap();
+                    }
+                }
+
                 if (do_update)
                 {
-                    cout<<"Update"<<endl;
+                    //cout<<"Update"<<endl;
                     reynold.update(mess);
                 }
             }
@@ -321,12 +335,16 @@ int main(int argc, char* argv[])
             for (const mesh2D& M : mess)
                 M.display();
             reynold.display();
-//            richard.display();
 
-            IO::graphics::activate_Ray();
-//            reynold.display();
-//            richard.display();
-            IO::graphics::render_Ray();
+
+
+
+            IO::graphics::activate_Lightmap();
+            reynold.bake_to_shadowmap(vec3(1),500);
+            IO::graphics::activate_Display();//To be fair, texture rendering and ending the loop auto-jumps back to display, but lets just do it explicitly
+
+            for (const vec2& O : orbs)
+                IO::graphics::draw_tex(O.x,O.y,reynold.in(O,500) ? orb1 : orb0);
 
 
             IO::graphics::draw_tex(mouse_x_px,mouse_y_px-8,lamp);
@@ -370,7 +388,6 @@ int main(int argc, char* argv[])
     }
     else
     {//Run benchmark test
-        reynold.set_bounds(vec2(-19.2,-10.8),vec2(19.2,10.8));
         reynold.update(mess,false);//Update with display turned off, this will overwrite any depug settings and not make any calls to openGL, in truth this makes very little difference ... but a little is still something
         cout<<"Tries to read "<<argv[2]<<endl;
         uint N = stoi(argv[2]);

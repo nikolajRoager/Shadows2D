@@ -1,5 +1,5 @@
 #pragma once
-//#define DEBUG_SHOW_BSPHERE
+#define DEBUG_SHOW_BSPHERE
 
 #include <GL/glew.h>
 
@@ -31,7 +31,7 @@ private:
     uint size=0;
 
     #ifdef DEBUG_SHOW_BSPHERE
-    GLuint Bsphere_debug_Buffer=-1;
+    vector<vec2> Bsphere_vertices;//Assume we loop back on ourself
     #endif
     static bool graphic_mode;
 

@@ -63,7 +63,7 @@ namespace IO::graphics
             mat3(
                 vec3(1.f, 0.f, 0.f),
                 vec3(0.f, 1.f, 0.f),
-                vec3(-inv_screen_w * (texture_w+(texture_w%2)), -inv_screen_h *2* (texture_h), 1.f));//Texture width height should be divisible by 2, if it is not we add 1 (%2 means remainder by division with 2, it is 1 for odd numbers and 0 for even numbers)
+                vec3(-inv_screen_w * (texture_w+(texture_w%2)), -inv_screen_h * (texture_h+(texture_h%2)), 1.f));//Texture width height should be divisible by 2, if it is not we add 1 (%2 means remainder by division with 2, it is 1 for odd numbers and 0 for even numbers)
 
         CornerM =
             mat3(
@@ -102,7 +102,7 @@ namespace IO::graphics
             mat3(
                 vec3(1.f, 0.f, 0.f),
                 vec3(0.f, 1.f, 0.f),
-                vec3(-inv_screen_w * (texture_w+(texture_w%2)), -inv_screen_h * 2*(texture_h), 1.f));//Texture width height should be divisible by 2, if it is not we add 1 (%2 means remainder by division with 2, it is 1 for odd numbers and 0 for even numbers)
+                vec3(-inv_screen_w * (texture_w+(texture_w%2)), -inv_screen_h * (texture_h+(texture_h%2)), 1.f));//Texture width height should be divisible by 2, if it is not we add 1 (%2 means remainder by division with 2, it is 1 for odd numbers and 0 for even numbers)
 
         CornerM =
             mat3(
@@ -296,7 +296,7 @@ namespace IO::graphics
             mat3(
                 vec3(1.f, 0.f, 0.f),
                 vec3(0.f, 1.f, 0.f),
-                vec3(-inv_screen_w * (texture_w / n_frames_w), -  inv_screen_h *2* (texture_h / n_frames_h), 1.f));
+                vec3(-inv_screen_w * (texture_w / n_frames_w), -  inv_screen_h * (texture_h / n_frames_h), 1.f));
 
         CornerM =
             mat3(

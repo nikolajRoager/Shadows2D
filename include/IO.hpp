@@ -101,17 +101,19 @@ namespace IO
 
         //--Mesh rendering functions--
 
+        //Prepare to render to the lightmap or default display
+        void activate_Lightmap();
+        void activate_Display();
 
 
-        void draw_lines(GLuint buffer, ushort size,glm::vec3 color);
-        void draw_triangles(GLuint buffer, ushort size,glm::vec3 color);
-        void draw_triangles(GLuint buffer, ushort size,glm::vec3 color,glm::vec2 origin);
-        void draw_segments(GLuint buffer, ushort size,glm::vec3 color);
+        void draw_lines(vector<glm::vec2> verticies, uint size,glm::vec3 color);
+        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color);
+        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color,glm::vec2 origin,float range=-1);
+        void draw_segments(vector<glm::vec2> vertices, uint size,glm::vec3 color);
 
 
-        void activate_Ray();//Prepare to render to the ray texture
-        void render_Ray();//Render to the ray texture
-
+        //===Related to the creation of shadowmaps===
+        void debug_showlightmap();
     }
 
     namespace audio

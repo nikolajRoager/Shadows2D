@@ -8,25 +8,23 @@ raytracer::raytracer(vec2 origin,  bool do_display)
 
     triangle_fan = vector<vec2>(1,origin);//Origin must always be defined
     V0=vec2(0,0);//This is my screen, so leave it at that for default
-    V1=vec2(1900,1060);
+    V1=vec2(1920,1080);
 
-    Buffer=-1;
     draw_size=0;
 
     if (do_display)
     {
-        glGenBuffers(1, &Buffer);
         #ifdef DEBUG_VERTICES
-        glGenBuffers(1, &Vertices_Buffer);
+        DEBUG_Vertices=vector<vec2>();
         #endif
         #ifdef DEBUG_NON_INTERSECT
+        DEBUG_NI_Vertices=vector<vec2>();
         non_intersecting=0;
-        glGenBuffers(1, &NI_Vertices_Buffer);
         #endif
 
 
         #ifdef DEBUG_OUTLINE
-        glGenBuffers(1, &Outline_Buffer);
+        DEBUG_outline=vector<vec2>();
         #endif
     }
 
@@ -36,55 +34,31 @@ raytracer::raytracer(vec2 origin,  bool do_display)
 
 raytracer::~raytracer()
 {
-    //Delete the buffer of this object
-    if (Buffer != (GLuint)-1)
-        glDeleteBuffers(1,&Buffer);
-
-    #ifdef DEBUG_VERTICES
-    if (Vertices_Buffer != (GLuint)-1)
-        glDeleteBuffers(1,&Vertices_Buffer);
-    #endif
 
     #ifdef DEBUG_NON_INTERSECT
-    if (NI_Vertices_Buffer != (GLuint)-1)
-        glDeleteBuffers(1,&NI_Vertices_Buffer);
-
     non_intersecting=0;
-    #endif
-
-    #ifdef DEBUG_OUTLINE
-    if (Outline_Buffer != (GLuint)-1)
-        glDeleteBuffers(1,&Outline_Buffer);
     #endif
 }
 
 
 raytracer::raytracer(raytracer&& other)
 {
-    //If we are copying over an already existing oject, remove it
-    if (Buffer != (GLuint)-1)
-        glDeleteBuffers(1,&Buffer);
     triangle_fan = std::move(other.triangle_fan);
 
 
     #ifdef DEBUG_VERTICES
-    Vertices_Buffer = other.Vertices_Buffer;
-    other.Vertices_Buffer = 0;
+    DEBUG_Vertices= std::move(DEBUG_Vertices);
     #endif
     #ifdef DEBUG_NON_INTERSECT
-    NI_Vertices_Buffer= other.NI_Vertices_Buffer;
-    other.NI_Vertices_Buffer= 0;
+    DEBUG_NI_Vertices= std::move(DEBUG_NI_Vertices);
 
     non_intersecting=other.non_intersecting;
     #endif
     #ifdef DEBUG_OUTLINE
-    Outline_Buffer = other.Outline_Buffer;
-    other.Outline_Buffer = 0;
+    DEBUG_outline= std::move(DEBUG_outline);
     #endif
 
-    Buffer = other.Buffer;
     draw_size = other.draw_size;
-    other.Buffer=-1;//This line is the reason we can't use the default copy constructor! otherwise this would get deleted
 
 
 
@@ -145,7 +119,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     {
         EVIL_REDO=false;
 
-        cout<<"--"<<triangle_fan[0].x<<" "<<triangle_fan[0].y<<endl;
+       // cout<<"--"<<triangle_fan[0].x<<" "<<triangle_fan[0].y<<endl;
     //There is no way to know how many vertices there will be
     extensions=0;//How many extra vertices do we need (when a vertex is on a corner, where the raycan continue afterwards)
 
@@ -208,8 +182,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                             {
                                 ++extensions;
                                 vertices[vertices.size()-1].Locked=false;//Ok ... Save this for after the initial sort
-                                cout<<"Located extension "<<i<<" "<<j<<endl;
-                                cout<<"--"<<vertices[vertices.size()-1].pos.x<<" "<<vertices[vertices.size()-1].pos.x<<endl;
+                                //cout<<"Located extension "<<i<<" "<<j<<endl;
+                                //cout<<"--"<<vertices[vertices.size()-1].pos.x<<" "<<vertices[vertices.size()-1].pos.x<<endl;
                             }
 
 
@@ -225,17 +199,15 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         if (do_display)
         {
             non_intersecting=vertices.size();
-            vector<vec2> NI_vertices(non_intersecting*4);
+            DEBUG_NI_Vertices=vector<vec2>(non_intersecting*4);
             for (uint i = 0; i < vertices.size(); ++i)
             {
-                NI_vertices[i*4]  =(vertices[i].pos+vec2(5,5));
-                NI_vertices[i*4+1]=(vertices[i].pos-vec2(5,5));
-                NI_vertices[i*4+2]=(vertices[i].pos+vec2(5,-5));
-                NI_vertices[i*4+3]=(vertices[i].pos+vec2(-5,5));
+                DEBUG_NI_Vertices[i*4]  =(vertices[i].pos+vec2(5,5));
+                DEBUG_NI_Vertices[i*4+1]=(vertices[i].pos-vec2(5,5));
+                DEBUG_NI_Vertices[i*4+2]=(vertices[i].pos+vec2(5,-5));
+                DEBUG_NI_Vertices[i*4+3]=(vertices[i].pos+vec2(-5,5));
             }
 
-            glBindBuffer( GL_ARRAY_BUFFER, NI_Vertices_Buffer);
-            glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(non_intersecting*4), &(NI_vertices[0]), GL_DYNAMIC_DRAW );
 
         }
         #endif
@@ -243,6 +215,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //The most dastardly EVIL solution thinkable, literally just re-do if you get something you can't solve
         if (EVIL_REDO)
         {
+            //Make a little random step to see if the problem goes away.
             float rnd = fract((triangle_fan[0].y+EVIL_RETRIES+triangle_fan[0].x)*32342342245.3254325342f)*1000.f*acc;
             if (std::abs(rnd)<500*acc)
                 rnd = 500*acc;
@@ -258,7 +231,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 extensions=0;
 
                 EVIL_RETRIES++;
-                cout<<"Evil redo "<<EVIL_RETRIES<<" "<<triangle_fan[0].x<<' '<<triangle_fan[0].y<<endl;
+                //cout<<"Evil redo "<<EVIL_RETRIES<<" "<<triangle_fan[0].x<<' '<<triangle_fan[0].y<<endl;
             }
             else
                 break;
@@ -325,7 +298,7 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //vertex_size+=1*extensions;
         uint unlocked = extensions;
 
-        cout<<"Have extensions "<<extensions<<endl;
+        //cout<<"Have extensions "<<extensions<<endl;
 
         //Some lambda functions for testing if we  should swap or not
         //I try to use C++ lambda function instead of copy pasting code ...
@@ -422,15 +395,15 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
                 uint my_V0=-1;
                 uint my_V1=-1;
 
-                cout<<"CHECK "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
+                //cout<<"CHECK "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
                 for (uint k = 0; k < Msize; ++k)
                 {
-                    cout<<"CHECK OBJECT "<<k<<endl;
+                  //  cout<<"CHECK OBJECT "<<k<<endl;
                     const mesh2D& M1 = meshes[k];
 
                     if(M1.get_intersect(triangle_fan[0],V,W,my_V0,my_V1,minL2))
                     {
-                        cout<<"HAVE BEEN HIT "<<endl;
+                    //    cout<<"HAVE BEEN HIT "<<endl;
                         hit_ID=k;
                         intersects = true;
 
@@ -542,8 +515,8 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
                 }
 
-                cout<<"Have extended "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
-                cout<<" --> ("<<VNew.V0_ID<<','<<VNew.V1_ID<<") "<<VNew.O_ID<<endl;
+               // cout<<"Have extended "<<VOld.V0_ID<<' '<<VOld.O_ID<<endl;
+               // cout<<" --> ("<<VNew.V0_ID<<','<<VNew.V1_ID<<") "<<VNew.O_ID<<endl;
 
 
                 //If this is the extreme edge of the camera just replace the old vertex
@@ -716,13 +689,10 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
 
     draw_size = vertex_size+1;
     #ifdef DEBUG_VERTICES
-    vector<vec2> Display_vertices(vertex_size*4);
-//    for (uint I : debug_numbers)
-//        IO::graphics::delete_text(I);
-//    debug_numbers = vector<uint >(vertex_size);
+    DEBUG_Vertices = vector<vec2>(vertex_size*4);
     #endif
     #ifdef DEBUG_OUTLINE
-    vector<vec2> Display_outline(vertex_size+(limit_lens? 2 : 0));
+    DEBUG_outline = vector<vec2> (vertex_size+(limit_lens? 2 : 0));
     #endif
 
     triangle_fan = vector<vec2>(draw_size,triangle_fan[0]);
@@ -738,52 +708,30 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
         //Uncomment to see outline only
 
         #ifdef DEBUG_VERTICES
-        Display_vertices[i*4+0]=vertices[i].pos-vec2(5,0.0);
-        Display_vertices[i*4+1]=vertices[i].pos+vec2(5,0.0);
-        Display_vertices[i*4+2]=vertices[i].pos-vec2(0.0,5);
-        Display_vertices[i*4+3]=vertices[i].pos+vec2(0.0,5);
+        DEBUG_Vertices [i*4+0]=vertices[i].pos-vec2(5,0.0);
+        DEBUG_Vertices [i*4+1]=vertices[i].pos+vec2(5,0.0);
+        DEBUG_Vertices [i*4+2]=vertices[i].pos-vec2(0.0,5);
+        DEBUG_Vertices [i*4+3]=vertices[i].pos+vec2(0.0,5);
 
 //        debug_numbers[i] = (IO::graphics::set_text(to_string(i)));
 
         #endif
         #ifdef DEBUG_OUTLINE
-        Display_outline[i+(limit_lens? 1 : 0)]=vertices[i].pos;
+        DEBUG_outline [i+(limit_lens? 1 : 0)]=vertices[i].pos;
         #endif
         triangle_fan[i+1]=vertices[i].pos;
 
     }
-
-    //Be aware that baking the results to debug buffers is somewhat slow ... nothing compared to the algorithm itself, but enough that the debug options should be turned off when testing the speed
-    #ifdef DEBUG_VERTICES
-    if (do_display)
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, Vertices_Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size*4), &(Display_vertices[0]), GL_DYNAMIC_DRAW );
-    }
-    #endif
 
 
 
     #ifdef DEBUG_OUTLINE
     if (limit_lens)//If we use limited lense, we want to see the actual cone
     {
-        Display_outline[0]=triangle_fan[0];
-        Display_outline[vertex_size+1]=triangle_fan[0];
-    }
-
-
-    if (do_display)
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, Outline_Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(vertex_size+(limit_lens? 2 : 0)), &(Display_outline[0]), GL_DYNAMIC_DRAW );
+        DEBUG_outline[0]=triangle_fan[0];
+        DEBUG_outline[vertex_size+1]=triangle_fan[0];
     }
     #endif
-
-    if (do_display)
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(draw_size), &(triangle_fan[0]), GL_DYNAMIC_DRAW );
-    }
 }
 
 void raytracer::display() const
@@ -792,31 +740,36 @@ void raytracer::display() const
     //Different versions of Debug mode display
     #ifdef DEBUG_OUTLINE
     //Outline rather than triangle fan, easier to spot a wrong swap
-    if (draw_size>1 && Outline_Buffer != (GLuint)-1)
-        IO::graphics::draw_lines(Outline_Buffer,draw_size-1+(limit_lens? 2 : 0),vec3(0,0,1));
+    if (draw_size>1)
+        IO::graphics::draw_lines(DEBUG_outline,draw_size-1+(limit_lens? 2 : 0),vec3(0,0,1));
     #endif
     #ifdef DEBUG_VERTICES
     //Draw vertices as crosses
-    if (draw_size>1 && Vertices_Buffer!= (GLuint)-1)
-        IO::graphics::draw_segments(Vertices_Buffer,(draw_size-1)*4,vec3(0,1,0));
+    if (draw_size>1)
+        IO::graphics::draw_segments(DEBUG_Vertices,(draw_size-1)*4,vec3(0,1,0));
     #endif
 
 
 
     #ifdef DEBUG_NON_INTERSECT
     //Draw vertices as crosses
-    if (non_intersecting>0 && NI_Vertices_Buffer!= (GLuint)-1)
-        IO::graphics::draw_segments(NI_Vertices_Buffer,non_intersecting*4,vec3(1,1,1));
+    if (non_intersecting>0)
+        IO::graphics::draw_segments(DEBUG_NI_Vertices,non_intersecting*4,vec3(1,1,1));
     #endif
 
 
     #ifndef DEBUG_NO_TRIANGLES
-    if (draw_size>1 && Buffer != (GLuint)-1)//Default display
-        IO::graphics::draw_triangles(Buffer,draw_size,vec3(1));
+    if (draw_size>1)//Default display
+        IO::graphics::draw_triangles(triangle_fan,draw_size,vec3(1));
     #endif
 
 }
 
+void raytracer::bake_to_shadowmap(vec3 color, float range) const
+{
+    if (draw_size>1 )
+        IO::graphics::draw_triangles(triangle_fan,draw_size,color,triangle_fan[0],range);
+}
 
 void raytracer::set_angle(float _theta, float D)
 {
@@ -861,4 +814,47 @@ void raytracer::set_angle(float _theta, float D)
         extreme_dot = dot(dir,extreme_left);
     }
 
+}
+
+
+float det (const vec2& p1, const vec2& p2, const vec2& p3)
+{
+    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+}
+
+
+//Is this thing in view, if we have this max range
+bool raytracer::in(const vec2& Thing,float range) const
+{
+    //Only if this thing has been calculated
+    if (triangle_fan.size()>0)
+    {
+        vec2 O_T = Thing-triangle_fan[0];
+        //Check if we should even bother calculating the triangle intersections
+        if (dot(O_T,O_T)>range*range && range>0)//Negative range = infinite range
+            return false;
+
+        for (uint i = 1; i < draw_size-1 ; ++ i)
+        {
+            //Check intersection with all triangles
+
+            float d1, d2, d3;
+            bool has_neg, has_pos;
+
+            d1 = det(Thing, triangle_fan[0], triangle_fan[i]);
+            d2 = det(Thing, triangle_fan[i], triangle_fan[i+1]);
+            d3 = det(Thing, triangle_fan[i+1], triangle_fan[0]);
+
+            has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+            if (!(has_neg && has_pos))
+                return true;
+
+        }
+
+        return false;//Got here, then nothing worked
+    }
+    else
+        return false;
 }

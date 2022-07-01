@@ -19,7 +19,6 @@
 
 #define DEBUG_OUTLINE
 #define DEBUG_NON_INTERSECT
-#define DEBUG_CONTINUE
 #define DEBUG_VERTICES
 #define DEBUG_NO_TRIANGLES
 
@@ -43,7 +42,6 @@ private:
 
     vector<vec2> triangle_fan;
 
-    GLuint Buffer;
     uint draw_size;
 
     //Looking direction and angle of the lens
@@ -59,18 +57,18 @@ private:
     bool limit_lens = false;
 
     #ifdef DEBUG_VERTICES
-    GLuint Vertices_Buffer=-1;
+    vector<vec2> DEBUG_Vertices;
     #endif
 
     #ifdef DEBUG_NON_INTERSECT
-    GLuint NI_Vertices_Buffer=-1;
+    vector<vec2> DEBUG_NI_Vertices;
     uint non_intersecting;
     #endif
 
 
 
     #ifdef DEBUG_OUTLINE
-    GLuint Outline_Buffer=-1;
+    vector<vec2> DEBUG_outline;
     #endif
 
 
@@ -104,4 +102,9 @@ public:
     void display() const;
 
     void set_angle(float theta, float D);
+
+    void bake_to_shadowmap(vec3 color ,float range=-1) const;//Render the scene, explicitly meant for the shadowmap (i.e. debugging tools are all turned off, regardless of the settings)
+
+    //Is this thing in view, if we have this max range
+    bool in(const vec2& Thing,float range=-1) const;
 };

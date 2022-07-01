@@ -21,10 +21,9 @@ mesh2D::mesh2D()
 
     if (graphic_mode)
     {
-    #ifdef DEBUG_SHOW_BSPHERE
-        glGenBuffers( 1, &Bsphere_debug_Buffer);
-    #endif
-        glGenBuffers( 1, &vertexBuffer);
+        #ifdef DEBUG_SHOW_BSPHERE
+        Bsphere_vertices=vector<vec2>();
+        #endif
     }
 }
 
@@ -52,10 +51,6 @@ mesh2D::mesh2D(vector<vec2>& V)
         }
 
     size = vertices.size();
-    vertexBuffer = -1;
-    #ifdef DEBUG_SHOW_BSPHERE
-    Bsphere_debug_Buffer=-1;
-    #endif
     }
     if (size>0)
     {
@@ -66,17 +61,6 @@ mesh2D::mesh2D(vector<vec2>& V)
             ++size;
         }
 
-
-        if (graphic_mode)
-        {
-            #ifdef DEBUG_SHOW_BSPHERE
-            glGenBuffers( 1, &Bsphere_debug_Buffer);
-            #endif
-            //Now, generate the glorious buffers!
-            glGenBuffers( 1, &vertexBuffer);
-            glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
-            glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
-        }
         //Now the data exists both in a CPU and the GPU, and I told the GPU that I might occasionally want to modify the data.
 
         recalc_bsphere();
@@ -115,52 +99,25 @@ void mesh2D::add_vertex(vec2 New)
 
     }
 
-    if (graphic_mode)
-    {
-    //Redo the buffer, no need to regenerate it, and no need to do any fancy streaming, we don't need to redo this each frame
-    glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*size, &(vertices[0]), GL_DYNAMIC_DRAW );
-    }
 }
 
 mesh2D::~mesh2D()
 {
-    if (graphic_mode)
-    {
-    //Delete the buffer of this object
-    if (vertexBuffer != (GLuint)-1)
-        glDeleteBuffers(1,&vertexBuffer);
-    #ifdef DEBUG_SHOW_BSPHERE
-    if (vertexBuffer != (GLuint)-1)
-        glDeleteBuffers(1,&Bsphere_debug_Buffer);
-    #endif
-    }
+    //Actually nothing, I used to store the buffers here
 }
 
 
 mesh2D::mesh2D(mesh2D&& other)
 {
-    //If we are copying over an already existing oject, remove it
-    if (graphic_mode)
-    {
-    if (vertexBuffer != (GLuint)-1)
-        glDeleteBuffers(1,&vertexBuffer);
-    }
-    vertices = std::move(other.vertices);
-    vertexBuffer = other.vertexBuffer;
+    vertices        = std::move(other.vertices        );
+    Bsphere_vertices= std::move(other.Bsphere_vertices);
+
+
     size = other.size;
-    other.vertexBuffer=-1;//This line is the reason we can't use the default! otherwise this would get deleted
+
     Bsphere_r2 = other.Bsphere_r2;
     Bsphere_center = other.Bsphere_center;
 
-    #ifdef DEBUG_SHOW_BSPHERE
-    if (graphic_mode)
-    {
-    if (Bsphere_debug_Buffer!= (GLuint)-1)
-        glDeleteBuffers(1,&Bsphere_debug_Buffer);
-    }
-    Bsphere_debug_Buffer=other.Bsphere_debug_Buffer;
-    #endif
 
 
 }
@@ -169,11 +126,11 @@ void mesh2D::display() const
 {
     if (graphic_mode)
     {
-        if (size>2 && vertexBuffer != (GLuint)-1)//We want some kind of closed loop to display
-            IO::graphics::draw_lines(vertexBuffer,size,vec3(1,0,0));
+        if (size>2 )
+            IO::graphics::draw_lines(vertices,size,vec3(1,0,0));
         #ifdef DEBUG_SHOW_BSPHERE
-        if (size>2 && Bsphere_debug_Buffer!= (GLuint)-1)//We want some kind of closed loop to display
-            IO::graphics::draw_lines(Bsphere_debug_Buffer,32,vec3(1,0,1));
+        if (size>2 )//We want some kind of closed loop to display
+            IO::graphics::draw_lines(Bsphere_vertices,32,vec3(1,0,1));
         #endif
     }
 }
@@ -716,19 +673,17 @@ void mesh2D::recalc_bsphere()
 
         //Now create the debug buffers for display, they have already been generated before so just bind them and fill them
         #ifdef DEBUG_SHOW_BSPHERE
-    if (graphic_mode)
-    {
-        vector<vec2> temp(32);
-
-        float r = sqrt(Bsphere_r2);//This is one time only, and debug time only so squareroot is ok here, it is in the looped calculations where I don't want to do this
-        float dtheta = TWO_PI/31.f;
-        for (uint i =0; i<32; ++i)
+        if (graphic_mode)
         {
-            float theta = i*dtheta;
-            temp[i]=Bsphere_center+r*vec2(cos(theta),sin(theta));
-        }
-        glBindBuffer( GL_ARRAY_BUFFER, Bsphere_debug_Buffer);
-        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*32, &(temp[0]), GL_DYNAMIC_DRAW );
+            Bsphere_vertices= vector<vec2> (32);
+
+            float r = sqrt(Bsphere_r2);//This is one time only, and debug time only so squareroot is ok here, it is in the looped calculations where I don't want to do this
+            float dtheta = TWO_PI/31.f;
+            for (uint i =0; i<32; ++i)
+            {
+                float theta = i*dtheta;
+                Bsphere_vertices[i]=Bsphere_center+r*vec2(cos(theta),sin(theta));
+            }
         }
         #endif
     }

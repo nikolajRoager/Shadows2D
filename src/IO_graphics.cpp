@@ -66,6 +66,11 @@ namespace IO::graphics
     GLuint display_Framebuffer = -1;
     GLuint display_texture = -1;
 
+    //This framebuffer and texture is used for light and shadow calculations, using a raytracing approach which I am very proud of
+    GLuint light_Framebuffer = -1;
+    GLuint light_texture = -1;
+
+
     GLuint Filter_Framebuffer = -1;
     GLuint Temp_filter_texture = -1;
     //We could add in more framebuffers and textures if we want to do more effects,
@@ -153,6 +158,19 @@ namespace IO::graphics
 
     GLuint Line_matrix_ID=-1;//The tranformation matrix from line-worldspace coordinates to device coordinates in the Line program
     GLuint Line_color_ID=-1; //The color of the line to be drawn
+
+
+    //The program for drawing the area illuminated
+    GLuint Light_ProgramID = -1;
+
+    //The vertex position of the triangles drawn, in world-space
+    GLuint Light_VertexPosAttribID = -1;
+
+    GLuint Light_matrix_ID=-1;//The tranformation matrix, same as for the line program
+    GLuint Light_color_ID=-1; //The color of the light at the source
+
+    GLuint Light_origin_ID=-1; //Where does this light come from
+    GLuint Light_range_ID=-1;  //If we are using some kind of abrupt fall-off, how far does it go
 
 
 
@@ -293,13 +311,31 @@ namespace IO::graphics
         Line_color_ID= glGetUniformLocation(Line_ProgramID , "color");
 
 
+
+
+
         glLineWidth(1.f);
 
-        cout << "Loaded surface program " <<endl;
+        cout << "Loaded Line program " <<endl;
         cout << log << endl;
 
 
 
+        Light_ProgramID = load_program(shader_path, "light", log);
+
+        Light_VertexPosAttribID = glGetAttribLocation(Light_ProgramID , "vertex_worldspace");
+
+        Light_matrix_ID = glGetUniformLocation(Light_ProgramID , "worldspace_to_DC");
+        Light_color_ID= glGetUniformLocation(Light_ProgramID , "color");
+
+        Light_origin_ID = glGetUniformLocation(Light_ProgramID , "origin");
+        Light_range_ID= glGetUniformLocation(Light_ProgramID , "range");
+
+
+
+
+        cout << "Loaded Light program " <<endl;
+        cout << log << endl;
 
 
         static const GLfloat surface_uv_data[] = {
@@ -425,7 +461,16 @@ namespace IO::graphics
             glDeleteProgram(surf_ProgramID);
             surf_ProgramID = -1;
         }
-
+        if (Line_ProgramID != (GLuint)-1)
+        {
+            glDeleteProgram(Line_ProgramID);
+            Line_ProgramID = -1;
+        }
+        if (Light_ProgramID != (GLuint)-1)
+        {
+            glDeleteProgram(Light_ProgramID);
+            Light_ProgramID = -1;
+        }
 
         if (display_Framebuffer != (GLuint)-1)
         {
@@ -437,6 +482,17 @@ namespace IO::graphics
             glDeleteTextures(1, &display_texture);
             display_texture = -1;
         }
+        if (light_Framebuffer != (GLuint)-1)
+        {
+            glDeleteFramebuffers(1, &light_Framebuffer);
+            light_Framebuffer = -1;
+        }
+        if (light_texture != (GLuint)-1)
+        {
+            glDeleteTextures(1, &light_texture);
+            light_texture = -1;
+        }
+
         if (Filter_Framebuffer != (GLuint)-1)
         {
             glDeleteFramebuffers(1, &Filter_Framebuffer);
@@ -779,6 +835,9 @@ namespace IO::graphics
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.2f, 0.2f, 0.2f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, light_Framebuffer);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, display_Framebuffer);
         glClearColor(0.0f, 0.0f, 0.0f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -847,6 +906,12 @@ namespace IO::graphics
 
     }
 
+    bool showlightmap = false;
+    void debug_showlightmap()
+    {
+        showlightmap = !showlightmap ;
+    }
+
     void flush()
     {
         //Simply draw a full square to the screen, which will include our rendered texture, stretching this to fit the entire screen with closest interpolation results in the pixelation effect
@@ -863,7 +928,7 @@ namespace IO::graphics
 
         //OpenGL has a number of different texture "slots" here I activate slot number 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, display_texture);//Here I bind the texture I want to display, it is bound to the currently active texture slot (0 here)
+        glBindTexture(GL_TEXTURE_2D, showlightmap ? light_texture : display_texture);//Here I bind the texture I want to display, it is bound to the currently active texture slot (0 here)
         //1i tells opengl that this is 1 integer, 2f would be a 2-d vector with floating point data. It is very important that the type matches the data in the glsl shader.
         glUniform1i(surf_colorTex_ID, 0);//Here I set the uniform texture sampler to integer 0, OpenGL understand that this means it shall look in slot 0
 
@@ -1242,6 +1307,16 @@ namespace IO::graphics
             glDeleteTextures(1, &display_texture);
             display_texture = -1;
         }
+        if (light_Framebuffer != (GLuint)-1)
+        {
+            glDeleteFramebuffers(1, &light_Framebuffer);
+            light_Framebuffer = -1;
+        }
+        if (light_texture != (GLuint)-1)
+        {
+            glDeleteTextures(1, &light_texture);
+            light_texture = -1;
+        }
         if (Filter_Framebuffer != (GLuint)-1)
         {
             glDeleteFramebuffers(1, &Filter_Framebuffer);
@@ -1273,6 +1348,27 @@ namespace IO::graphics
         GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
         glDrawBuffers(1, DrawBuffers);//Color attachment 0 as before
 
+
+        //Set up the light map we will use for lighting calculation
+        glGenFramebuffers(1, &light_Framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, light_Framebuffer);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//Good for texture blending (front texture obscures back)
+        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);//Needed for light blending (true additive)
+
+        glGenTextures(1, &light_texture);
+        glBindTexture(GL_TEXTURE_2D, light_texture);
+        //Initialize empty, and at the size of the internal screen
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+        //No interpolation, we want pixelation
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        //Now the light framebuffer renders to the texture we will use to calculate dynamic lighting
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light_texture, 0);
+        glDrawBuffers(1, DrawBuffers);//Color attachment 0 as before
 
 
         glGenFramebuffers(1, &Filter_Framebuffer);
@@ -1564,30 +1660,82 @@ namespace IO::graphics
     //-- Mesh rendering functions --
 
     //Internal drawing function, which does the drawing in different ways
-    void draw_unicolor(GLuint buffer, ushort size, vec3 color,GLuint displaymode);
+    void draw_unicolor(vector<vec2> vertices, uint size, vec3 color,GLuint displaymode);
 
-    void draw_lines(GLuint buffer, ushort size, vec3 color)
+    void draw_lines(vector<vec2> vertices, uint size, vec3 color)
     {
-        draw_unicolor(buffer,size,color,GL_LINE_STRIP);
-    }
-
-    void draw_triangles(GLuint buffer, ushort size, vec3 color)
-    {
-        draw_unicolor(buffer,size,color,GL_TRIANGLE_FAN);
-    }
-    void draw_segments(GLuint buffer, ushort size, vec3 color)
-    {
-        draw_unicolor(buffer,size,color,GL_LINES);
-    }
-    void draw_triangles(GLuint buffer, ushort size, vec3 color,vec2 origin)
-    {
-    //TBD
+        draw_unicolor(vertices,size,color,GL_LINE_STRIP);
     }
 
-    void draw_unicolor(GLuint buffer, ushort size, vec3 color,GLuint displaymode)
+    void draw_triangles(vector<vec2> vertices, uint size, vec3 color)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, display_Framebuffer);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//Good for texture blending (front texture obscures back)
+        draw_unicolor(vertices,size,color,GL_TRIANGLE_FAN);
+    }
+    void draw_segments(vector<vec2> vertices, uint size, vec3 color)
+    {
+        draw_unicolor(vertices,size,color,GL_LINES);
+    }
+
+
+    //A more advanced version of draw unicolor, specifically made for drawing the triangle fan for the lighting, has a certain range which the color will fall off until it reaches
+    void draw_triangles(vector<vec2> vertices, uint size, vec3 color,vec2 origin, float range)
+    {
+        GLuint Buffer=-1;
+
+        size =size > vertices.size() ? vertices.size() : size;
+        glGenBuffers(1, &Buffer);
+        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(size), &(vertices[0]), GL_DYNAMIC_DRAW );
+
+
+        //Enable what we need
+        glUseProgram(Light_ProgramID);
+
+
+        mat3 thisMVP =
+                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3( - 1.f,   1.f, 1));
+
+        glUniformMatrix3fv(Light_matrix_ID, 1, GL_FALSE, &thisMVP[0][0]);
+        glUniform3f(Light_color_ID,color.x,color.y,color.z);
+        glUniform2f(Light_origin_ID,origin.x,origin.y);
+        glUniform1f(Light_range_ID,range);
+
+        glEnableVertexAttribArray(Light_VertexPosAttribID);
+
+
+        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
+        glVertexAttribPointer
+        (
+            Light_VertexPosAttribID,//Attribute location, you can either locate this in the program, or you can force the shader to use a particular location from inside the shader, I do the former
+            2,                   //Number Number of the below unit per element (this is a 2D vector, so 2)
+            GL_FLOAT,            //Unit, this is single precition GL float
+            GL_FALSE,             //Normalized? Nope
+            0,                    //Stride and offset, I don't use these for anything
+            (void*)0
+        );
+
+        glDrawArrays(GL_TRIANGLE_FAN,0,size);
+
+        //Disable everything activated
+        glDisableVertexAttribArray(Light_VertexPosAttribID);
+        glUseProgram(0);
+
+        //Delete the buffer of this object
+        if (Buffer != (GLuint)-1)
+            glDeleteBuffers(1,&Buffer);
+
+
+    }
+
+    void draw_unicolor(vector<vec2> vertices, uint size, vec3 color,GLuint displaymode)
+    {
+        GLuint Buffer=-1;
+
+        size =size > vertices.size() ? vertices.size() : size;
+        glGenBuffers(1, &Buffer);
+        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
+        glBufferData( GL_ARRAY_BUFFER,  sizeof(vec2)*(size), &(vertices[0]), GL_DYNAMIC_DRAW );
+
         //Enable what we need
         glUseProgram(Line_ProgramID);
 
@@ -1601,7 +1749,7 @@ namespace IO::graphics
         glEnableVertexAttribArray(Line_VertexPosAttribID);
 
 
-        glBindBuffer( GL_ARRAY_BUFFER, buffer);
+        glBindBuffer( GL_ARRAY_BUFFER, Buffer);
         glVertexAttribPointer
         (
             Line_VertexPosAttribID,//Attribute location, you can either locate this in the program, or you can force the shader to use a particular location from inside the shader, I do the former
@@ -1618,19 +1766,25 @@ namespace IO::graphics
         glDisableVertexAttribArray(Line_VertexPosAttribID);
         glUseProgram(0);
 
+        //Delete the buffer of this object
+        if (Buffer != (GLuint)-1)
+            glDeleteBuffers(1,&Buffer);
     }
 
 
 
-    //TBD
-    void activate_Ray()
+    void activate_Lightmap()
     {
 
+            glBindFramebuffer(GL_FRAMEBUFFER, light_Framebuffer);
+            glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);//Needed for light blending (true additive)
     }
-    void render_Ray()
+
+    void activate_Display()
     {
 
+        glBindFramebuffer(GL_FRAMEBUFFER, display_Framebuffer);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//Good for texture blending (front texture obscures back)
     }
-
 }
 
