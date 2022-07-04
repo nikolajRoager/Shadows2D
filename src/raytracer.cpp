@@ -834,14 +834,15 @@ bool raytracer::in(const vec2& Thing,float range) const
         if (dot(O_T,O_T)>range*range && range>0)//Negative range = infinite range
             return false;
 
+        //We can re-use some of the determinants
+        float d1=det(Thing, triangle_fan[0], triangle_fan[1]);
         for (uint i = 1; i < draw_size-1 ; ++ i)
         {
-            //Check intersection with all triangles
+            //Check intersection with all triangles, algorithm inspired by https://stackoverflow.com/a/2049593/5058424
 
-            float d1, d2, d3;
+            float  d2, d3;
             bool has_neg, has_pos;
 
-            d1 = det(Thing, triangle_fan[0], triangle_fan[i]);
             d2 = det(Thing, triangle_fan[i], triangle_fan[i+1]);
             d3 = det(Thing, triangle_fan[i+1], triangle_fan[0]);
 
@@ -850,6 +851,7 @@ bool raytracer::in(const vec2& Thing,float range) const
 
             if (!(has_neg && has_pos))
                 return true;
+            d1 = -d3;
 
         }
 

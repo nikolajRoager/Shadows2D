@@ -26,7 +26,6 @@ class mesh2D
 {
 private:
     vector<vec2> vertices;//Assume we loop back on ourself
-    GLuint vertexBuffer=-1;//Element-buffer is completely uncalled for in this case
 
     uint size=0;
 
