@@ -1,0 +1,423 @@
+mingw32-make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 3.82.90
+# Built for i686-pc-mingw32
+# Copyright (C) 1988-2012 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+ 
+
+# Make data base, printed on Mon Jul 11 11:27:20 2022
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(patsubst %\,%,$(dir $<)))
+# automatic
+?F = $(notdir $?)
+# default
+.SHELLFLAGS := -c
+# makefile (from 'makefile', line 24)
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+# makefile
+MAKEFLAGS = Rrqp
+# automatic
+?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
+# automatic
+@D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
+# environment
+HOMEDRIVE = C:
+# automatic
+@F = $(notdir $@)
+# automatic
+^D = $(patsubst %/,%,$(pats 
+ubst %\,%,$(dir $^)))
+# makefile
+CURDIR := c:/Users/nikol/Documents/studie/cppprojects/Shadows2D
+# default
+SHELL := sh.exe
+# environment
+WINDIR = C:\WINDOWS
+# environment
+VSCODE_NLS_CONFIG = {"locale":"en-gb","availableLanguages":{},"_languagePackSupport":true}
+# environment
+ONEDRIVE = C:\Users\nikol\OneDrive
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+# makefile (from 'makefile', line 1)
+MAKEFILE_LIST :=  makefile
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
+# environment
+TMP = C:\Users\nikol\AppData\Local\Temp
+# makefile (from 'makefile', line 16)
+CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -I$(IDIR)  -L$(LIBDIR)
+# environment
+PROGRAMW6432 = C:\Program Files
+# environment
+PROGRAMDATA = C:\ProgramData
+# environment
+CUDA_PATH_V10_1 = C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+# environment
+VSCODE_CWD = C:\Users\nikol\AppData\Local\Programs\Microsoft VS Code
+# environment
+PATH = C:\Program Files\Eclipse Foundation\jdk-8.0.302.8-hotspot\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\libnvvp;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\windows\System32\OpenSSH\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\texlive\2019\bin\win32;C:\MinGW\bin\;C:\Program Files\MATLAB\R2019a\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.4.0\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Git\cmd;C:\Users\nikol\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\nikol\AppData\Local\Programs\Python\Python37\;C:\Users\nikol\AppData\Local\Microsoft\WindowsApps;C:\Users\nikol\.dotnet\tools;C:\Users\nikol\AppData\Local\Programs\Microsoft VS Code\bin
+# environment
+ONLINESERVICES = Online Services
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# environment
+PROCESSOR_ARCHITECTURE = x86
+# environment
+USERPROFILE = C:\Users\nikol
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# environment
+NUMBER_OF_PROCESSORS = 8
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver
+# environment
+NVTOOLSEXT_PATH = C:\Program Files\NVIDIA Corporation\NvToolsExt\
+# makefile (from 'makefile', line 8)
+SRCDIR = src
+# automatic
+%F = $(notdir $%)
+# makefile (from 'makefile', line 19)
+_DEPS = IO.hpp load_shader.hpp texwrap.hpp SFXwrap.hpp calligraphy.hpp  texwrap.hpp mesh2D.hpp raytracer.hpp
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_3444_HVHZXZXORMWDBLWD
+# makefile (from 'makefile', line 10)
+OUTNAME = OpenGL_app_windows.exe
+# environment
+COMPUTERNAME = LAPTOP-3JPQ5QT8
+# environment
+PROGRAMFILES = C:\Program Files (x86)
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+NVCUDASAMPLES_ROOT = C:\ProgramData\NVIDIA Corporation\CUDA Samples\v10.1
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+USERNAME = nikol
+# environment
+PUBLIC = C:\Users\Public
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# makefile (from 'makefile', line 9)
+OUTDIR = bin
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\nikol\AppData\Roaming\Code\CachedData\92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# makefile (from 'makefile', line 6)
+IDIR = include
+# environment
+COMMONPROGRAMFILES = C:\Program Files (x86)\Common Files
+# environment
+LOGONSERVER = \\LAPTOP-3JPQ5QT8
+# environment
+ONEDRIVECONSUMER = C:\Users\nikol\OneDrive
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# environment
+USERDOMAIN = LAPTOP-3JPQ5QT8
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# makefile (from 'makefile', line 4)
+CC = g++
+# makefile (from 'makefile', line 7)
+ODIR = obj_windows
+# default
+MAKE_VERSION := 3.82.90
+# makefile
+.DEFAULT_GOAL := bin/OpenGL_app_windows.exe
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# automatic
+%D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
+# environment
+LOCALAPPDATA = C:\Users\nikol\AppData\Local
+# environment
+PSMODULEPATH = C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+# default
+MAKE_COMMAND := mingw32-make.exe
+# environment
+PROCESSOR_ARCHITEW6432 = AMD64
+# makefile (from 'makefile', line 13)
+LIBDIR = lib_windows
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 142 Stepping 10, GenuineIntel
+# environment
+OS = Windows_NT
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\0bfc42e6d2af5f83c7490d59d4320ca9-1.69.0-main-sock
+# environment
+HOMEPATH = \Users\nikol
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+PROMPT = $P$G
+# environment
+MFLAGS = -Rrqp
+# automatic
+*D = $(patsubst %/,%,$(patsubst %\,%,$(dir $*)))
+# environment
+REGIONCODE = EMEA
+# environment
+SYSTEMROOT = C:\WINDOWS
+# automatic
++D = $(patsubst %/,%,$(patsubst %\,%,$(dir $+)))
+# environment
+PLATFORMCODE = KV
+# automatic
++F = $(notdir $+)
+# environment
+APPDATA = C:\Users\nikol\AppData\Roaming
+# environment
+TEMP = C:\Users\nikol\AppData\Local\Temp
+# environment
+COMSPEC = C:\WINDOWS\system32\cmd.exe
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# environment
+NVCUDASAMPLES10_1_ROOT = C:\ProgramData\NVIDIA Corporation\CUDA Samples\v10.1
+# environment
+LC_ALL = C
+# makefile (from 'makefile', line 27)
+LIBS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lglew32 -lopengl32 
+# automatic
+^F = $(notdir $^)
+# environment
+CUDA_PATH = C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1
+# makefile (from 'makefile', line 23)
+_OBJ = main.o   texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o IO_audio.o IO_input_devices.o texwrap.o SFXwrap.o calligraphy.o
+# makefile (from 'makefile', line 20)
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+# default
+SUFFIXES := 
+# environment
+SYSTEMDRIVE = C:
+# environment
+SESSIONNAME = Console
+# environment
+PROCESSOR_REVISION = 8e0a
+# default
+.INCLUDE_DIRS = C:/MinGW/include
+# default
+.RECIPEPREFIX := 
+# environment
+LANG = C
+# environment
+PROCESSOR_LEVEL = 6
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
+# environment
+VSCODE_PID = 3444
+# environment
+USERDOMAIN_ROAMINGPROFILE = LAPTOP-3JPQ5QT8
+# variable set hash-table stats:
+# Load=108/1024=11%, Rehash=0, Collisions=15/137=11%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# C:\Users\nikol\AppData\Local\Programs\Python\Python37\Scripts\ (key C:/Users/nikol/AppData/Local/Programs/Python/Python37/Scripts/, mtime 1570540768): 82 files, no impossibilities.
+# C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR (key C:/Program Files/NVIDIA Corporation/NVIDIA NvDLISR, mtime 1567066589): 5 files, no impossibilities.
+# C:\Program Files\Intel\WiFi\bin\ (key C:/Program Files/Intel/WiFi/bin/, mtime 1565520856): 38 files, no impossibilities.
+# C:\Users\nikol\.dotnet\tools: could not be stat'd.
+# C:\Program Files\Common Files\Intel\WirelessCommon\ (key C:/Program Files/Common Files/Intel/WirelessCommon/, mtime 1565520856): 7 files, no impossibilities.
+# C:\texlive\2019\bin\win32 (key C:/texlive/2019/bin/win32, mtime 1565606823): 537 files, no impossibilities.
+# C:\windows\System32\WindowsPowerShell\v1.0\ (key C:/windows/System32/WindowsPowerShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
+# C:\WINDOWS\System32\Wbem (key C:/WINDOWS/System32/Wbem, mtime 1657099393): 155 files, no impossibilities.
+# . (key c:/Users/nikol/Documents/studie/cppprojects/Shadows2D, mtime 1657473479): 32 files, no impossibilities.
+# C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\ (key C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/, mtime 1643797098): 7 files, no impossibilities.
+# C:\MinGW\bin\ (key C:/MinGW/bin/, mtime 1657362229): 142 files, no impossibilities.
+# C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin (key C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/bin, mtime 1567066514): 45 files, no impossibilities.
+# C:\Program Files\Git\cmd (key C:/Program Files/Git/cmd, mtime 1657463492): 7 files, no impossibilities.
+# C:\windows\System32\OpenSSH\: could not be stat'd.
+# C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common (key C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common, mtime 1539588691): 10 files, no impossibilities.
+# C:\Program Files\Intel\Intel(R) Management Engine Components\DAL (key C:/Program Files/Intel/Intel(R) Management Engine Components/DAL, mtime 1539588528): 4 files, no impossibilities.
+# C:\WINDOWS (key C:/WINDOWS, mtime 1657442172): 133 files, no impossibilities.
+# C:\Program Files\Intel\Intel(R) Management Engine Components\IPT (key C:/Program Files/Intel/Intel(R) Management Engine Components/IPT, mtime 1539588528): 5 files, no impossibilities.
+# C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.4.0\ (key C:/Program Files/NVIDIA Corporation/Nsight Compute 2019.4.0/, m 
+time 1567066321): 10 files, no impossibilities.
+# C:\windows (key C:/windows, mtime 1657442172): 133 files, no impossibilities.
+# C:\Program Files\MATLAB\R2019a\bin (key C:/Program Files/MATLAB/R2019a/bin, mtime 1566759772): 14 files, no impossibilities.
+# C:\Users\nikol\AppData\Local\Programs\Microsoft VS Code\bin (key C:/Users/nikol/AppData/Local/Programs/Microsoft VS Code/bin, mtime 1657357361): 4 files, no impossibilities.
+# C:\Program Files\Eclipse Foundation\jdk-8.0.302.8-hotspot\bin (key C:/Program Files/Eclipse Foundation/jdk-8.0.302.8-hotspot/bin, mtime 1643795435): 53 files, no impossibilities.
+# C:\Program Files\Microsoft SQL Server\130\Tools\Binn\ (key C:/Program Files/Microsoft SQL Server/130/Tools/Binn/, mtime 1643797056): 4 files, no impossibilities.
+# C:\windows\System32\Wbem (key C:/windows/System32/Wbem, mtime 1657099393): 155 files, no impossibilities.
+# src (key c:/Users/nikol/Documents/studie/cppprojects/Shadows2D/src, mtime 1656941268): No files, no impossibilities so far.
+# C:\Program Files\dotnet\ (key C:/Program Files/dotnet/, mtime 1643796654): 10 files, no impossibilities.
+# C:\WINDOWS\System32\WindowsPowerShell\v1.0\ (key C:/WINDOWS/System32/WindowsPowerShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
+# C:\windows\system32 (key C:/windows/system32, mtime 1657442436): 3100 files, no impossibilities.
+# C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL (key C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL, mtime 1539588528): 10 files, no impossibilities.
+# C:\Users\nikol\AppData\Local\Microsoft\WindowsApps (key C:/Users/nikol/AppData/Local/Microsoft/WindowsApps, mtime 1657279279): 28 files, no impossibilities.
+# C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT (key C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT, mtime 1539588528): 6 files, no impossibilities.
+# C:\WINDOWS\System32\OpenSSH\: could not be stat'd.
+# C:\Users\nikol\AppData\Local\Programs\Python\Python37\ (key C:/Users/nikol/AppData/Local/Programs/Python/Python37/, mtime 1567666342): 19 files, no impossibilities.
+# C:\WINDOWS\system32 (key C:/WINDOWS/system32, mtime 1657442436): 3100 files, no impossibilities.
+# C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\libnvvp (key C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/libnvvp, mtime 1567066489): 14 files, no impossibilities.
+
+# 7929 files, no impossibilities in 36 directories.
+
+# Implicit Rules
+
+obj_windows/%.o: src/%.cpp include/IO.hpp include/load_shader.hpp include/texwrap.hpp include/SFXwrap.hpp include/calligraphy.hpp include/texwrap.hpp include/mesh2D.hpp include/raytracer.hpp
+#  recipe to execute (from 'makefile', line 33):
+	$(CC) -c -o $@ $< $(CXXFLAGS)
+
+# 1 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+# Not a target:
+all:
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/IO_graphics.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+.PHONY: clean
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+bin/OpenGL_app_windows.exe: obj_windows/main.o obj_windows/texwrap.o obj_windows/mesh2D.o obj_windows/raytracer.o obj_windows/IO.o obj_windows/load_shader.o obj_windows/IO_graphics.o obj_windows/IO_audio.o obj_windows/IO_input_devices.o obj_windows/texwrap.o obj_windows/SFXwrap.o obj_windows/calligraphy.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 37):
+	$(CC) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+# Not a target:
+obj_windows/main.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/raytracer.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/SFXwrap.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-10 18:53:44
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+obj_windows/IO_input_devices.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/mesh2D.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 43):
+	del  .\$(ODIR)\*.o
+	del .\$(OUTDIR)\$(OUTNAME)
+
+# Not a target:
+obj_windows/texwrap.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/calligraphy.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/load_shader.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/IO.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+obj_windows/IO_audio.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=18/1024=2%, Rehash=0, Collisions=0/42=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 9 (8) / strings = 4485 / storage = 66222 B / avg = 14 B
+# current buf: size = 8174 B / used = 875 B / count = 47 / avg = 18 B
+# other used: total = 58048 B / count = 4438 / avg = 13 B
+# other free: total = 45 B / max = 9 B / min = 3 B / avg = 5 B
+
+# strcache performance: lookups = 8000 / hit rate = 43%
+# hash-table stats:
+# Load=4485/8192=55%, Rehash=0, Collisions=3408/8000=43%
+# Finished Make data base on Mon Jul 11 11:27:20 2022
+
+ 
+mingw32-make.exe: *** No rule to make target 'all'.  Stop.
+

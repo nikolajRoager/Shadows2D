@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     tex_index orb0 = -1;
     tex_index orb1 = -1;
 
-    bool do_display = (argc == 2);
+    bool do_display = (argc == 2 || argc == 1);
 
     //To test that intersection detection is working make a number of orbs we can look for
     vector<vec2> orbs(100);
@@ -78,8 +78,6 @@ int main(int argc, char* argv[])
 
     cout<<"Start loop"<<endl;
     }
-    else if (argc!=3)
-        {cout<<"Usage "<<argv[0]<<" filename (optional iteration number)"<<endl; return 0;}
     mesh2D::toggle_graphics(do_display);
     vector<mesh2D> mess;
 
@@ -92,6 +90,7 @@ int main(int argc, char* argv[])
 
     fs::path poly_file=assets/(name+".bin");
 
+    cout<<"Reading "<<name<<endl;
 
     if (name.compare("null"))//Because of the way this is set up, this is true whenever the file is not named null, null is interpreted as don't save anything
     {
@@ -152,9 +151,11 @@ int main(int argc, char* argv[])
     int mouse_x_px=500;
     int mouse_y_px=700;
 */
+        cout<<"A "<<endl;
     //For editing meshes
     uint meshes = mess.size();
 
+        cout<<"B "<<endl;
     uint active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
     raytracer reynold(vec2(0),do_display);
@@ -162,13 +163,16 @@ int main(int argc, char* argv[])
     float this_theta = 2.8;
     float this_Dtheta=TWO_PI;
 
+        cout<<"C "<<endl;
 
     vec2 pos = vec2(0);
 
+        cout<<"C "<<endl;
 
     if (do_display)
     {
         reynold.update(mess);
+        cout<<"D "<<endl;
         double dt = 0;
 
         ulong millis=0;
