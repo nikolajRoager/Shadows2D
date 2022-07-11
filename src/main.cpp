@@ -151,11 +151,9 @@ int main(int argc, char* argv[])
     int mouse_x_px=500;
     int mouse_y_px=700;
 */
-        cout<<"A "<<endl;
     //For editing meshes
     uint meshes = mess.size();
 
-        cout<<"B "<<endl;
     uint active_mesh = meshes-1;//NEVER MIND THE UNDERFLOW! I will check that meshes>0 before calling anything, and once I increase meshes, we will overflow back where we started.
 
     raytracer reynold(vec2(0),do_display);
@@ -163,16 +161,13 @@ int main(int argc, char* argv[])
     float this_theta = 2.8;
     float this_Dtheta=TWO_PI;
 
-        cout<<"C "<<endl;
 
     vec2 pos = vec2(0);
 
-        cout<<"C "<<endl;
 
     if (do_display)
     {
         reynold.update(mess);
-        cout<<"D "<<endl;
         double dt = 0;
 
         ulong millis=0;

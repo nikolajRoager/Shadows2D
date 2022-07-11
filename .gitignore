@@ -1,0 +1,3 @@
+bin/*.exe
+obj_windows/*.o
+obj_linux/*.o
