@@ -2,13 +2,18 @@
     "makefile.extensionOutputFolder": "./.vscode",
     "makefile.launchConfigurations": [
         {
-            "cwd": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\bin",
-            "binaryPath": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\bin\\OpenGL_app",
+            "cwd": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D",
+            "binaryPath": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\OpenGL_app_windows",
             "binaryArgs": []
         },
         {
-            "cwd": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\bin",
-            "binaryPath": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\bin\\OpenGL_app.exe",
+            "cwd": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D",
+            "binaryPath": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\OpenGL_app_windows.exe",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D",
+            "binaryPath": "c:\\Users\\nikol\\Documents\\studie\\cppprojects\\Shadows2D\\OpenGL_app_windows.exe",
             "binaryArgs": []
         }
     ]

@@ -1,16 +1,5 @@
-mingw32-make.exe bin/OpenGL_app_windows.exe --dry-run --always-make --keep-going --print-directory
+mingw32-make.exe default --dry-run --always-make --keep-going --print-directory
 mingw32-make.exe: Entering directory 'c:/Users/nikol/Documents/studie/cppprojects/Shadows2D'
-g++ -c -o obj_windows/main.o src/main.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/texwrap.o src/texwrap.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/mesh2D.o src/mesh2D.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/raytracer.o src/raytracer.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/IO.o src/IO.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/load_shader.o src/load_shader.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/IO_graphics.o src/IO_graphics.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/IO_audio.o src/IO_audio.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/IO_input_devices.o src/IO_input_devices.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/SFXwrap.o src/SFXwrap.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -c -o obj_windows/calligraphy.o src/calligraphy.cpp -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows
-g++ -o bin/OpenGL_app_windows.exe obj_windows/main.o obj_windows/texwrap.o obj_windows/mesh2D.o obj_windows/raytracer.o obj_windows/IO.o obj_windows/load_shader.o obj_windows/IO_graphics.o obj_windows/IO_audio.o obj_windows/IO_input_devices.o obj_windows/SFXwrap.o obj_windows/calligraphy.o -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wdouble-promotion -Iinclude  -Llib_windows -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lglew32 -lopengl32 
+mingw32-make -f makefile_windows_mingw
 mingw32-make.exe: Leaving directory 'c:/Users/nikol/Documents/studie/cppprojects/Shadows2D'
  
