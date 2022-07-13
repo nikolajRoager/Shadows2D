@@ -9,27 +9,37 @@ endif
 
 
 default:
-ifeq ($(OS),Windows_NT)
+ifeq ($(OS_NAME),Windows)
 	mingw32-make -f makefile_windows_mingw
 else
 ifeq ($(OS_NAME),Linux)
 	make -f makefile_linux
+else
+	echo 'Only available for Linux adn Windows NT based systems'
 endif
-ifeq ($(OS_NAME),Darwin)
-	echo 'Not available for Mac'
+endif
+
+
+hide_and_shoot:
+ifeq ($(OS_NAME),Windows)
+	mingw32-make -f makefile_windows_mingw hide_and_shoot
+else
+ifeq ($(OS_NAME),Linux)
+	make -f makefile_linux hide_and_shoot
+else
+	echo 'Only available for Linux adn Windows NT based systems'
 endif
 endif
 
 .PHONY: clean
 
 clean:
-ifeq ($(OS),Windows_NT)
+ifeq ($(OS_NAME),Windows)
 	mingw32-make -f makefile_windows_mingw clean
 else
 ifeq ($(OS_NAME),Linux)
 	make -f makefile_linux clean
-endif
-ifeq ($(OS_NAME),Darwin)
-	echo 'Not available for Mac'
+else
+	echo 'Only available for Linux adn Windows NT based systems'
 endif
 endif

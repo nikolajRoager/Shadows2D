@@ -15,24 +15,39 @@ _DEPS = IO.hpp load_shader.hpp texwrap.hpp SFXwrap.hpp calligraphy.hpp  texwrap.
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 
-_OBJ = main.o   texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o IO_audio.o IO_input_devices.o texwrap.o SFXwrap.o calligraphy.o
+_OBJ =  texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o IO_audio.o IO_input_devices.o texwrap.o SFXwrap.o calligraphy.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lGLEW -lGL
 
-
+default: $(OUTDIR)/$(OUTNAME)
 
 #Create object files
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CXXFLAGS)
 
-#Compile the final program
-$(OUTDIR)/$(OUTNAME):	$(OBJ)
+#Compile the main example program
+$(OUTDIR)/$(OUTNAME): $(ODIR)/main.o	$(OBJ)
 	$(CC) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
+#Example project 0, hide and shoot
+
+HS_IDIR  = hide_and_shoot_include
+HS_SRCDIR= hide_and_shoot_src
+
+hide_and_shoot: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o
+	$(CC) -o $(OUTDIR)/Hide_and_Shoot.exe $^ $(CXXFLAGS) $(LIBS)
+
+
+#Create object files
+$(ODIR)/HS_main.o: $(HS_SRCDIR)/main.cpp $(DEPS) $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
+
+$(ODIR)/HS_world.o: $(HS_SRCDIR)/world.cpp $(DEPS) $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
 
 .PHONY: clean
 
 clean:
 	rm -f $(ODIR)/*.o
-	rm -f $(OUTDIR)/$(OUTNAME)
+	rm -f $(OUTDIR)/*.exe
