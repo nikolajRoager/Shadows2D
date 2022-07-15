@@ -19,7 +19,7 @@ _DEPS = IO.hpp load_shader.hpp texwrap.hpp SFXwrap.hpp calligraphy.hpp  texwrap.
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 
-_OBJ = main.o   texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o IO_audio.o IO_input_devices.o texwrap.o SFXwrap.o calligraphy.o
+_OBJ =  texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o IO_audio.o IO_input_devices.o texwrap.o SFXwrap.o calligraphy.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 #Oh looks like you forgot to link glut, and mingw32 ... NO, I DO NOT NEED THOSE FOR THIS TO WORK
@@ -32,11 +32,11 @@ $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CXXFLAGS)
 
 #Compile the final program
-$(OUTNAME):	$(OBJ)
+$(OUTNAME): $(ODIR)/main.o  $(OBJ)
 	$(CC) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
-HS_IDIR  = hide_and_seek_include
-HS_SRCDIR= hide_and_seek_src
+HS_IDIR  = hide_and_shoot_include
+HS_SRCDIR= hide_and_shoot_src
 
 hide_and_seek: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o   $(ODIR)/HS_player.o
 	$(CC) -o Hide_and_Seek.exe $^ $(CXXFLAGS) $(LIBS)
