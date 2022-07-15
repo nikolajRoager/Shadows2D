@@ -16,7 +16,6 @@
 #include <random>
 
 #include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
 
 //I use these types so much that these aliases are well worth it
 using uint = uint32_t;
@@ -29,13 +28,36 @@ using namespace glm;
 class world
 {
 private:
-    vector<tex_index> textures;
+    tex_index bottom_textures;//A texture which you walk on, always visible if not obscured but "darkened" if not in view
+    tex_index top_textures;   //And one which obscures it, roof's etc. which disapear if in view
     uint w,h;
 
+    tex_index walk_tile_texture;//Mainly for debugging, a tile texture, for marking what can and can not be walked on
+
+    //For walking around, you walk on a simple grid, yes a grid, I am very sorry about not using actual collision with the meshes
+    uint tile_w;
+    uint tile_h;
+    uint grid_m;
+    uint grid_n;
+    vector<bool > walkable_grid;
+
+    fs::path polygon_file;
+    vector<mesh2D> mess;
+    uint active_mesh = -1;//-1 shorthand for non selected
 public:
     world(fs::path world_folder);
+
     ~world();
     uint get_w() const {return w;}
     uint get_h() const {return h;}
-    void display(int offset_x,int offset_y) const;
+    void display_background(int offset_x,int offset_y) const;
+    void display_top(int offset_x,int offset_y, bool grid=false) const;
+
+    bool walkable(uint x, uint y) const;
+
+    void save_polygons() const;
+
+    void add_vertex(uint x, uint y);
+    void new_polygon();
+
 };

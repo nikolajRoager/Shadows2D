@@ -1660,25 +1660,25 @@ namespace IO::graphics
     //-- Mesh rendering functions --
 
     //Internal drawing function, which does the drawing in different ways
-    void draw_unicolor(vector<vec2> vertices, uint size, vec3 color,GLuint displaymode);
+    void draw_unicolor(const vector<vec2>& vertices, uint size, vec3 color,GLuint displaymode,vec2 offset= vec2(0));
 
-    void draw_lines(vector<vec2> vertices, uint size, vec3 color)
+    void draw_lines(const vector<vec2>& vertices, uint size, vec3 color,vec2 offset)
     {
-        draw_unicolor(vertices,size,color,GL_LINE_STRIP);
+        draw_unicolor(vertices,size,color,GL_LINE_STRIP,offset);
     }
 
-    void draw_triangles(vector<vec2> vertices, uint size, vec3 color)
+    void draw_triangles(const vector<vec2>& vertices, uint size, vec3 color,vec2 offset)
     {
-        draw_unicolor(vertices,size,color,GL_TRIANGLE_FAN);
+        draw_unicolor(vertices,size,color,GL_TRIANGLE_FAN,offset);
     }
-    void draw_segments(vector<vec2> vertices, uint size, vec3 color)
+    void draw_segments(const vector<vec2>& vertices, uint size, vec3 color,vec2 offset)
     {
-        draw_unicolor(vertices,size,color,GL_LINES);
+        draw_unicolor(vertices,size,color,GL_LINES,offset);
     }
 
 
     //A more advanced version of draw unicolor, specifically made for drawing the triangle fan for the lighting, has a certain range which the color will fall off until it reaches
-    void draw_triangles(vector<vec2> vertices, uint size, vec3 color,vec2 origin, float range)
+    void draw_triangles(const vector<vec2>& vertices, uint size, vec3 color,vec2 origin, float range,vec2 offset)
     {
         GLuint Buffer=-1;
 
@@ -1727,7 +1727,7 @@ namespace IO::graphics
 
     }
 
-    void draw_unicolor(vector<vec2> vertices, uint size, vec3 color,GLuint displaymode)
+    void draw_unicolor(const vector<vec2>& vertices, uint size, vec3 color,GLuint displaymode, vec2 offset)
     {
         GLuint Buffer=-1;
 
@@ -1741,7 +1741,7 @@ namespace IO::graphics
 
 
         mat3 thisMVP =
-                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3( - 1.f,   1.f, 1));
+                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3(-2*offset.x*inv_w - 1.f,  2*offset.y*inv_h+ 1.f, 1));
 
         glUniformMatrix3fv(Line_matrix_ID, 1, GL_FALSE, &thisMVP[0][0]);
         glUniform3f(Line_color_ID,color.x,color.y,color.z);

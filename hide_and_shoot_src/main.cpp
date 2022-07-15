@@ -16,6 +16,7 @@
 #include"IO.hpp"
 #include "mesh2D.hpp"
 #include "world.hpp"
+#include "player.hpp"
 
 #include<cstdint>
 #include <random>
@@ -44,10 +45,15 @@ int main(int argc, char* argv[])
     tex_index cursor=-1;
 
     cout<<"Starting main display"<<endl;
+    bool devmode=false;
     try
     {
-        IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", false, 320,180);
+        if (argc==3)
+            if (string(argv[2]).compare("--devmode")==0)
+                devmode = true;
+        IO::init(false,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", devmode, 320,180);
         cursor = IO::graphics::load_tex(fs::path("ui")/"cursor.png");
+        cout<<cursor<<endl;
 
     }
     catch(string error)
@@ -58,7 +64,7 @@ int main(int argc, char* argv[])
     }
 
 
-    mesh2D::toggle_graphics(false);
+    mesh2D::toggle_graphics(devmode);
     vector<mesh2D> mess;
 
 
@@ -71,8 +77,12 @@ int main(int argc, char* argv[])
 //    float this_theta = 2.8;
 //    float this_Dtheta=TWO_PI;
 
-    world Mundus(fs::path("hide_and_shoot_maps")/(argc > 1 ? fs::path(argv[1]) : fs::path("default")));
+    world Mundus(assets/fs::path("hide_and_shoot_maps")/(argc > 1 ? fs::path(argv[1]) : fs::path("default")));
 
+
+
+
+    player seeker = player("red",50,102,true);
 
     double dt = 0;
 
@@ -83,13 +93,15 @@ int main(int argc, char* argv[])
     int mouse_x_px=0;
     int mouse_y_px=0;
 
-    int position_x=0;
-    int position_y=0;
-
+    //The camera should follow the human player around
+    int cam_x=0;
+    int cam_y=0;
+    vector<string> help_text;
+    help_text.push_back("lightmap : show player lightmap");
+    help_text.push_back("polysave : save map of polygons");
+    help_text.push_back("polyadd  : add new polygon");
     do
     {
-
-
         millis = IO::input_devices::get_millis();
         IO::input_devices::get_mouse(mouse_x_px,mouse_y_px);
         int scroll = IO::input_devices::get_scroll();
@@ -97,6 +109,7 @@ int main(int argc, char* argv[])
 
         dt = (millis-pmillis)*0.001;
 
+        //Without devmode, this is just turned off
         string text_input = "null";
         if (IO::input_devices::get_command(text_input))
         {
@@ -104,17 +117,57 @@ int main(int argc, char* argv[])
             {
                 IO::graphics::debug_showlightmap();
             }
+            else if (text_input.compare("polyw")==0)
+            {
+                Mundus.save_polygons();
+            }
+            else if (text_input.compare("polyadd")==0)
+            {
+                Mundus.new_polygon();
+            }
+            else if (text_input.compare("help")==0)
+            {
+                IO::input_devices::print_lines(help_text);//Mostly used to print list of commands when given :help
+            }
+            else
+            {
+                string what = "Whaaaat (try help)";
+                IO::input_devices::print(what);
+            }
+        }
+        if (IO::input_devices::mouse_click(false))//Left click to add new vertex to old object
+        {
+            Mundus.add_vertex(mouse_x_px+cam_x,mouse_y_px+cam_y);
         }
 
 
+        seeker.move(Mundus,mouse_x_px+cam_x,mouse_y_px+cam_y,dt);
+        //I want the camera to center the player, but actually  the "camera" is the lowest left coordinates
+        cam_x=seeker.get_x()-160;
+        cam_y=seeker.get_y()-90;
 
-        Mundus.display(mouse_x_px+320,mouse_y_px+180);
+        //And do make sure we clip to the edge of the screen
+        if (cam_x<0)
+            cam_x=0;
+        else if(cam_x+IO::graphics::get_w()>Mundus.get_w())
+            cam_x=Mundus.get_w()-IO::graphics::get_w();
+
+        if (cam_y<0)
+            cam_y=0;
+        else if(cam_y+IO::graphics::get_h()>Mundus.get_h())
+            cam_y=Mundus.get_h()-IO::graphics::get_h();
+
+        Mundus.display_background(cam_x,cam_y);
+        seeker.display(cam_x,cam_y);
+        Mundus.display_top(cam_x,cam_y,devmode);
 
 //            IO::graphics::activate_Lightmap();
 //            reynold.bake_to_shadowmap(vec3(1),500);
 //            IO::graphics::activate_Display();//To be fair, texture rendering and ending the loop auto-jumps back to display, but lets just do it explicitly
 
-        IO::graphics::draw_tex(mouse_x_px,mouse_y_px-8,cursor);
+        IO::graphics::draw_tex(mouse_x_px,mouse_y_px,cursor);
+
+
 
         IO::post_loop();
 

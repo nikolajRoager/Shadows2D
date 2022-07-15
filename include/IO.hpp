@@ -30,6 +30,7 @@ using uint = uint32_t;
 using ulong = uint64_t;
 
 using namespace std;
+using namespace glm;
 
 namespace fs = std::filesystem;
 
@@ -106,10 +107,10 @@ namespace IO
         void activate_Display();
 
 
-        void draw_lines(vector<glm::vec2> verticies, uint size,glm::vec3 color);
-        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color);
-        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color,glm::vec2 origin,float range=-1);
-        void draw_segments(vector<glm::vec2> vertices, uint size,glm::vec3 color);
+        void draw_lines(const vector<glm::vec2>& verticies, uint size,glm::vec3 color,vec2 offset= vec2(0));
+        void draw_triangles(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,vec2 offset= vec2(0));
+        void draw_triangles(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,glm::vec2 origin,float range=-1,vec2 offset= vec2(0));
+        void draw_segments(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,vec2 offset= vec2(0));
 
 
         //===Related to the creation of shadowmaps===

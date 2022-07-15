@@ -35,17 +35,19 @@ $(OUTDIR)/$(OUTNAME): $(ODIR)/main.o	$(OBJ)
 HS_IDIR  = hide_and_shoot_include
 HS_SRCDIR= hide_and_shoot_src
 
-hide_and_shoot: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o
+hide_and_shoot: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o   $(ODIR)/HS_player.o
 	$(CC) -o $(OUTDIR)/Hide_and_Shoot.exe $^ $(CXXFLAGS) $(LIBS)
 
 
 #Create object files
-$(ODIR)/HS_main.o: $(HS_SRCDIR)/main.cpp $(DEPS) $(HS_IDIR)/world.hpp
+$(ODIR)/HS_main.o: $(HS_SRCDIR)/main.cpp $(DEPS) $(HS_IDIR)/player.hpp  $(HS_IDIR)/world.hpp
 	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
 
 $(ODIR)/HS_world.o: $(HS_SRCDIR)/world.cpp $(DEPS) $(HS_IDIR)/world.hpp
 	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
 
+$(ODIR)/HS_player.o: $(HS_SRCDIR)/player.cpp $(DEPS) $(HS_IDIR)/player.hpp $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
 .PHONY: clean
 
 clean:
