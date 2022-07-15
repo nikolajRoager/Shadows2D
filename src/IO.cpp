@@ -23,7 +23,7 @@ These are put in the same header, so that we only need to include one header, th
 //text output, should never be used in looping functions
 #include <iostream>
 //operating independent file-system functions
-#include<filesystem>
+#include"my_filesystem.hpp"
 //file streams, we use filesystem for paths, and fstream to actually stream the data from files in.
 #include <fstream>
 
@@ -42,7 +42,6 @@ using ulong = uint64_t;
 
 using namespace std;
 
-namespace fs = std::filesystem;
 
 //The separate init or end functions should not be visible for anyone who includes IO.hpp, but I need to see them here, so declare them here, the linker will link them to their definitions
 //I don't think this is great style, but I do not see any usable alternative
@@ -51,7 +50,7 @@ namespace fs = std::filesystem;
 namespace IO::graphics
 {
     // ---- one time functions ----
-    void init(bool fullscreen,string window_header, fs::path tex, fs::path scripture,fs::path shaders, uint _w=320, uint _h=180);
+    void init(bool fullscreen,string window_header, my_path tex, my_path scripture,my_path shaders, uint _w=320, uint _h=180);
     void end();
 
 
@@ -74,7 +73,7 @@ namespace IO::graphics
 namespace IO::audio
 {
     // ---- one time functions ----
-    void init(fs::path audio);
+    void init(my_path audio);
     void end();
         // ---- Functions which must be called once per loop ----
         void update_loops();//Update looping audio
@@ -83,7 +82,7 @@ namespace IO::audio
 namespace IO::input_devices
 {
     // ---- one time functions ----
-    void init(fs::path keymaps, bool devmode);
+    void init(my_path keymaps, bool devmode);
     void end();
     //Enable calling developer commandline
     void set_devmode(bool dev);
@@ -101,15 +100,15 @@ namespace IO
 {
     // Some internal variables
     //All the paths we need to know
-    fs::path texture_path;
-    fs::path sound_path;
-    fs::path fonts_path;
-    fs::path shader_path;
+    my_path texture_path;
+    my_path sound_path;
+    my_path fonts_path;
+    my_path shader_path;
 
 
 
 
-    void init(bool fullscreen,string window_header,  fs::path tex, fs::path audio, fs::path scripture, fs::path shaders,fs::path keymaps, bool devmode, uint _w, uint _h)
+    void init(bool fullscreen,string window_header,  my_path tex, my_path audio, my_path scripture, my_path shaders,my_path keymaps, bool devmode, uint _w, uint _h)
     {
         texture_path = tex;
         sound_path = audio;

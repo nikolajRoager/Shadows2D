@@ -27,7 +27,7 @@ namespace IO::graphics
     //Defined later: get the log of the loaded program
     string get_log(GLuint program_or_shader);
 
-    GLuint load_program(fs::path material_path, string name, string& log)
+    GLuint load_program(my_path material_path, string name, string& log)
     {
         //This is extremely basic code for loading and compiling GLSL shaders, not many comments are needed
 
@@ -36,15 +36,15 @@ namespace IO::graphics
         string vertexShader_source;
         string fragmentShader_source;
 
-        fs::path VSP = material_path / name / "vertex.glsl";
-        fs::path FSP = material_path / name / "fragment.glsl";
+        my_path VSP = material_path / name / "vertex.glsl";
+        my_path FSP = material_path / name / "fragment.glsl";
 
         //Load vertex shader
-        ifstream vertexShader_stream(VSP);
+        ifstream vertexShader_stream(VSP.String());
 
         if (!vertexShader_stream.is_open())
         {
-            throw std::runtime_error("File not found: " + VSP.string());
+            throw std::runtime_error("File not found: " + VSP.String());
         }
         else
         {
@@ -56,11 +56,11 @@ namespace IO::graphics
         }
 
         //Same thing for fragment shader
-        ifstream fragmentShader_stream(FSP);
+        ifstream fragmentShader_stream(FSP.String());
 
         if (!fragmentShader_stream.is_open())
         {
-            throw std::runtime_error("File not found: " + FSP.string());
+            throw std::runtime_error("File not found: " + FSP.String());
         }
         else
         {

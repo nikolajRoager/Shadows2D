@@ -15,7 +15,7 @@ This should ONLY be included by IO::graphics
 #include<string>
 #include<cstdint>
 
-#include<filesystem>
+#include"my_filesystem.hpp"
 
 
 //I use these types so much that these aliases are well worth it
@@ -25,10 +25,10 @@ using ulong = uint64_t;
 
 using namespace std;
 
-namespace fs = std::filesystem;
 
 namespace IO::graphics
 {
-    GLuint load_program(fs::path material_path, string name, string& log);//Load and compile openGL glsl program from shaders: assets/material_path/name/vertex.glsl assets/material_path/fragment.glsl
+    GLuint load_program(my_path material_path, string name, string& log);//Load and compile openGL glsl program from shaders: assets/material_path/name/vertex.glsl assets/material_path/fragment.glsl
+    GLuint STUPID_load_program(my_path material_path, string name, string& log);//Load and compile openGL glsl program from shaders: assets/material_path/name/vertex.glsl assets/material_path/fragment.glsl
 }
 

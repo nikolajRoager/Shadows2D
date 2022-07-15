@@ -37,7 +37,7 @@ using namespace glm;
 //text output, should never be used in looping functions
 #include <iostream>
 //operating independent file-system functions
-#include<filesystem>
+#include"my_filesystem.hpp"
 //file streams, we use filesystem for paths, and fstream to actually stream the data from files in.
 #include <fstream>
 
@@ -108,9 +108,9 @@ namespace IO::graphics
     bool rsz_scr = false;//Flag to tell us that the size of the window just changed, we may need to do a lot of updates later down the line, but these updates are relatively slow, so only do them if we need
 
     //Paths we load things from
-    fs::path texture_path;
-    fs::path fonts_path;
-    fs::path shader_path;
+    my_path texture_path;
+    my_path fonts_path;
+    my_path shader_path;
 
     //----- Texture  memory management ----
     //The list of actual textures;
@@ -189,10 +189,10 @@ namespace IO::graphics
 
     //Pre-declare some things we need in init
     void set_output_size(uint _w, uint _h);
-    void loadCalligraphy(fs::path scripture);
+    void loadCalligraphy(my_path scripture);
 
     // ---- one time functions ----
-    void init(bool fullscreen, string window_header, fs::path tex, fs::path scripture, fs::path shaders, uint _w, uint _h)
+    void init(bool fullscreen, string window_header, my_path tex, my_path scripture, my_path shaders, uint _w, uint _h)
     {
 
         texture_path = tex;
@@ -430,7 +430,7 @@ namespace IO::graphics
             );
 
         //Now check what font we should load
-        ifstream default_font_file((fonts_path / "default.txt"));
+        ifstream default_font_file((fonts_path / "default.txt").String());
         string default_font = "null";
         bool found_font = false;
         if (default_font_file.is_open())
@@ -438,7 +438,7 @@ namespace IO::graphics
                 found_font = true;
 
         if (!found_font)
-            throw std::runtime_error(string((fonts_path / "default.txt").string() + " not found"));
+            throw std::runtime_error(string((fonts_path / "default.txt").String() + " not found"));
 
         dictionary = vector<calligraphy>();
         //Load font
@@ -578,7 +578,7 @@ namespace IO::graphics
     // ---- Texture memory management ----
     // Functions for loading, deleting and displaying different types of textures and sounds
 
-    tex_index load_tex(fs::path path, uint& w, uint& h, bool absolute_path)//Load a texture and gets its location in the texture list. Returns -1 = 65535 if it did not work, w and h will be set to the width and height (as they are references they can be read later, essentially a way of getting more than one output)
+    tex_index load_tex(my_path path, uint& w, uint& h, bool absolute_path)//Load a texture and gets its location in the texture list. Returns -1 = 65535 if it did not work, w and h will be set to the width and height (as they are references they can be read later, essentially a way of getting more than one output)
     {
     //If absolute path is false, then the path inside  texture_path
         if (!absolute_path)
@@ -624,7 +624,7 @@ namespace IO::graphics
     }
 
 
-    tex_index load_tex(fs::path path, bool absolute_path)//Same function, but do not return width and height
+    tex_index load_tex(my_path path, bool absolute_path)//Same function, but do not return width and height
     {
         uint tmp;//We are not interested in this, so ignore it
         return load_tex(path,tmp,tmp,absolute_path);
@@ -1517,11 +1517,11 @@ namespace IO::graphics
     }
 
     //The loading of the font, really only ever called in the init, but so long that it is placed separately
-    void loadCalligraphy(fs::path scripture)
+    void loadCalligraphy(my_path scripture)
     {
         string temp;
         text_h = -1;//Mark as unset
-        ifstream texture_data((scripture / "calligraphy.txt"));
+        ifstream texture_data((scripture / "calligraphy.txt").String());
         if (texture_data.is_open())
         {
             getline(texture_data, temp);
@@ -1587,13 +1587,13 @@ namespace IO::graphics
                     calligraphy_cols == (uint)-1 ||
                     calligraphy_rows == (uint)-1
                     )
-                    throw std::runtime_error("Could not load data in calligraphy.txt in " + scripture.string());
+                    throw std::runtime_error("Could not load data in calligraphy.txt in " + scripture.String());
 
                 //Now try to load the texture
                 tex_index calligraphy_texture = load_tex(scripture / _name,true);//Using absolute path, as the font is not inside the texture folder
 
                 if (calligraphy_max == (uint)-1)
-                    throw std::runtime_error("Could not load " + _name + " in " + scripture.string());
+                    throw std::runtime_error("Could not load " + _name + " in " + scripture.String());
 
                 textures[calligraphy_texture].set_animation(calligraphy_cols, calligraphy_rows);
 
@@ -1603,18 +1603,18 @@ namespace IO::graphics
                 if (text_h == (uchar)-1)//If height has not been set, now it is
                     text_h = frame_h;
                 else if (text_h != frame_h)//But if height has been set, it must be consistent
-                    throw std::runtime_error("Inconsistent glyph height in " + scripture.string());
+                    throw std::runtime_error("Inconsistent glyph height in " + scripture.String());
 
                 vector<uchar > glyph_width_list = vector<uchar >();
                 //Now time to see how wide the glyphs are, assuming they are written as far left as possible in their rectangle
                 if (!monospace)
                 {//I found that it is simply easier to load the same texture twice, rather than adding a custom backdoor into the texture loading class to copy the data out
-                    SDL_Surface* texture_surface = IMG_Load((scripture / _name).string().c_str());
+                    SDL_Surface* texture_surface = IMG_Load((scripture / _name).String().c_str());
 
 
                     if (texture_surface == NULL)
                     {
-                        throw std::runtime_error("Couldn't load font texture " + _name + " in font " + scripture.string() + " to surface: " + string(IMG_GetError()));
+                        throw std::runtime_error("Couldn't load font texture " + _name + " in font " + scripture.String() + " to surface: " + string(IMG_GetError()));
                     }
 
 
@@ -1688,10 +1688,10 @@ namespace IO::graphics
             }
         }
         else
-            throw std::runtime_error("Could not open  calligraphy.txt in " + scripture.string());
+            throw std::runtime_error("Could not open  calligraphy.txt in " + scripture.String());
 
         if (text_h == (uchar)-1)
-            throw std::runtime_error("Text height could not be deduced in " + scripture.string() + ", may be due to uncaught image loading errors or in deducing rows and cols");
+            throw std::runtime_error("Text height could not be deduced in " + scripture.String() + ", may be due to uncaught image loading errors or in deducing rows and cols");
 
     }
 

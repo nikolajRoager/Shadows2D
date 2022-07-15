@@ -1,6 +1,6 @@
 #include "world.hpp"
 
-world::world(fs::path world_folder)
+world::world(my_path world_folder)
 {
     //Read the basic textures
     bottom_textures = IO::graphics::load_tex(world_folder/"level0.png",w,h,true);
@@ -15,15 +15,15 @@ world::world(fs::path world_folder)
         walk_tile_texture = -1;
     }
 
-    ifstream walk_grid_file (world_folder/"walk_grid.txt");
+    ifstream walk_grid_file ( (world_folder/"walk_grid.txt").String());
 
     if (!walk_grid_file.is_open())
-        throw std::runtime_error("File not readable: "+(world_folder/"walk_grid.txt").string());
+        throw std::runtime_error("File not readable: "+(world_folder/"walk_grid.txt").String());
 
     if (!(walk_grid_file>>grid_m))
-        throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").string()+" did not contain grid width");
+        throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").String()+" did not contain grid width");
     if (!(walk_grid_file>>grid_n))
-        throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").string()+" did not contain grid height");
+        throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").String()+" did not contain grid height");
 
     if (w %grid_m != 0 ||h %grid_n != 0)
         throw std::runtime_error("The image, with size : "+to_string(w)+"/"+to_string(h)+" is not divisible by the grid size : "+to_string(grid_m)+"/"+to_string(grid_n));
@@ -39,7 +39,7 @@ world::world(fs::path world_folder)
         {
             uint temp = 0;
             if (! (walk_grid_file>>temp))
-                throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").string()+" did not contain enough legal entries to fill the grid ("+to_string(grid_m)+"/"+to_string(grid_n)+")");
+                throw std::runtime_error("File : "+(world_folder/"walk_grid.txt").String()+" did not contain enough legal entries to fill the grid ("+to_string(grid_m)+"/"+to_string(grid_n)+")");
             walkable_grid[j*grid_m+i]= (temp == 1 ? false : true);
         }
 
@@ -48,9 +48,9 @@ world::world(fs::path world_folder)
     polygon_file=world_folder/("polygons.bin");
 
     {
-        if (fs::exists(polygon_file))//Check if the polygon file is there
+        if (myfs_exists(polygon_file))//Check if the polygon file is there
         {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
-            std::ifstream IN(polygon_file, std::ios::binary);//Binary files are easier to read and write
+            std::ifstream IN(polygon_file.String(), std::ios::binary);//Binary files are easier to read and write
 
             if (IN.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
@@ -138,8 +138,8 @@ void world::display_top(int camera_position_x,int camera_position_y, bool debug)
 
 void world::save_polygons() const
 {
-    cout<<"Saving to"<<polygon_file.string()<<endl;
-    std::ofstream OUT(polygon_file, std::ios::binary);//Binary files are easier to read and write
+    cout<<"Saving to"<<polygon_file.String()<<endl;
+    std::ofstream OUT(polygon_file.String(), std::ios::binary);//Binary files are easier to read and write
 
     if (OUT.is_open())//Check if the polygon file is there
     {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid

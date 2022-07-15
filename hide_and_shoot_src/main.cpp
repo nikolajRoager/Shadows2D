@@ -7,7 +7,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include <chrono>
 #include <algorithm>
 #include <exception>
@@ -40,7 +40,7 @@ namespace fs = std::filesystem;
 int main(int argc, char* argv[])
 {
 
-    fs::path assets = "assets";
+    my_path assets = "assets";
 
     tex_index cursor=-1;
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
             if (string(argv[2]).compare("--devmode")==0)
                 devmode = true;
         IO::init(false,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", devmode, 320,180);
-        cursor = IO::graphics::load_tex(fs::path("ui")/"cursor.png");
+        cursor = IO::graphics::load_tex(my_path("ui")/"cursor.png");
         cout<<cursor<<endl;
 
     }
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 //    float this_theta = 2.8;
 //    float this_Dtheta=TWO_PI;
 
-    world Mundus(assets/fs::path("hide_and_shoot_maps")/(argc > 1 ? fs::path(argv[1]) : fs::path("default")));
+    world Mundus(assets/my_path("hide_and_shoot_maps")/(argc > 1 ? my_path(argv[1]) : my_path("default")));
 
 
 
