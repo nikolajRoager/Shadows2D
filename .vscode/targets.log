@@ -7,7 +7,7 @@ mingw32-make.exe all --print-data-base --no-builtin-variables --no-builtin-rules
 # There is NO WARRANTY, to the extent permitted by law.
  
 
-# Make data base, printed on Fri Jul 15 14:58:06 2022
+# Make data base, printed on Fri Jul 15 16:25:26 2022
 
 # Variables
 
@@ -30,8 +30,7 @@ HOMEDRIVE = C:
 # automatic
 ^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
 # makefile
-CURDIR := c:/Users/nikol/Documents/studie/c 
-ppprojects/Shadows2D
+CURDIR := c:/Users/nikol/Documents/studie/cppprojects/Shadows2D
 # default
 SHELL := sh.exe
 # environment
@@ -165,7 +164,8 @@ PLATFORMCODE = KV
 # automatic
 +F = $(notdir $+)
 # environment
-APPDATA = C:\Users\nikol\AppData\Roaming
+APPDATA = 
+ C:\Users\nikol\AppData\Roaming
 # environment
 TEMP = C:\Users\nikol\AppData\Local\Temp
 # environment
@@ -205,7 +205,7 @@ VSCODE_PID = 10168
 # environment
 USERDOMAIN_ROAMINGPROFILE = LAPTOP-3JPQ5QT8
 # variable set hash-table stats:
-# Load=96/1024=9%, Rehash=0, Collisions=11/118=9%
+# Load=96/1024=9%, Rehash=0, Collisions=11/119=9%
 
 # Pattern-specific Variable Values
 
@@ -221,7 +221,7 @@ USERDOMAIN_ROAMINGPROFILE = LAPTOP-3JPQ5QT8
 # C:\texlive\2019\bin\win32 (key C:/texlive/2019/bin/win32, mtime 1565606823): 537 files, no impossibilities.
 # C:\windows\System32\WindowsPowerShell\v1.0\ (key C:/windows/System32/WindowsPowerShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
 # C:\WINDOWS\System32\Wbem (key C:/WINDOWS/System32/Wbem, mtime 1657099393): 155 files, no impossibilities.
-# . (key c:/Users/nikol/Documents/studie/cppprojects/Shadows2D, mtime 1657535486): 35 files, no impossibilities.
+# . (key c:/Users/nikol/Documents/studie/cppprojects/Shadows2D, mtime 1657890513): 39 files, no impossibilities.
 # C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\ (key C:/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/, mtime 1643797098): 7 files, no impossibilities.
 # C:\MinGW\bin\ (key C:/MinGW/bin/, mtime 1657362229): 142 files, no impossibilities.
 # C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin (key C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/bin, mtime 1567066514): 45 files, no impossibilities.
@@ -229,18 +229,17 @@ USERDOMAIN_ROAMINGPROFILE = LAPTOP-3JPQ5QT8
 # C:\windows\System32\OpenSSH\: could not be stat'd.
 # C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common (key C:/Program Files (x86)/NVIDIA Corporation/PhysX/Common, mtime 1539588691): 10 files, no impossibilities.
 # C:\Program Files\Intel\Intel(R) Management Engine Components\DAL (key C:/Program Files/Intel/Intel(R) Management Engine Components/DAL, mtime 1539588528): 4 files, no impossibilities.
-# C:\WINDOWS (key C:/WINDOWS, mtime 1657815357): 133 files, no impossibilities.
+# C:\WINDOWS (key C:/WINDOWS, mtime 1657891431): 134 files, no impossibilities.
 # C:\Program Files\Intel\Intel(R) Management Engine Components\IPT (key C:/Program Files/Intel/Intel(R) Management Engine Components/IPT, mtime 1539588528): 5 files, no impossibilities.
 # C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.4.0\ (key C:/Program Files/NVIDIA Corporation/Nsight Compute 2019.4.0/, mtime 1567066321): 10 files, no impossibilities.
-# C:\windows (key C:/windows, mtime 1657815357): 133 files, no impossibilities.
+# C:\windows (key C:/windows, mtime 1657891431): 134 files, no impossibilities.
 # C:\Program Files\MATLAB\R2019a\bin (key C:/Program Files/MATLAB/R2019a/bin, mtime 1566759772): 14 files, no impossibilities.
 # C:\Users\nikol\AppData\Local\Programs\Microsoft VS Code\bin (key C:/Users/nikol/AppData/Local/Programs/Microsoft VS Code/bin, mtime 1657357361): 4 files, no impossibilities.
 # C:\Program Files\Eclipse Foundation\jdk-8.0.302.8-hotspot\bin (key C:/Program Files/Eclipse Foundation/jdk-8.0.302.8-hotspot/bin, mtime 1643795435): 53 files, no impossibilities.
 # C:\Program Files\Microsoft SQL Server\130\Tools\Binn\ (key C:/Program Files/Microsoft SQL Server/130/Tools/Binn/, mtime 1643797056): 4 files, no impossibilities.
 # C:\windows\System32\Wbem (key C:/windows/System32/Wbem, mtime 1657099393): 155 files, no impossibilities.
 # C:\Program Files\dotnet\ (key C:/Program Files/dotnet/, mtime 1643796654): 10 files, no impossibilities.
-# C:\WINDOWS\System32\WindowsPowerShell\v1.0\ (key C:/WINDOWS/System32/WindowsPowe 
-rShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
+# C:\WINDOWS\System32\WindowsPowerShell\v1.0\ (key C:/WINDOWS/System32/WindowsPowerShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
 # C:\windows\system32 (key C:/windows/system32, mtime 1657815792): 3100 files, no impossibilities.
 # C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL (key C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL, mtime 1539588528): 10 files, no impossibilities.
 # C:\Users\nikol\AppData\Local\Microsoft\WindowsApps (key C:/Users/nikol/AppData/Local/Microsoft/WindowsApps, mtime 1657641804): 28 files, no impossibilities.
@@ -250,7 +249,7 @@ rShell/v1.0/, mtime 1603204577): 30 files, no impossibilities.
 # C:\WINDOWS\system32 (key C:/WINDOWS/system32, mtime 1657815792): 3100 files, no impossibilities.
 # C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\libnvvp (key C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/libnvvp, mtime 1567066489): 14 files, no impossibilities.
 
-# 7932 files, no impossibilities in 35 directories.
+# 7938 files, no impossibilities in 35 directories.
 
 # Implicit Rules
 
@@ -276,10 +275,17 @@ all:
 #  Modification time never checked.
 #  File has not been updated.
 
+hide_and_seek:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 25):
+	mingw32-make -f makefile_windows_mingw hide_and_seek
+
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-11 12:29:58
+#  Last modified 2022-07-15 15:00:02
 #  File has been updated.
 #  Successfully updated.
 
@@ -301,26 +307,26 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'makefile', line 27):
+#  recipe to execute (from 'makefile', line 38):
 	mingw32-make -f makefile_windows_mingw clean
 
 # files hash-table stats:
-# Load=7/1024=1%, Rehash=0, Collisions=0/19=0%
+# Load=8/1024=1%, Rehash=0, Collisions=0/20=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 9 (7) / strings = 4468 / storage = 65838 B / avg = 14 B
-# current buf: size = 8174 B / used = 541 B / count = 30 / avg = 18 B
-# other used: total = 57664 B / count = 4438 / avg = 12 B
-# other free: total = 95 B / max = 37 B / min = 1 B / avg = 11 B
+# strcache buffers: 9 (6) / strings = 4474 / storage = 65935 B / avg = 14 B
+# current buf: size = 8174 B / used = 637 B / count = 33 / avg = 19 B
+# other used: total = 57761 B / count = 4441 / avg = 13 B
+# other free: total = 94 B / max = 22 B / min = 3 B / avg = 11 B
 
-# strcache performance: lookups = 7980 / hit rate = 44%
+# strcache performance: lookups = 7988 / hit rate = 43%
 # hash-table stats:
-# Load=4468/8192=55%, Rehash=0, Collisions=3371/7980=42%
-# Finished Make data base on Fri Jul 15 14:58:06 2022
+# Load=4474/8192=55%, Rehash=0, Collisions=3375/7988=42%
+# Finished Make data base on Fri Jul 15 16:25:26 2022
 
  
 mingw32-make.exe: *** No rule to make target 'all'.  Stop.
