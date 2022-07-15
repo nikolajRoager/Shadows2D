@@ -5,6 +5,5 @@
 
 int main(int argc, char* argv[])
 {
-
-    std::cout<<"THIS WILL NOT BE PRINTED, BECAUSE THIS CAN NOT RUN"<<std::endl;
+    std::cout<<"We are in "<<std::filesystem::current_path()<<endl;
 }
