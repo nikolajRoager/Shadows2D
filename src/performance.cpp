@@ -3,7 +3,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include <chrono>
 #include <algorithm>
 #include <exception>
@@ -25,7 +25,6 @@ using ulong = uint64_t;//I need to be sure that this is 32 bit or more, because 
 using namespace std;
 using namespace glm;
 
-namespace fs = std::filesystem;
 
 //The main loop, I try to keep anything graphics related out of this.
 int main(int argc, char* argv[])
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
     }
     name = string(argv[1]);
 
-    fs::path poly_file=assets/(name+".bin");
+    my_path poly_file=assets/(name+".bin");
 
 
     if (fs::exists(poly_file))//Check if the polygon file is there

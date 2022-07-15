@@ -7,7 +7,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include <chrono>
 #include <algorithm>
 #include <exception>
@@ -35,14 +35,13 @@ using ulong = uint64_t;//I need to be sure that this is 32 bit or more, because 
 using namespace std;
 using namespace glm;
 
-namespace fs = std::filesystem;
 
 //The main loop, I try to keep anything graphics related out of this.
 int main(int argc, char* argv[])
 {
     cout.precision(17);
 
-    fs::path assets = "assets";
+    my_path assets = "assets";
 
     tex_index lamp = -1;
     tex_index orb0 = -1;
@@ -64,9 +63,9 @@ int main(int argc, char* argv[])
         {
             IO::init(true,"I can write whatever I want here, and nobody can stop me",assets/"textures",assets/"audio",assets/"fonts",assets/"materials",assets/"keymap.txt", true, 1920,1080);
 
-            lamp = IO::graphics::load_tex("lamp.png");
-            orb0 = IO::graphics::load_tex("orb0.png");
-            orb1 = IO::graphics::load_tex("orb1.png");
+            lamp = IO::graphics::load_tex(my_path("lamp.png"));
+            orb0 = IO::graphics::load_tex(my_path("orb0.png"));
+            orb1 = IO::graphics::load_tex(my_path("orb1.png"));
         }
         catch(string error)
         {
@@ -88,15 +87,15 @@ int main(int argc, char* argv[])
         name = string(argv[1]);
     }
 
-    fs::path poly_file=assets/(name+".bin");
+    my_path poly_file=assets/(name+".bin");
 
     cout<<"Reading "<<name<<endl;
 
     if (name.compare("null"))//Because of the way this is set up, this is true whenever the file is not named null, null is interpreted as don't save anything
     {
-        if (fs::exists(poly_file))//Check if the polygon file is there
+        if (myfs_exists(poly_file))//Check if the polygon file is there
         {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
-            std::ifstream IN(poly_file, std::ios::binary);//Binary files are easier to read and write
+            std::ifstream IN(poly_file.String(), std::ios::binary);//Binary files are easier to read and write
 
             if (IN.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid
@@ -361,7 +360,7 @@ int main(int argc, char* argv[])
         if (name.compare("null") && false)//Don't save anything if not output was specified
         {
             cout<<"Saving"<<endl;
-            std::ofstream OUT(poly_file, std::ios::binary);//Binary files are easier to read and write
+            std::ofstream OUT(poly_file.String(), std::ios::binary);//Binary files are easier to read and write
 
             if (OUT.is_open())//Check if the polygon file is there
             {//We could do some more tests, i.e. check for readability, but lets just load it, and let it throw an exception if it is not valid

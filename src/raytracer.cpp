@@ -1,4 +1,3 @@
-
 #include "raytracer.hpp"
 #include <iostream>
 #include <algorithm>
@@ -966,3 +965,4 @@ bool raytracer::in(const vec2& Thing,float range) const
     else
         return false;
 }
+

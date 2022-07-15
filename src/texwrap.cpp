@@ -78,7 +78,7 @@ namespace IO::graphics
 
     }
 
-    texwrap::texwrap(const fs::path& _path)
+    texwrap::texwrap(const my_path& _path)
     {
         is_text = false;
         path = _path;
@@ -137,13 +137,13 @@ namespace IO::graphics
         }
         else
         {
-            texture_surface = IMG_Load(path.string().c_str());
+            texture_surface = IMG_Load(path.String().c_str());
 
 
             if (texture_surface == NULL)
             {
-                cout <<"THERE WAS AN ERROR loading a texture, if \""<< path.string().c_str() << "\" is different from \""<<path.string()<<"\", then something has gone wrong in the port, and it is all Microsoft's fault; if not look at the below error message"<<endl;
-                throw std::runtime_error("Couldn't load texture " + path.string() + " to surface: SDL returned error: " + string(IMG_GetError()));
+                cout <<"THERE WAS AN ERROR loading a texture, if \""<< path.String().c_str() << "\" is different from \""<<path.String()<<"\", then something has gone wrong in the port, and it is all Microsoft's fault; if not look at the below error message"<<endl;
+                throw std::runtime_error("Couldn't load texture " + path.String() + " to surface: SDL returned error: " + string(IMG_GetError()));
             }
 
             texture_w = texture_surface->w;

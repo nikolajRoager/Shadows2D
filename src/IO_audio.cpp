@@ -15,7 +15,7 @@ The definition for the IO::audio namespace, which handles sound effects, can be 
 //text output, should never be used in looping functions
 #include <iostream>
 //operating independent file-system functions
-#include<filesystem>
+#include"my_filesystem.hpp"
 //file streams, we use filesystem for paths, and fstream to actually stream the data from files in.
 #include <fstream>
 
@@ -34,7 +34,7 @@ The definition for the IO::audio namespace, which handles sound effects, can be 
 namespace IO::audio
 {
     // --- internal variables and constants ---
-    fs::path sound_path;
+    my_path sound_path;
 
     //Same procedure as with textures: the sound effects themself, how many people use them, and how many there are
     vector<SFX> sounds;
@@ -53,7 +53,7 @@ namespace IO::audio
     };
     array<sound_loop,  MAX_LOOP_SOUNDS> sound_loops;
     // ---- one time functions ----
-    void init(fs::path audio)
+    void init(my_path audio)
     {
         sound_path = audio;
         //Initialize sound

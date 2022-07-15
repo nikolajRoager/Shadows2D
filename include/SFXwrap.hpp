@@ -9,7 +9,7 @@
 
 #include <string>
 #include <vector>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include<cstdint>
 #include<iostream>
 
@@ -19,7 +19,6 @@ using uchar = uint8_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
-namespace fs = std::filesystem;
 
 
 
@@ -55,7 +54,7 @@ namespace IO::audio
         //check if this sound has not been unloaded
         bool is_good() ;
 
-        void loadWAV(const fs::path& sounds);
+        void loadWAV(const my_path& sounds);
 
         void unload();
 

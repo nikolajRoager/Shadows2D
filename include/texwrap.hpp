@@ -9,7 +9,7 @@
 
 #include <string>
 #include <vector>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include<cstdint>
 #include<iostream>
 
@@ -22,14 +22,13 @@ using uchar = uint8_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
-namespace fs = std::filesystem;
 
 namespace IO::graphics
 {
     class texwrap
     {
     private:
-        fs::path path;//For reloading and for being identified
+        my_path path;//For reloading and for being identified
         string message;//If this is actually a piece of text
 
         uint texture_w;
@@ -67,15 +66,15 @@ namespace IO::graphics
             {
 
                 if (full)
-                    return path.string();
+                    return path.String();
                 else
-                    return path.filename().string();
+                    return path.filename().String();
             }
             else
                 return message;
         }
 
-        texwrap(const fs::path& path);
+        texwrap(const my_path& path);
         texwrap(const string& message);
 
         void reload();//Redo the loading, in case some system wide settings changed
@@ -86,14 +85,14 @@ namespace IO::graphics
             return  is_text && msg.compare(message) == 0;//I sure don't hope you asked if a texture was this text, in that case something has gone awfully wrong
         }
 
-        bool is(fs::path& Path) const {
-            if (!fs::exists(Path))//Fail safe, fs::equivalent assumes that the paths exists, and fails catastrophically if they don't (program crash with an error which can not be caught, and which does not produce an error message).
-                throw std::runtime_error("Texture file not found: "+Path.string());
+        bool is(my_path& Path) const {
+            if (!myfs_exists(Path))//Fail safe, fs::equivalent assumes that the paths exists, and fails catastrophically if they don't (program crash with an error which can not be caught, and which does not produce an error message).
+                throw std::runtime_error("Texture file not found: "+Path.String());
 
             //To test the "loading" page, uncomment this line, this slows down the program immensely (on Windows at least, Linux does not seem to care)
-            //cout <<"Comparing "<<Path.string()" to "<<path.string()<<endl;
+            //cout <<"Comparing "<<Path.String()" to "<<path.String()<<endl;
 
-            return fs::equivalent(path, Path); }
+            return myfs_equivalent(path, Path); }
 
         ~texwrap();
 

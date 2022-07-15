@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include<cstdint>
 #include<iostream>
 
@@ -19,7 +19,6 @@ using uchar = uint8_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
-namespace fs = std::filesystem;
 
 namespace IO::audio
 {
@@ -61,12 +60,12 @@ namespace IO::audio
         bool SFX::is_good() { return sound != nullptr; }
 
         //TBD, the argument sounds should be read as a namespace variable
-        void SFX::loadWAV(const fs::path& sounds)
+        void SFX::loadWAV(const my_path& sounds)
         {
             unload();
-            fs::path SND = sounds / string(name + ".wav");
+            my_path SND = sounds / my_path(name + ".wav");
             //SDL wants this to be a waveform sound
-            sound = Mix_LoadWAV(SND.string().c_str());
+            sound = Mix_LoadWAV(SND.String().c_str());
         }
 
         void SFX::unload()

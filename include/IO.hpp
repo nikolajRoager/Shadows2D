@@ -13,7 +13,7 @@ These are put in the same header, so that we only need to include one header, th
 #include<cstdint>
 
 //operating independent file-system functions
-#include<filesystem>
+#include"my_filesystem.hpp"
 
 //Vector math
 #include <glm/glm.hpp>
@@ -32,7 +32,6 @@ using ulong = uint64_t;
 using namespace std;
 using namespace glm;
 
-namespace fs = std::filesystem;
 
 
 //To capture taps and arrowkeys we need more than 8 bit, and it feels wrong to refer to it as an int
@@ -46,7 +45,7 @@ namespace IO
 
     // ---- One time functions, which change some properties ----
     //This calls all the associated init functions IN THE RIGHT ORDER, which is important
-    void init(bool fullscreen,string window_header, fs::path tex, fs::path audio, fs::path scripture, fs::path shaders,fs::path keymaps, bool devmode=false, uint _w=320, uint _h=180);
+    void init(bool fullscreen,string window_header, my_path tex, my_path audio, my_path scripture, my_path shaders,my_path keymaps, bool devmode=false, uint _w=320, uint _h=180);
     void end();
 
     // ---- Functions which must be called once per loop ----
@@ -61,8 +60,8 @@ namespace IO
         // ---- Texture memory management ----
         // Functions for loading, deleting and displaying different types of textures and sounds
         //The path is NOT ABSOLUTE path, it is texture_path/path
-        tex_index load_tex(fs::path path, uint& w, uint& h, bool absolute_path=false);//Load a texture and gets its location in the texture list. Returns -1 = 65535 if it did not work, w and h will be set to the width and height (as they are references they can be read later, essentially a way of getting more than one output). If Absolute path is false, we assume the path is inside the texture directory, if not, it may be anywhere
-        tex_index load_tex(fs::path path, bool absolute_path=false);//Same function, but do not return width and height
+        tex_index load_tex(my_path path, uint& w, uint& h, bool absolute_path=false);//Load a texture and gets its location in the texture list. Returns -1 = 65535 if it did not work, w and h will be set to the width and height (as they are references they can be read later, essentially a way of getting more than one output). If Absolute path is false, we assume the path is inside the texture directory, if not, it may be anywhere
+        tex_index load_tex(my_path path, bool absolute_path=false);//Same function, but do not return width and height
         void add_tex_user(tex_index ID);//Add another user to this texture, to avoid deleting textures in use
         void delete_tex(tex_index tex);//Wipe this texture from memory (if no-one else uses it)
         void set_animation(tex_index tex, uint n_frames_w, uint n_frames_h = 1);//Set this texture as actually an animation, the sprite sheet is n_frames_w wide and n_frames_h high

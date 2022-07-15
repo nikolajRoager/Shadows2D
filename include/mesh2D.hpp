@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include<filesystem>
+#include"my_filesystem.hpp"
 #include<fstream>
 #include<cstdint>
 
@@ -19,7 +19,6 @@ using uchar = uint8_t;
 using uint = uint32_t;
 using ulong = uint64_t;
 
-namespace fs = std::filesystem;
 
 //A 2D shadow-casting and intersection denying polygon
 class mesh2D

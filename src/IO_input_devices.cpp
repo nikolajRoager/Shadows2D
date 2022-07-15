@@ -15,7 +15,7 @@ Definition for IO:input_devices functions
 //text output, should never be used in looping functions
 #include <iostream>
 //operating independent file-system functions
-#include<filesystem>
+#include"my_filesystem.hpp"
 //file streams, we use filesystem for paths, and fstream to actually stream the data from files in.
 #include <fstream>
 
@@ -35,7 +35,6 @@ using ulong = uint64_t;
 
 using namespace std;
 
-namespace fs = std::filesystem;
 
 
 
@@ -145,7 +144,7 @@ namespace IO::input_devices
 
     Char A_KEY = 'z';
     Char B_KEY = 'x';
-    fs::path keymaps;//The file containing the keyboard map
+    my_path keymaps;//The file containing the keyboard map
 
     void reload_keys();
 
@@ -163,7 +162,7 @@ namespace IO::input_devices
     // ---- one time functions ----
     void updateMouse();//pre declare these things
     void set_devmode(bool dev);
-    void init(fs::path _keymaps, bool dev)
+    void init(my_path _keymaps, bool dev)
     {
         //We are not stopped
         quit = false;
@@ -232,11 +231,11 @@ namespace IO::input_devices
 
     void reload_keys()
     {
-        ifstream keys(keymaps);
+        ifstream keys(keymaps.String());
 
         if (!keys.is_open())
         {
-            throw std::runtime_error("File "+keymaps.string()+" could not be opened");
+            throw std::runtime_error("File "+keymaps.String()+" could not be opened");
         }
 
         //TBD, really, intead of having a number of pre-defined allowed keys, could we define more keys without recompiling?

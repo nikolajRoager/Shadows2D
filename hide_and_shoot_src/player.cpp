@@ -4,7 +4,7 @@
 
 #include <string>
 #include <fstream>
-#include <filesystem>
+#include "my_filesystem.hpp"
 #include <exception>
 #include <cstdint>
 
@@ -16,7 +16,7 @@
 player::player(string name,int position_x,int position_y,bool human,float _fov, float _range)
 {
 
-    me=IO::graphics::load_tex(fs::path("hide_and_shoot_players")/(name+".png"));
+    me=IO::graphics::load_tex(my_path("hide_and_shoot_players")/(name+".png"));
     position=vec2(position_x,position_y);
     look_direction=0;
     fov=_fov;

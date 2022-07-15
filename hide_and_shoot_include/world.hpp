@@ -4,7 +4,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include<filesystem>
+#include "my_filesystem.hpp"
 #include <chrono>
 #include <algorithm>
 #include <exception>
@@ -42,11 +42,11 @@ private:
     uint grid_n;
     vector<bool > walkable_grid;
 
-    fs::path polygon_file;
+    my_path polygon_file;
     vector<mesh2D> mess;
     uint active_mesh = -1;//-1 shorthand for non selected
 public:
-    world(fs::path world_folder);
+    world(my_path world_folder);
 
     ~world();
     uint get_w() const {return w;}
