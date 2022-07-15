@@ -30,6 +30,7 @@ using uint = uint32_t;
 using ulong = uint64_t;
 
 using namespace std;
+using namespace glm;
 
 namespace fs = std::filesystem;
 
@@ -89,6 +90,10 @@ namespace IO
         inv_y (true: the lower edge of the screen is 0, false the top of the screen is 0)
         Actually all draw functions secretly calls the same hidden draw function
         */
+
+        //Activate a different blending color when in light or darkness
+        void set_shadow(int mode, float factor=1.f, vec4 blend_color=vec4(0,0,0,-1));
+
         void draw_tex(int x, int y, tex_index tex, bool mirror = false, bool centered = true, bool inv_y = true);
         void animate_sprite(int x, int y, tex_index tex, uint frame, bool mirror = false, bool centered = true, bool inv_y = true);
         void draw_text(int x, int y, tex_index text, bool mirror, bool centered, bool inv_y);
@@ -106,10 +111,10 @@ namespace IO
         void activate_Display();
 
 
-        void draw_lines(vector<glm::vec2> verticies, uint size,glm::vec3 color);
-        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color);
-        void draw_triangles(vector<glm::vec2> vertices, uint size,glm::vec3 color,glm::vec2 origin,float range=-1);
-        void draw_segments(vector<glm::vec2> vertices, uint size,glm::vec3 color);
+        void draw_lines(const vector<glm::vec2>& verticies, uint size,glm::vec3 color,vec2 offset= vec2(0));
+        void draw_triangles(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,vec2 offset= vec2(0));
+        void draw_triangles(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,glm::vec2 origin,float range=-1,vec2 offset= vec2(0));
+        void draw_segments(const vector<glm::vec2>& vertices, uint size,glm::vec3 color,vec2 offset= vec2(0));
 
 
         //===Related to the creation of shadowmaps===

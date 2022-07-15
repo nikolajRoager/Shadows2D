@@ -1,5 +1,5 @@
 #pragma once
-#define DEBUG_SHOW_BSPHERE
+//#define DEBUG_SHOW_BSPHERE
 
 #include <GL/glew.h>
 
@@ -66,7 +66,7 @@ public:
 
     void add_vertex(vec2 New);
     const vector<vec2>& get_vertices() const{return vertices;}
-    void display() const;
+    void display(vec2 cam_offset = vec2(0)) const;
 
     uint get_size() const {return size;}
 

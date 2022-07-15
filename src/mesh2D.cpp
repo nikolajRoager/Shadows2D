@@ -110,8 +110,10 @@ mesh2D::~mesh2D()
 mesh2D::mesh2D(mesh2D&& other)
 {
     vertices        = std::move(other.vertices        );
-    Bsphere_vertices= std::move(other.Bsphere_vertices);
 
+    #ifdef DEBUG_SHOW_BSPHERE
+    Bsphere_vertices= std::move(other.Bsphere_vertices);
+    #endif
 
     size = other.size;
 
@@ -122,15 +124,15 @@ mesh2D::mesh2D(mesh2D&& other)
 
 }
 
-void mesh2D::display() const
+void mesh2D::display(vec2 cam_offset) const
 {
     if (graphic_mode)
     {
         if (size>2 )
-            IO::graphics::draw_lines(vertices,size,vec3(1,0,0));
+            IO::graphics::draw_lines(vertices,size,vec3(1,0,0),cam_offset );
         #ifdef DEBUG_SHOW_BSPHERE
         if (size>2 )//We want some kind of closed loop to display
-            IO::graphics::draw_lines(Bsphere_vertices,32,vec3(1,0,1));
+            IO::graphics::draw_lines(Bsphere_vertices,32,vec3(1,0,1),cam_offset );
         #endif
     }
 }

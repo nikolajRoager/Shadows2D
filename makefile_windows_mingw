@@ -23,8 +23,8 @@ _OBJ = main.o   texwrap.o mesh2D.o raytracer.o IO.o load_shader.o IO_graphics.o 
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 #Oh looks like you forgot to link glut, and mingw32 ... NO, I DO NOT NEED THOSE FOR THIS TO WORK
-LIBS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lglew32 -lopengl32 
-#In all honesty, I have no glue where OpenGL32, including the opengl32 dll is located on my windows system, 
+LIBS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lglew32 -lopengl32
+#In all honesty, I have no glue where OpenGL32, including the opengl32 dll is located on my windows system,
 
 
 #Create object files
@@ -34,6 +34,23 @@ $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 #Compile the final program
 $(OUTNAME):	$(OBJ)
 	$(CC) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+HS_IDIR  = hide_and_seek_include
+HS_SRCDIR= hide_and_seek_src
+
+hide_and_seek: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o   $(ODIR)/HS_player.o
+	$(CC) -o Hide_and_Seek.exe $^ $(CXXFLAGS) $(LIBS)
+
+
+#Create object files
+$(ODIR)/HS_main.o: $(HS_SRCDIR)/main.cpp $(DEPS) $(HS_IDIR)/player.hpp  $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
+
+$(ODIR)/HS_world.o: $(HS_SRCDIR)/world.cpp $(DEPS) $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
+
+$(ODIR)/HS_player.o: $(HS_SRCDIR)/player.cpp $(DEPS) $(HS_IDIR)/player.hpp $(HS_IDIR)/world.hpp
+	$(CC) -c -o $@ $< $(CXXFLAGS) -I$(HS_IDIR)
 
 
 .PHONY: clean

@@ -2,10 +2,16 @@
 #Note ctrl and shift are NOT customizable, as in that case we read the "modified state" this allows the program to be blind to whether left or right shift is used, or cabs lock is on (You can still map other actions to LSHIFT RSHIFT LCTRL etc.)
 #Literal characters can't be remapped either, i.e. when typing in the developer command-prompt the letters which show are are those clicked on the keyboard (or those the computer thinks were clicked, keys can still be remapped on a sytem-wide level). The same applies to the : key to open the commandprompt, it is read as a literal letter
 
+#LEFT  97  #w
+#RIGHT 100 #a
+#DOWN  115 #s
+#UP    119 #d
+
 LEFT  1073741904
 RIGHT 1073741903
 DOWN  1073741905
 UP    1073741906
+
 
 TAB   1073742010
 A     122

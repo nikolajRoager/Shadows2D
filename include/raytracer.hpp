@@ -86,8 +86,11 @@ private:
 
 
 public:
-    raytracer(vec2 origin, bool do_display);
+    raytracer(vec2 origin=vec2(0), bool do_display=false);
     raytracer(raytracer&& that);//Just to be safe, define this
+    raytracer& operator=(raytracer&& that);//And this
+    raytracer(const raytracer& that);//And also this
+    raytracer& operator=(const raytracer& that);//And htis
     ~raytracer();
     void set_origin(vec2 origin) {triangle_fan[0]= origin;
 
@@ -99,11 +102,11 @@ public:
 
     void set_bounds(vec2 _V0,vec2 _V1) {V0=_V0; V1=_V1;}
 
-    void display() const;
+    void display(vec2 offset = vec2(0)) const;
 
     void set_angle(float theta, float D);
 
-    void bake_to_shadowmap(vec3 color ,float range=-1) const;//Render the scene, explicitly meant for the shadowmap (i.e. debugging tools are all turned off, regardless of the settings)
+    void bake_to_shadowmap(vec3 color ,float range=-1, vec2 offset = vec2(0)) const;//Render the scene, explicitly meant for the shadowmap (i.e. debugging tools are all turned off, regardless of the settings)
 
     //Is this thing in view, if we have this max range
     bool in(const vec2& Thing,float range=-1) const;

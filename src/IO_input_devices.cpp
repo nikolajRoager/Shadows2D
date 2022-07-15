@@ -163,11 +163,13 @@ namespace IO::input_devices
     // ---- one time functions ----
     void updateMouse();//pre declare these things
     void set_devmode(bool dev);
-    void init(fs::path keymaps, bool dev)
+    void init(fs::path _keymaps, bool dev)
     {
         //We are not stopped
         quit = false;
 
+        keymaps=_keymaps;
+        reload_keys();
 
         UP_KEY_tex = IO::graphics::get_key_tex(UP_KEY);
         LEFT_KEY_tex = IO::graphics::get_key_tex(LEFT_KEY);
@@ -252,29 +254,28 @@ namespace IO::input_devices
             string key="";
             ss >> key;
 
-            if (key.compare("LEFT"))
-                keys>>LEFT_KEY;
-            if (key.compare("RIGHT"))
-                keys>>RIGHT_KEY;
-            if (key.compare("DOWN"))
-                keys>>DOWN_KEY;
-            if (key.compare("UP"))
-                keys>>UP_KEY;
-            if (key.compare("TAB"))
-                keys>>DOWN_KEY;
-            if (key.compare("A"))
-                keys>>A_KEY;
-            if (key.compare("B"))
-                keys>>B_KEY;
-            if (key.compare("ESC"))
-                keys>>ESC_KEY;
-            if (key.compare("SPACE"))
-                keys>>SPACE_KEY;
-            if (key.compare("ENTER"))
-                keys>>ENTER_KEY;
-            if (key.compare("DELETE"))
-                keys>>DELETE_KEY;
-
+            if (key.compare("LEFT")==0)
+                ss>>LEFT_KEY;
+            if (key.compare("RIGHT")==0)
+                ss>>RIGHT_KEY;
+            if (key.compare("DOWN")==0)
+                ss>>DOWN_KEY;
+            if (key.compare("UP")==0)
+                ss>>UP_KEY;
+            if (key.compare("TAB")==0)
+                ss>>TAB_KEY;
+            if (key.compare("A")==0)
+                ss>>A_KEY;
+            if (key.compare("B")==0)
+                ss>>B_KEY;
+            if (key.compare("ESC")==0)
+                ss>>ESC_KEY;
+            if (key.compare("SPACE")==0)
+                ss>>SPACE_KEY;
+            if (key.compare("ENTER")==0)
+                ss>>ENTER_KEY;
+            if (key.compare("DELETE")==0)
+                ss>>DELETE_KEY;
 
         }
         keys.close();
