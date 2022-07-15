@@ -157,8 +157,12 @@ int main(int argc, char* argv[])
         else if(cam_y+IO::graphics::get_h()>Mundus.get_h())
             cam_y=Mundus.get_h()-IO::graphics::get_h();
 
+        //The player sees only what the player sees
+        seeker.bake_lightmap(cam_x,cam_y);
+
         Mundus.display_background(cam_x,cam_y);
         seeker.display(cam_x,cam_y);
+
         Mundus.display_top(cam_x,cam_y,devmode);
 
 //            IO::graphics::activate_Lightmap();

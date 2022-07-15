@@ -2,6 +2,7 @@
 
 #include "IO.hpp"
 #include "world.hpp"
+#include "raytracer.hpp"
 
 #include <string>
 #include <fstream>
@@ -30,9 +31,12 @@ private:
     //Am I a human?
     bool is_human;
 
+
+    raytracer reynold;
+
 public:
 
-    player(string name,int position_x,int position_y,bool human=false,float _fov=3.0, float _range=256.0);
+    player(string name,int position_x,int position_y,bool human=false,float _fov=2.0, float _range=256.0);
     player(player&& you);
     player(const player& you);
     player& operator=(player&& you);
@@ -46,4 +50,7 @@ public:
 
     int get_x() const {return position.x;}
     int get_y() const {return position.y;}
+
+    void bake_lightmap(uint cam_x, uint cam_y);
+
 };

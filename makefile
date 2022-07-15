@@ -20,12 +20,12 @@ endif
 endif
 
 
-hide_and_shoot:
+hide_and_seek:
 ifeq ($(OS_NAME),Windows)
-	mingw32-make -f makefile_windows_mingw hide_and_shoot
+	mingw32-make -f makefile_windows_mingw hide_and_seek
 else
 ifeq ($(OS_NAME),Linux)
-	make -f makefile_linux hide_and_shoot
+	make -f makefile_linux hide_and_seek
 else
 	echo 'Only available for Linux adn Windows NT based systems'
 endif

@@ -30,13 +30,13 @@ $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 $(OUTDIR)/$(OUTNAME): $(ODIR)/main.o	$(OBJ)
 	$(CC) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
-#Example project 0, hide and shoot
+#Example project 0, hide and seek
 
-HS_IDIR  = hide_and_shoot_include
-HS_SRCDIR= hide_and_shoot_src
+HS_IDIR  = hide_and_seek_include
+HS_SRCDIR= hide_and_seek_src
 
-hide_and_shoot: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o   $(ODIR)/HS_player.o
-	$(CC) -o $(OUTDIR)/Hide_and_Shoot.exe $^ $(CXXFLAGS) $(LIBS)
+hide_and_seek: $(OBJ) $(ODIR)/HS_main.o $(ODIR)/HS_world.o   $(ODIR)/HS_player.o
+	$(CC) -o $(OUTDIR)/Hide_and_Seek.exe $^ $(CXXFLAGS) $(LIBS)
 
 
 #Create object files

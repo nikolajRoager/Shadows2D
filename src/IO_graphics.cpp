@@ -150,6 +150,13 @@ namespace IO::graphics
     GLuint surf_tex_matrix_ID=-1;//Transformation of the texture, for instance for animation
 
 
+    GLuint surf_lightTex_ID = -1;
+    GLuint surf_use_light_ID = -1;
+    GLuint surf_shadow_blend_ID = -1;
+    GLuint surf_shadow_color_ID = -1;
+
+
+
     //A line which is the basis of the mesh-rendering engine
     GLuint Line_ProgramID = -1;
 
@@ -300,6 +307,14 @@ namespace IO::graphics
         surf_matrix_ID = glGetUniformLocation(surf_ProgramID, "UV_to_DC");
         surf_tex_matrix_ID = glGetUniformLocation(surf_ProgramID, "UV_transform");
         surf_colorTex_ID = glGetUniformLocation(surf_ProgramID, "colorSampler");
+
+        surf_lightTex_ID = glGetUniformLocation(surf_ProgramID, "lightSampler");
+        surf_use_light_ID = glGetUniformLocation(surf_ProgramID, "dynamic_light");
+        surf_shadow_blend_ID = glGetUniformLocation(surf_ProgramID, "shadow_blend");
+        surf_shadow_color_ID = glGetUniformLocation(surf_ProgramID, "shadow_color");
+
+
+
         cout << "Loaded surface program" <<endl;
         cout << log << endl;
 
@@ -914,6 +929,9 @@ namespace IO::graphics
 
     void flush()
     {
+
+        set_shadow(0);
+
         //Simply draw a full square to the screen, which will include our rendered texture, stretching this to fit the entire screen with closest interpolation results in the pixelation effect
         //Now render the output to the screen
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1418,6 +1436,16 @@ namespace IO::graphics
     }
 
     //The internal rendering function, needs to be defined in this file as they need to use the internal variables visible only here
+    int use_light = 0; //0 off, 1 blend if in shadow, 2 blend if in light
+    float shadow_blend_factor=0;
+    vec4 shadow_blend_color = vec4(0);
+
+    void set_shadow(int mode , float factor, vec4 blend_color)
+    {
+        use_light =mode;
+        shadow_blend_factor = factor;
+        shadow_blend_color = blend_color;
+    }
 
     void internal_animate_sprite(int x, int y, const texwrap& Tex, uint frame, bool mirror , bool centered , bool inv_y )
     {
@@ -1436,9 +1464,24 @@ namespace IO::graphics
             glBindTexture(GL_TEXTURE_2D, Tex.get_tex());
             glUniform1i(surf_colorTex_ID, 0);
 
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, light_texture );
+            glUniform1i(surf_lightTex_ID , 1);
+
+
+            glUniform1i(surf_use_light_ID , use_light);
+            glUniform1f(surf_shadow_blend_ID , shadow_blend_factor);
+            glUniform4f(surf_shadow_color_ID , shadow_blend_color.x,shadow_blend_color.y,shadow_blend_color.z,shadow_blend_color.w);
+
+
+
             //The model-view-projection matrix is the combined matrix which takes the corners of this rectangle from the (0,0),(0,1), (1,0) and (1,1) to wherever we want them to be on the screen, so that the texture has the right dimensions, the first matrix defined is just a transformation matrix, the matrix we get from the texture includes how this texture wants to be transformed (depending on whether it wants to be centered or mirrored) this includes the scaling of the texture into Normalized Device coordinates
             mat3 thisMVP =
                 mat3(vec3(1, 0, 0), vec3(0, 1, 0), vec3(x * 2 * inv_w - 1.f, y * 2 * inv_h - 1.f, 1)) * Tex.getM(mirror, centered);
+
+
+
             //How should we transform the texture coordinates of the cubes corner, to only show the frame we are interested in, if this is not animated, this is just an identity matrix
             mat3 this_UVM = Tex.getUVM(frame);
 
@@ -1693,7 +1736,7 @@ namespace IO::graphics
 
 
         mat3 thisMVP =
-                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3( - 1.f,   1.f, 1));
+                mat3(vec3(2*inv_w, 0, 0), vec3(0, -2*inv_h, 0), vec3(-2*offset.x*inv_w - 1.f,  2*offset.y*inv_h+ 1.f, 1));
 
         glUniformMatrix3fv(Light_matrix_ID, 1, GL_FALSE, &thisMVP[0][0]);
         glUniform3f(Light_color_ID,color.x,color.y,color.z);

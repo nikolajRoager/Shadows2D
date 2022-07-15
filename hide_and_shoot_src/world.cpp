@@ -73,12 +73,12 @@ world::world(fs::path world_folder)
                         }
                     }
                     IN.close();
-                    active_mesh = meshes-1;
                 }
                 catch(exception& e)
                 {//Whatever
                     std::cout<<"Error while loading"<<e.what()<<endl;
                 }
+                active_mesh=mess.size()-1;
             }
             else
                 std::cout<<"File could not be opened"<<endl;
@@ -108,13 +108,18 @@ world::~world()
 void world::display_background(int camera_position_x,int camera_position_y ) const
 {
 
+
+    IO::graphics::set_shadow(1,0.5,vec4(0,0,0,1));
     IO::graphics::draw_tex(-camera_position_x,-camera_position_y,bottom_textures ,false,false);
+    IO::graphics::set_shadow(false);
 }
 
 void world::display_top(int camera_position_x,int camera_position_y, bool debug) const
 {
-
-//:    IO::graphics::draw_tex(-camera_position_x,-camera_position_y,top_textures ,false,false);
+    //Blend mode 2, means that if this is in "light" (i.e. in view of hte player) you can see through it
+    IO::graphics::set_shadow(2,1.f,vec4(-1,-1,-1,0));
+    IO::graphics::draw_tex(-camera_position_x,-camera_position_y,top_textures ,false,false);
+    IO::graphics::set_shadow(false);
 
     if (debug)
     {
@@ -176,3 +181,7 @@ void world::new_polygon()
     mess.push_back(mesh2D());
 }
 
+void world::update_rc(raytracer& Reynold) const
+{
+    Reynold.update(mess);
+}

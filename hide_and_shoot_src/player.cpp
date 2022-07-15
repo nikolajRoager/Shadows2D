@@ -24,6 +24,10 @@ player::player(string name,int position_x,int position_y,bool human,float _fov, 
     is_human=human;
 
     IO::graphics::set_animation(me,2,4);
+
+    reynold=raytracer (position,true);
+
+    reynold.set_bounds(vec2(0,0),vec2(IO::graphics::get_w(),IO::graphics::get_h()));
 }
 
 player::player(player&& you)
@@ -35,6 +39,7 @@ player::player(player&& you)
     fov=you.fov;
     range=you.range;
     is_human=you.is_human;
+    reynold=you.reynold;
 }
 
 player::player(const player& you)
@@ -47,6 +52,7 @@ player::player(const player& you)
     fov=you.fov;
     range=you.range;
     is_human=you.is_human;
+    reynold=you.reynold;
 }
 
 player& player::operator=(player&& you)
@@ -59,6 +65,7 @@ player& player::operator=(player&& you)
     fov=you.fov;
     range=you.range;
     is_human=you.is_human;
+    reynold=you.reynold;
 
     return *this;
 }
@@ -72,6 +79,8 @@ player& player::operator=(const player& you)
     fov=you.fov;
     range=you.range;
     is_human=you.is_human;
+    reynold=you.reynold;
+
     return *this;
 }
 
@@ -83,9 +92,12 @@ player::~player()
 
 void player::display(int camera_position_x,int camera_position_y) const
 {
-    IO::graphics::animate_sprite(position.x-camera_position_x-4,position.y-camera_position_y-8,me,(8*look_direction/TWO_PI+0.5) ,false,false);
-
-    IO::graphics::draw_tex(position.x-camera_position_x,position.y-camera_position_y-4,9);
+    if (is_human)
+        IO::graphics::set_shadow(1,0.5f,vec4(0,0,0,1.f));
+    else//Npcs can not be seen if you don't look at them
+        IO::graphics::set_shadow(1,1,vec4(0,0,0,0));
+    IO::graphics::animate_sprite(position.x-camera_position_x-4,position.y-camera_position_y-4,me,(8*look_direction/TWO_PI+0.5) ,false,false);
+    IO::graphics::set_shadow(false);
 }
 
 //Move around in the world
@@ -129,6 +141,15 @@ void player::move(const world& Mundus,int mouse_x, int mouse_y,float dt)
         }
     }
 
-
+    reynold.set_origin(position);
+    reynold.set_angle(look_direction, fov);
+    Mundus.update_rc(reynold);
 }
 
+void player::bake_lightmap(uint cam_x, uint cam_y)
+{
+    IO::graphics::activate_Lightmap();
+    reynold.bake_to_shadowmap(vec3(1),range,vec2(cam_x,cam_y));
+    IO::graphics::activate_Display();
+
+}

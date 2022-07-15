@@ -11,6 +11,7 @@
 
 #include"IO.hpp"
 #include "mesh2D.hpp"
+#include "raytracer.hpp"
 
 #include<cstdint>
 #include <random>
@@ -59,5 +60,7 @@ public:
 
     void add_vertex(uint x, uint y);
     void new_polygon();
+
+    void update_rc(raytracer& Reynold) const;
 
 };

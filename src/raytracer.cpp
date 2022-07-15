@@ -32,6 +32,144 @@ raytracer::raytracer(vec2 origin,  bool do_display)
 
 }
 
+raytracer::raytracer(raytracer&& that)
+{
+    V0=that.V0;
+    V1=that.V1;
+
+    triangle_fan=std::move(that.triangle_fan);
+
+    draw_size=that.draw_size;
+
+    theta = that.theta;
+    lens_angle = that.lens_angle;
+
+    dir = that.dir;
+    extreme_left = that.extreme_left ;
+    extreme_right = that.extreme_right;
+    extreme_dot = that.extreme_dot ;
+
+    limit_lens = that.limit_lens ;
+
+    #ifdef DEBUG_VERTICES
+    DEBUG_Vertices = std::move(that.DEBUG_Vertices);
+    #endif
+
+    #ifdef DEBUG_NON_INTERSECT
+    DEBUG_NI_Vertices = std::move(that.DEBUG_NI_Vertices);
+    non_intersecting=that.non_intersecting;
+    #endif
+
+    #ifdef DEBUG_OUTLINE
+    DEBUG_outline= std::move(that.DEBUG_outline);
+    #endif
+}
+
+raytracer& raytracer::operator=(raytracer&& that)
+{
+    V0=that.V0;
+    V1=that.V1;
+
+    triangle_fan=std::move(that.triangle_fan);
+
+    draw_size=that.draw_size;
+
+    theta = that.theta;
+    lens_angle = that.lens_angle;
+
+    dir = that.dir;
+    extreme_left = that.extreme_left ;
+    extreme_right = that.extreme_right;
+    extreme_dot = that.extreme_dot ;
+
+    limit_lens = that.limit_lens ;
+
+    #ifdef DEBUG_VERTICES
+    DEBUG_Vertices = std::move(that.DEBUG_Vertices);
+    #endif
+
+    #ifdef DEBUG_NON_INTERSECT
+    DEBUG_NI_Vertices = std::move(that.DEBUG_NI_Vertices);
+    non_intersecting=that.non_intersecting;
+    #endif
+
+    #ifdef DEBUG_OUTLINE
+    DEBUG_outline= std::move(that.DEBUG_outline);
+    #endif
+
+    return *this;
+}
+
+raytracer::raytracer(const raytracer& that)
+{
+    V0=that.V0;
+    V1=that.V1;
+
+    triangle_fan=(that.triangle_fan);
+
+    draw_size=that.draw_size;
+
+    theta = that.theta;
+    lens_angle = that.lens_angle;
+
+    dir = that.dir;
+    extreme_left = that.extreme_left ;
+    extreme_right = that.extreme_right;
+    extreme_dot = that.extreme_dot ;
+
+    limit_lens = that.limit_lens ;
+
+    #ifdef DEBUG_VERTICES
+    DEBUG_Vertices = (that.DEBUG_Vertices);
+    #endif
+
+    #ifdef DEBUG_NON_INTERSECT
+    DEBUG_NI_Vertices = (that.DEBUG_NI_Vertices);
+    non_intersecting=that.non_intersecting;
+    #endif
+
+    #ifdef DEBUG_OUTLINE
+    DEBUG_outline= (that.DEBUG_outline);
+    #endif
+}
+
+raytracer& raytracer::operator=(const raytracer& that)
+{
+    V0=that.V0;
+    V1=that.V1;
+
+    triangle_fan=(that.triangle_fan);
+
+    draw_size=that.draw_size;
+
+    theta = that.theta;
+    lens_angle = that.lens_angle;
+
+    dir = that.dir;
+    extreme_left = that.extreme_left ;
+    extreme_right = that.extreme_right;
+    extreme_dot = that.extreme_dot ;
+
+    limit_lens = that.limit_lens ;
+
+    #ifdef DEBUG_VERTICES
+    DEBUG_Vertices = (that.DEBUG_Vertices);
+    #endif
+
+    #ifdef DEBUG_NON_INTERSECT
+    DEBUG_NI_Vertices = (that.DEBUG_NI_Vertices);
+    non_intersecting=that.non_intersecting;
+    #endif
+
+    #ifdef DEBUG_OUTLINE
+    DEBUG_outline= (that.DEBUG_outline);
+    #endif
+
+    return *this;
+}
+
+
+
 raytracer::~raytracer()
 {
 
@@ -41,38 +179,6 @@ raytracer::~raytracer()
 }
 
 
-raytracer::raytracer(raytracer&& other)
-{
-    triangle_fan = std::move(other.triangle_fan);
-
-
-    #ifdef DEBUG_VERTICES
-    DEBUG_Vertices= std::move(DEBUG_Vertices);
-    #endif
-    #ifdef DEBUG_NON_INTERSECT
-    DEBUG_NI_Vertices= std::move(DEBUG_NI_Vertices);
-
-    non_intersecting=other.non_intersecting;
-    #endif
-    #ifdef DEBUG_OUTLINE
-    DEBUG_outline= std::move(DEBUG_outline);
-    #endif
-
-    draw_size = other.draw_size;
-
-
-
-    theta = other.theta;
-    lens_angle = other.lens_angle;
-
-    dir = other.dir;
-    extreme_left = other.extreme_left;
-    extreme_right = other.extreme_right;
-    extreme_dot = other.extreme_dot;
-
-    limit_lens = other.limit_lens;
-
-}
 
 //NOTE THIS IS SINGLE THREADED... this is not a mistake, I think it is better this way, yes I could make every individual update faster by multithreading, but ultimately there would be some overhead when loading things in and out of different threads, I would much rather have each individual update run single threaded, and then use multiple threads if I have more than one rayycaster
 void raytracer::update(const vector<mesh2D>& meshes,bool do_display)
@@ -734,19 +840,19 @@ vector<vec2> screen ={ vec2(V0.x,V0.y),vec2(V0.x,V1.y),vec2(V1.x,V0.y),vec2(V1.x
     #endif
 }
 
-void raytracer::display() const
+void raytracer::display(vec2 offset) const
 {
 
     //Different versions of Debug mode display
     #ifdef DEBUG_OUTLINE
     //Outline rather than triangle fan, easier to spot a wrong swap
     if (draw_size>1)
-        IO::graphics::draw_lines(DEBUG_outline,draw_size-1+(limit_lens? 2 : 0),vec3(0,0,1));
+        IO::graphics::draw_lines(DEBUG_outline,draw_size-1+(limit_lens? 2 : 0),vec3(0,0,1),offset);
     #endif
     #ifdef DEBUG_VERTICES
     //Draw vertices as crosses
     if (draw_size>1)
-        IO::graphics::draw_segments(DEBUG_Vertices,(draw_size-1)*4,vec3(0,1,0));
+        IO::graphics::draw_segments(DEBUG_Vertices,(draw_size-1)*4,vec3(0,1,0),offset);
     #endif
 
 
@@ -754,21 +860,21 @@ void raytracer::display() const
     #ifdef DEBUG_NON_INTERSECT
     //Draw vertices as crosses
     if (non_intersecting>0)
-        IO::graphics::draw_segments(DEBUG_NI_Vertices,non_intersecting*4,vec3(1,1,1));
+        IO::graphics::draw_segments(DEBUG_NI_Vertices,non_intersecting*4,vec3(1,1,1),offset);
     #endif
 
 
     #ifndef DEBUG_NO_TRIANGLES
     if (draw_size>1)//Default display
-        IO::graphics::draw_triangles(triangle_fan,draw_size,vec3(1));
+        IO::graphics::draw_triangles(triangle_fan,draw_size,vec3(1),offset);
     #endif
 
 }
 
-void raytracer::bake_to_shadowmap(vec3 color, float range) const
+void raytracer::bake_to_shadowmap(vec3 color, float range,  vec2 offset) const
 {
     if (draw_size>1 )
-        IO::graphics::draw_triangles(triangle_fan,draw_size,color,triangle_fan[0],range);
+        IO::graphics::draw_triangles(triangle_fan,draw_size,color,triangle_fan[0],range,offset);
 }
 
 void raytracer::set_angle(float _theta, float D)

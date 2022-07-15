@@ -90,6 +90,10 @@ namespace IO
         inv_y (true: the lower edge of the screen is 0, false the top of the screen is 0)
         Actually all draw functions secretly calls the same hidden draw function
         */
+
+        //Activate a different blending color when in light or darkness
+        void set_shadow(int mode, float factor=1.f, vec4 blend_color=vec4(0,0,0,-1));
+
         void draw_tex(int x, int y, tex_index tex, bool mirror = false, bool centered = true, bool inv_y = true);
         void animate_sprite(int x, int y, tex_index tex, uint frame, bool mirror = false, bool centered = true, bool inv_y = true);
         void draw_text(int x, int y, tex_index text, bool mirror, bool centered, bool inv_y);
